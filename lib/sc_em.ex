@@ -23,13 +23,19 @@ defmodule ScEm.Response do
 end
 
 defmodule ScEm do
+  use Application
   use GenServer
   require OSC
   require Logger
   alias ScEm.State
   alias ScEm.Response
 
-  def start_link() do
+  @impl true
+  def start(_type, _args) do
+    ScEm.Supervisor.start_link(name: ScEm.Supervisor)
+  end
+
+  def start_link(_dork) do
     {mod, fun} = Application.get_env :sc_em, :udp_handler, {__MODULE__, :default_handler}
     {ip, port} = {Application.get_env(:sc_em, :ip, {127,0,0,1}), Application.get_env(:sc_em, :port, 1514)}
     GenServer.start_link(__MODULE__, [%State{handler: {mod,fun}, ip: ip, port: port}], name: __MODULE__)
@@ -67,7 +73,7 @@ defmodule ScEm do
 
 
   def default_handler(%Response{} = response) do
-    Logger.info("#{response.ip}:#{response.fromport} #{response.packet}")
+    Logger.debug("#{response.ip}:#{response.fromport} #{response.packet}")
     packet = response.packet
     {f, l} = OSC.decode(packet)
     Logger.info("address: #{f} data = #{inspect(l)}")

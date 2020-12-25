@@ -30,7 +30,7 @@ defmodule OSC do
       {0, <<>>}
     else
       bin = String.slice(s, 0..3)
-      Logger.info("bin = #{inspect(bin)}")
+      # Logger.debug("bin = #{inspect(bin)}")
       <<res :: big-integer-32>> = bin
       {res, String.slice(s, 4..-1)}
     end
@@ -55,7 +55,7 @@ defmodule OSC do
       {0.0, <<>>}
     else
       bin = String.slice(s, 0..3)
-      Logger.info("bin = #{inspect(bin)}")
+      # Logger.debug("bin = #{inspect(bin)}")
       <<res :: float-size(32)>> = bin
       {res, String.slice(s, 4..-1)}
     end
