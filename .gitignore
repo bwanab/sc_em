@@ -25,3 +25,5 @@ sc_em-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+/.formatter.exs
+.DS_Store
