@@ -2,6 +2,8 @@
 
 ** Supercollider emulator **
 
+* This is far earlier than alpha software. If there's anything useful here it is strictly coincidental. 
+
 Receives and decodes supercollider OSC messages. That's all. It is useful for building a supercollider client.
 
 ## Installation
