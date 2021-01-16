@@ -49,10 +49,9 @@ defmodule ScEm do
   @impl true
   def init([%State{} = state]) do
     require Logger
-    {:ok, socket} = :gen_udp.open(state.port, [:binary, :inet,
-                                               {:ip, state.ip},
-                                               {:active, true},
-                                              {:reuseaddr, true}])
+    {:ok, socket} = :gen_udp.open(state.port, [:binary, #:inet,
+                                               {:active, false},
+                                              ])
     {:ok, port} = :inet.port(socket)
     Logger.info("listening on port #{port}")
     #update state
@@ -70,8 +69,21 @@ defmodule ScEm do
   end
 
   @impl true
+  def handle_cast({:send, packet}, %State{socket: socket, ip: ip, port: port} = state) do
+    IO.inspect(ip)
+    Logger.info("sending = #{packet} to port #{port}")
+    :gen_udp.send(socket, ip, port, packet)
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_call(:count, _from, state) do
     {:reply, state.count, state}
+  end
+
+  @impl true
+  def handle_call(:get_socket, _from, %State{socket: socket} = state) do
+    {:reply, {:ok, socket}, state}
   end
 
   @impl true
@@ -85,7 +97,6 @@ defmodule ScEm do
     apply mod, fun, [%Response{ip: format_ip(ip), fromport: fromport, packet: String.trim(packet)}]
     {:noreply, %State{state | count: new_count}}
   end
-
 
   def default_handler(%Response{} = response) do
     Logger.debug("#{response.ip}:#{response.fromport} #{response.packet}")

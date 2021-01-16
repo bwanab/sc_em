@@ -129,6 +129,10 @@ defmodule OSC do
     end
   end
 
+  def write_vals([]) do
+    ""
+  end
+
   def write_vals(data) do
     write_vals(data, [','], [])
   end
