@@ -19,7 +19,7 @@ defmodule OSC do
     res = find(s, <<0>>)
     length = String.length(res)
     new_index = ceil((length+1) / 4.0) * 4
-    #Logger.info("new_index = #{new_index}")
+    Logger.debug("new_index = #{new_index}")
     {res, String.slice(s, new_index..-1)}
   end
 
@@ -37,7 +37,7 @@ defmodule OSC do
       {0, <<>>}
     else
       bin = String.slice(s, 0..3)
-      # Logger.debug("bin = #{inspect(bin)}")
+      Logger.debug("bin = #{inspect(bin)}")
       <<res :: big-integer-32>> = bin
       {res, String.slice(s, 4..-1)}
     end
@@ -70,7 +70,7 @@ defmodule OSC do
       {0.0, <<>>}
     else
       bin = String.slice(s, 0..3)
-      # Logger.debug("bin = #{inspect(bin)}")
+      Logger.debug("bin = #{inspect(bin)}")
       <<res :: float-size(32)>> = bin
       {res, String.slice(s, 4..-1)}
     end
@@ -81,7 +81,7 @@ defmodule OSC do
   end
 
   defp read_vals(tags, data, res) do
-    # Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
+    Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
     [h|l] = tags
     {val, r_data} =
       case h do

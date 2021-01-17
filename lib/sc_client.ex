@@ -37,21 +37,25 @@ defmodule ScClient do
     # Logger.info("ip = #{ip} port = #{port} #{msg}")
 # end
 
+  def status() do
+    GenServer.call(ScEm, :status)
+  end
+
   def load_synths() do
     sendMsg({"/d_load", ["synthdefs/void.scsyndef"]})
   end
 
   def load_synths(dir) do
-    sendMsg({"/d_load", [dir]})
+    sendMsg({"/d_loadDir", [dir]})
   end
 
   @doc """
   This depends on having a SynthDef named quick1 previously defined and stored
   in supercollider.
   """
-  def make_sound() do
+  def make_sound(synth) do
     id = GenServer.call(ScEm, :next_id)
-    sendMsg({"/s_new", ["quick1", id, 1, 0]})
+    sendMsg({"/s_new", [synth, id, 1, 0]})
     id
   end
 
