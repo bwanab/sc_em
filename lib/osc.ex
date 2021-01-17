@@ -81,7 +81,7 @@ defmodule OSC do
   end
 
   defp read_vals(tags, data, res) do
-    Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
+    # Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
     [h|l] = tags
     {val, r_data} =
       case h do
