@@ -12,7 +12,7 @@ use Mix.Config
 #
 config :sc_em,
 port: 57110,
-ip: {168,192,4,39}
+ip: {192,168,4,39}
 #
 # And access this configuration in your application as:
 #
