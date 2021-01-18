@@ -111,13 +111,17 @@ defmodule OSC do
     {["i" | tags], [write_int(d) | res]}
   end
 
-  # def write_val(d, tags, res) when is_float(d) do
-  #   {["f" | tags], [write_string(d) | res]}
-  # end
-
   def write_val(d, tags, res) when is_float(d) do
-    {["d" | tags], [write_double(d) | res]}
+    {["f" | tags], [write_float(d) | res]}
   end
+
+  # Supercollider seems to use 32 bit floats. Doubles don't seem to work.
+  #
+  #
+  ##
+  # def write_val(d, tags, res) when is_float(d) do
+  #   {["d" | tags], [write_double(d) | res]}
+  # end
 
   def write_vals(data, tags, res) do
     [h | l] = data
