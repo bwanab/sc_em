@@ -33,7 +33,7 @@ defmodule OSC do
   def read_int(s) do
     length = String.length(s)
     if length < 4 do
-      Logger.info("Error: too few bytes for int #{s} #{length}")
+      Logger.debug("Error: too few bytes for int #{s} #{length}")
       {0, <<>>}
     else
       bin = String.slice(s, 0..3)
@@ -50,7 +50,7 @@ defmodule OSC do
   def read_double(s) do
     length = String.length(s)
     if length < 8 do
-      Logger.info("Error: too few bytes for double #{s} #{length}")
+      Logger.debug("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
       bin = String.slice(s, 0..7)
