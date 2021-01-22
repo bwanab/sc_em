@@ -36,83 +36,99 @@ defmodule ReadMidiFile do
   end
 
   def read_messages(d, n) do
-    {delta, n1} = int8(d, n)
+    {delta, n1} = variable_length(d, n)
     {m_type, n2} = int8(d, n1)
-    Logger.info("m_type = #{m_type}")
+    Logger.debug("delta = #{delta} m_type = #{Integer.to_string(m_type, 16)} n = #{n}")
     cond do
       m_type == 0xFF ->
-        {{meta_type, _val}, _n3} = meta_message(delta, d, n2)
+        {{meta_type, delta, val}, n3} = meta_message(delta, d, n2)
         if meta_type == :end_of_track do
           []
         else
-            {meta_message, n3} = meta_message(delta, d, n2)
-            [meta_message] ++ read_messages(d, n3)
+            [{meta_type, delta, val}] ++ read_messages(d, n3)
         end
       (m_type >= 0x80) && (m_type < 0x90) ->
-        {note_message, n3} = noteoff(m_type - 0x80, delta, d, n2)
-        Logger.info("#{inspect(note_message)}, #{n3}")
+        {note_message, n3} = noteoff(1 + m_type - 0x80, delta, d, n2)
+        Logger.debug("#{inspect(note_message)}, #{n3}")
         [note_message] ++ read_messages(d, n3)
       (m_type >= 0x90) && (m_type < 0xA0) ->
-        {note_message, n3} = note(m_type - 0x90, delta, d, n2)
-        Logger.info("#{inspect(note_message)}, #{n3}")
+        {note_message, n3} = note(1 + m_type - 0x90, delta, d, n2)
+        Logger.debug("#{inspect(note_message)}, #{n3}")
         [note_message] ++ read_messages(d, n3)
       (m_type >= 0xB0) && (m_type < 0xC0) ->
-        {control_message, n3} = control_change(m_type - 0xB0, delta, d, n2)
-        Logger.info("#{inspect(control_message)}, #{n3}")
+        {control_message, n3} = control_change(1 + m_type - 0xB0, delta, d, n2)
+        Logger.debug("#{inspect(control_message)}, #{n3}")
         [control_message] ++ read_messages(d, n3)
       (m_type >= 0xC0) && (m_type < 0xD0) ->
-        {program_change_message, n3} = program_change(m_type - 0xC0, delta, d, n2)
-        Logger.info("#{inspect(program_change_message)}, #{n3}")
+        {program_change_message, n3} = program_change(1 + m_type - 0xC0, delta, d, n2)
+        Logger.debug("#{inspect(program_change_message)}, #{n3}")
         [program_change_message] ++ read_messages(d, n3)
       (m_type >= 0xD0) && (m_type < 0xE0) ->
-        {aftertouch_message, n3} = aftertouch(m_type - 0xD0, delta, d, n2)
-        Logger.info("#{inspect(aftertouch_message)}, #{n3}")
+        {aftertouch_message, n3} = aftertouch(1 + m_type - 0xD0, delta, d, n2)
+        Logger.debug("#{inspect(aftertouch_message)}, #{n3}")
         [aftertouch_message] ++ read_messages(d, n3)
       (m_type >= 0xE0) && (m_type < 0xF0) ->
-        {pitch_wheel_message, n3} = pitch_wheel(m_type - 0xE0, d, n2)
-        Logger.info("#{inspect(pitch_wheel_message)}, #{n3}")
+        {pitch_wheel_message, n3} = pitch_wheel(1 + m_type - 0xE0, d, n2)
+        Logger.debug("#{inspect(pitch_wheel_message)}, #{n3}")
         [pitch_wheel_message, n3] ++ read_messages(d, n3)
     end
   end
 
+  def variable_length(d, n) do
+    variable_length(d, n, 0)
+  end
+
+  def variable_length(d, n, acc) do
+    {b1, n1} = int8(d, n)
+    if b1 < 128 do
+      {(acc <<< 7) + b1, n1}
+    else
+      variable_length(d, n + 1, (acc <<< 7) + (b1 - 128))
+    end
+  end
+
+
   def meta_message(delta, d, n) do
     {meta_type, n1} = int8(d, n)
+    Logger.debug("meta_type == #{Integer.to_string(meta_type, 16)} n1 = #{n1}")
+    {length, n2} = variable_length(d, n1)
     case meta_type do
+      0x6 ->
+        val = String.slice(d, n2..n2+length-1)
+        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+        {{:marker, delta, val}, n2 + length}
       0x58 ->
-        time_sig_meta(delta, d, n1)
+        time_sig_meta(delta, d, n2)
       0x59 ->
-        key_sig_meta(delta, d, n1)
+        key_sig_meta(delta, d, n2)
       0x2F ->
-        {{:end_of_track, delta, 0}, n1}
+        {{:end_of_track, delta, 0}, n2}
       0x51 ->
-        {{:set_time_sig, delta, 0}, n1}
-      _ ->
-        {{:some_other_message, delta, meta_type}, n1}
+        {val, n3} = int24(d, n2)
+        {{:set_time_sig, delta, val}, n3}
     end
   end
 
   def time_sig_meta(delta, d, n) do
-    {_bytes, n1} = int8(d, n)
-    {bpm, n2} = int8(d, n1)
-    {beat, n3} = int8(d, n2)
-    {ticks_per_quarter_note, n4} = int8(d, n3)
-    {t32s_per_quarter_note, n5} = int8(d, n4)
-    {delta, {:time_sig,
-             %{:bpm => bpm,
-               :beat => beat<<<1,
-               :ticks_per_quarter_note => ticks_per_quarter_note,
-               :t32s_per_quarter_note => t32s_per_quarter_note}},
-     n5}
+    {bpm, n1} = int8(d, n)
+    {beat, n2} = int8(d, n1)
+    {ticks_per_quarter_note, n3} = int8(d, n2)
+    {t32s_per_quarter_note, n4} = int8(d, n3)
+    {{:time_sig, delta,
+      %{:bpm => bpm,
+        :beat => beat<<<1,
+        :ticks_per_quarter_note => ticks_per_quarter_note,
+        :t32s_per_quarter_note => t32s_per_quarter_note}},
+     n4}
   end
 
   def key_sig_meta(delta, d, n) do
-    {_bytes, n1} = int8(d, n)
-    {n_sharps_flats, n1} = int8(n, n1)
+    {n_sharps_flats, n1} = int8(d, n)
     {mode, n2} = int8(d, n1)
-    {delta,
-     {:key_sig, %{:n_sharps_flats => n_sharps_flats,
-                  :mode => if mode == 0 do :major else :minor end}},
-      n2}
+    {{:key_sig, delta,
+      %{:n_sharps_flats => n_sharps_flats,
+        :mode => if mode == 0 do :major else :minor end}},
+     n2}
   end
 
   def note(channel, delta, d, n) do

@@ -7,6 +7,11 @@ defmodule ConversionPrims do
     {res, i + 4}
   end
 
+  def int24(s, i) do
+    <<res :: signed-big-integer-24>> = String.slice(s, i..i+2)
+    {res, i + 3}
+  end
+
   def int16(s, i) do
     <<res :: signed-big-integer-16>> = String.slice(s, i..i+1)
     {res, i + 2}
