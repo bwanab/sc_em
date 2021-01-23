@@ -89,14 +89,33 @@ defmodule ReadMidiFile do
 
 
   def meta_message(delta, d, n) do
+    try do
     {meta_type, n1} = int8(d, n)
     Logger.debug("meta_type == #{Integer.to_string(meta_type, 16)} n1 = #{n1}")
     {length, n2} = variable_length(d, n1)
     case meta_type do
+      0x1 ->
+        val = String.slice(d, n2..n2+length-1)
+        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+        {{:text_event, delta, val}, n2 + length}
+      0x2 ->
+        val = String.slice(d, n2..n2+length-1)
+        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+        {{:copyright_notice, delta, val}, n2 + length}
+      0x3 ->
+        val = String.slice(d, n2..n2+length-1)
+        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+        {{:track_name, delta, val}, n2 + length}
+      0x4 ->
+        val = String.slice(d, n2..n2+length-1)
+        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+        {{:instrument_name, delta, val}, n2 + length}
       0x6 ->
         val = String.slice(d, n2..n2+length-1)
         Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
         {{:marker, delta, val}, n2 + length}
+      0x54 ->
+        smpte_offset(delta, d, n2)
       0x58 ->
         time_sig_meta(delta, d, n2)
       0x59 ->
@@ -107,7 +126,27 @@ defmodule ReadMidiFile do
         {val, n3} = int24(d, n2)
         {{:set_time_sig, delta, val}, n3}
     end
+    rescue
+      e in CaseClauseError -> Logger.info("n = #{n}"); e
+    end
   end
+
+  def smpte_offset(delta, d, n) do
+    {hr, n1} = int8(d, n)
+    {mn, n2} = int8(d, n1)
+    {se, n3} = int8(d, n2)
+    {fr, n4} = int8(d, n3)
+    {ff, n5} = int8(d, n4)
+    {{:smpte_offset, delta,
+      %{:hr => hr,
+        :mn => mn,
+        :se => se,
+        :fr => fr,
+        :ff => ff
+      }},
+    n5}
+  end
+
 
   def time_sig_meta(delta, d, n) do
     {bpm, n1} = int8(d, n)
