@@ -3,6 +3,12 @@ defmodule ReadMidiFile do
   import ConversionPrims
   import Bitwise
 
+  @doc """
+  http://www33146ue.sakura.ne.jp/staff/iz/formats/midi.html
+  http://www.ccarh.org/courses/253/assignment/midifile/
+  http://www.music.mcgill.ca/~ich/classes/mumt306/StandardMIDIfileformat.html#BM3_1
+  """
+
   def readFile(name) do
     {:ok, f} = File.read(name)
     midifile(f)
@@ -155,7 +161,7 @@ defmodule ReadMidiFile do
     {t32s_per_quarter_note, n4} = int8(d, n3)
     {{:time_sig, delta,
       %{:bpm => bpm,
-        :beat => beat<<<1,
+        :beat => :math.pow(2, beat),
         :ticks_per_quarter_note => ticks_per_quarter_note,
         :t32s_per_quarter_note => t32s_per_quarter_note}},
      n4}
