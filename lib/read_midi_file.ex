@@ -4,6 +4,7 @@ defmodule ReadMidiFile do
   import Bitwise
 
   @doc """
+  http://www.somascape.org/midi/tech/mfile.html#midi
   http://www33146ue.sakura.ne.jp/staff/iz/formats/midi.html
   http://www.ccarh.org/courses/253/assignment/midifile/
   http://www.music.mcgill.ca/~ich/classes/mumt306/StandardMIDIfileformat.html#BM3_1
@@ -44,7 +45,7 @@ defmodule ReadMidiFile do
   def read_messages(d, n) do
     {delta, n1} = variable_length(d, n)
     {m_type, n2} = int8(d, n1)
-    Logger.debug("delta = #{delta} m_type = #{Integer.to_string(m_type, 16)} n = #{n}")
+    Logger.info("delta = #{delta} m_type = #{Integer.to_string(m_type, 16)} n = #{n}")
     cond do
       m_type == 0xFF ->
         {{meta_type, delta, val}, n3} = meta_message(delta, d, n2)
@@ -76,9 +77,13 @@ defmodule ReadMidiFile do
       (m_type >= 0xE0) && (m_type < 0xF0) ->
         {pitch_wheel_message, n3} = pitch_wheel(1 + m_type - 0xE0, d, n2)
         Logger.debug("#{inspect(pitch_wheel_message)}, #{n3}")
-        [pitch_wheel_message, n3] ++ read_messages(d, n3)
+        [pitch_wheel_message] ++ read_messages(d, n3)
+      m_type == 0xF0 ->
+        {sysex_message, n3} = sysex_message(delta, d, n2)
+        [sysex_message] ++ read_messages(d, n3)
     end
   end
+
 
   def variable_length(d, n) do
     variable_length(d, n, 0)
@@ -93,45 +98,52 @@ defmodule ReadMidiFile do
     end
   end
 
+  def sysex_message(delta, d, n) do
+    {length, n1} = variable_length(d, n)
+    {{:sysex_event, delta, String.slice(d, n1..n1+length-1)}, n1+length}
+  end
 
   def meta_message(delta, d, n) do
     try do
-    {meta_type, n1} = int8(d, n)
-    Logger.debug("meta_type == #{Integer.to_string(meta_type, 16)} n1 = #{n1}")
-    {length, n2} = variable_length(d, n1)
-    case meta_type do
-      0x1 ->
-        val = String.slice(d, n2..n2+length-1)
-        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
-        {{:text_event, delta, val}, n2 + length}
-      0x2 ->
-        val = String.slice(d, n2..n2+length-1)
-        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
-        {{:copyright_notice, delta, val}, n2 + length}
-      0x3 ->
-        val = String.slice(d, n2..n2+length-1)
-        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
-        {{:track_name, delta, val}, n2 + length}
-      0x4 ->
-        val = String.slice(d, n2..n2+length-1)
-        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
-        {{:instrument_name, delta, val}, n2 + length}
-      0x6 ->
-        val = String.slice(d, n2..n2+length-1)
-        Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
-        {{:marker, delta, val}, n2 + length}
-      0x54 ->
-        smpte_offset(delta, d, n2)
-      0x58 ->
-        time_sig_meta(delta, d, n2)
-      0x59 ->
-        key_sig_meta(delta, d, n2)
-      0x2F ->
-        {{:end_of_track, delta, 0}, n2}
-      0x51 ->
-        {val, n3} = int24(d, n2)
-        {{:set_time_sig, delta, val}, n3}
-    end
+      {meta_type, n1} = int8(d, n)
+      Logger.debug("meta_type == #{Integer.to_string(meta_type, 16)} n1 = #{n1}")
+      {length, n2} = variable_length(d, n1)
+      case meta_type do
+        0x1 ->
+          val = String.slice(d, n2..n2+length-1)
+          Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+          {{:text_event, delta, val}, n2 + length}
+        0x2 ->
+          val = String.slice(d, n2..n2+length-1)
+          Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+          {{:copyright_notice, delta, val}, n2 + length}
+        0x3 ->
+          val = String.slice(d, n2..n2+length-1)
+          Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+          {{:track_name, delta, val}, n2 + length}
+        0x4 ->
+          val = String.slice(d, n2..n2+length-1)
+          Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+          {{:instrument_name, delta, val}, n2 + length}
+        0x6 ->
+          val = String.slice(d, n2..n2+length-1)
+          Logger.debug("marker size = #{length} val = #{val}, n2 = #{n2}")
+          {{:marker, delta, val}, n2 + length}
+        0x21 ->
+          {val, n3} = int8(d, n2)
+          {{:midi_port, delta, val}, n3}
+        0x54 ->
+          smpte_offset(delta, d, n2)
+        0x58 ->
+          time_sig_meta(delta, d, n2)
+        0x59 ->
+          key_sig_meta(delta, d, n2)
+        0x2F ->
+          {{:end_of_track, delta, 0}, n2}
+        0x51 ->
+          {val, n3} = int24(d, n2)
+          {{:set_time_sig, delta, val}, n3}
+      end
     rescue
       e in CaseClauseError -> Logger.info("n = #{n}"); e
     end
@@ -150,7 +162,7 @@ defmodule ReadMidiFile do
         :fr => fr,
         :ff => ff
       }},
-    n5}
+     n5}
   end
 
 
