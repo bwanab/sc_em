@@ -36,4 +36,11 @@ defmodule ConversionPrims do
     {String.slice(s, i+1..i+size), size + n}
   end
 
+  @doc """
+  Takes a string type <<x, y, z>> where one or more of the values isn't a valid char (i.e. over 127)
+  and converts it to a list of string representations of the integer in the given base. Defaults to hex.
+  """
+  def stol(<<fst, rest::binary>>, base \\ 16) do
+    [Integer.to_string(fst, base)] ++ if String.length(rest) > 0 do stol(rest, base) else [] end
+  end
 end
