@@ -22,6 +22,11 @@ defmodule ConversionPrims do
     {res, i + 1}
   end
 
+  def int8_signed(s, i) do
+    <<res :: signed-big-integer-8>> = String.slice(s, i..i)
+    {res, i + 1}
+  end
+
   def float32(s, i) do
     <<res :: float-size(32)>> = String.slice(s, i..i+3)
     {res, i + 4}
