@@ -16,21 +16,24 @@ defmodule ReadMidiFile do
   end
 
   def midifile(d) do
+    {header, n} = read_header(d)
+    %{header | :midi_tracks => read_tracks(d, n, header[:n_tracks])}
+  end
+
+  def read_header(d) do
     ftype = String.slice(d, 0..3)
     {head_size, n1} = int32(d, 4)
     {midi_format, n2} = int16(d, n1)
     {n_tracks, n3} = int16(d, n2)
     {ticks_per_quarter_note, n4} = int16(d, n3)
     Logger.debug("head_size: #{head_size}, format: #{midi_format} num_tracks: #{n_tracks}")
-    tracks = read_tracks(d, n4, n_tracks)
-    %{
+    {%{
       :ftype => ftype,
       :head_size => head_size,
       :midi_format => midi_format,
       :n_tracks => n_tracks,
       :ticks_per_quarter_note => ticks_per_quarter_note,
-      :midi_track => tracks
-    }
+    }, n4}
   end
 
   def read_tracks(_d, _n, num) when num == 0 do [] end
@@ -59,50 +62,57 @@ defmodule ReadMidiFile do
     {m_type, n2} = if status < 128 do {last_m_type, n1} else {status, nx} end
     # {m_type, n2} = int8(d, n1)
     # Logger.debug("delta = #{delta} m_type = #{Integer.to_string(m_type, 16)} n = #{n}")
-    cond do
-      m_type == 0xFF ->
-        {{meta_type, val}, n3} = meta_message(delta, d, n2)
-        if meta_type == :end_of_track do
-          [{meta_type, delta, n3}]
-        else
-          meta_message = {meta_type, val}
-          # Logger.debug("#{inspect(meta_message)}, #{n3 - n_offset}")
-          [meta_message] ++ read_messages(d, n3, m_type, n_offset)
-        end
-      (m_type >= 0x80) && (m_type < 0x90) ->
-        {note_message, n3} = noteoff(1 + m_type - 0x80, delta, d, n2)
-        Logger.debug("#{inspect(note_message)}, #{n3 - n_offset}")
-        [note_message] ++ read_messages(d, n3, m_type, n_offset)
-      (m_type >= 0x90) && (m_type < 0xA0) ->
-        {note_message, n3} = note(1 + m_type - 0x90, delta, d, n2)
-        Logger.debug("#{inspect(note_message)}, #{n3 - n_offset}")
-        [note_message] ++ read_messages(d, n3, m_type, n_offset)
-      (m_type >= 0xB0) && (m_type < 0xC0) ->
-        {control_message, n3} = control_change(1 + m_type - 0xB0, delta, d, n2)
-        Logger.debug("#{inspect(control_message)}, #{n3 - n_offset}")
-        [control_message] ++ read_messages(d, n3, m_type, n_offset)
-      (m_type >= 0xC0) && (m_type < 0xD0) ->
-        {program_change_message, n3} = program_change(1 + m_type - 0xC0, delta, d, n2)
-        Logger.debug("#{inspect(program_change_message)}, #{n3 - n_offset}")
-        [program_change_message] ++ read_messages(d, n3, m_type, n_offset)
-      (m_type >= 0xD0) && (m_type < 0xE0) ->
-        {aftertouch_message, n3} = aftertouch(1 + m_type - 0xD0, delta, d, n2)
-        Logger.debug("#{inspect(aftertouch_message)}, #{n3 - n_offset}")
-        [aftertouch_message] ++ read_messages(d, n3, m_type, n_offset)
-      (m_type >= 0xE0) && (m_type < 0xF0) ->
-        {pitch_wheel_message, n3} = pitch_wheel(1 + m_type - 0xE0, d, n2)
-        Logger.debug("#{inspect(pitch_wheel_message)}, #{n3 - n_offset}")
-        [pitch_wheel_message] ++ read_messages(d, n3, m_type, n_offset)
-      m_type == 0xF0 ->
-        {sysex_message, n3} = sysex_message(delta, d, n2)
-        Logger.debug("#{inspect(sysex_message)}, #{n3 - n_offset}")
-        [sysex_message] ++ read_messages(d, n3, m_type, n_offset)
-      # true ->
-      #   new_d = String.slice(d, 0..n) <> <<last_m_type>> <> String.slice(d, n+1..-1)
-      #   # {n, new_d}
-      #   read_messages(new_d, n, last_m_type, n_offset + 1) # if we don't recognize it, it must be another of the previous
-     end
-   end
+    try do
+      cond do
+        m_type == 0xFF ->
+          {{meta_type, val}, n3} = meta_message(delta, d, n2)
+          if meta_type == :end_of_track do
+            [{meta_type, delta, n3}]
+          else
+            meta_message = {meta_type, val}
+            # Logger.debug("#{inspect(meta_message)}, #{n3 - n_offset}")
+            [meta_message] ++ read_messages(d, n3, m_type, n_offset)
+          end
+        (m_type >= 0x80) && (m_type < 0x90) ->
+          {note_message, n3} = noteoff(1 + m_type - 0x80, delta, d, n2)
+          Logger.debug("#{inspect(note_message)}, #{n3 - n_offset}")
+          [note_message] ++ read_messages(d, n3, m_type, n_offset)
+        (m_type >= 0x90) && (m_type < 0xA0) ->
+          {note_message, n3} = note(1 + m_type - 0x90, delta, d, n2)
+          Logger.debug("#{inspect(note_message)}, #{n3 - n_offset}")
+          [note_message] ++ read_messages(d, n3, m_type, n_offset)
+        (m_type >= 0xA0) && (m_type < 0xB0) ->
+          {polyphonic_pressure_message, n3} = polyphonic_pressure(1 + m_type - 0xB0, delta, d, n2)
+          [polyphonic_pressure_message] ++ read_messages(d, n3, m_type, n_offset)
+        (m_type >= 0xB0) && (m_type < 0xC0) ->
+          {control_message, n3} = control_change(1 + m_type - 0xB0, delta, d, n2)
+          Logger.debug("#{inspect(control_message)}, #{n3 - n_offset}")
+          [control_message] ++ read_messages(d, n3, m_type, n_offset)
+        (m_type >= 0xC0) && (m_type < 0xD0) ->
+          {program_change_message, n3} = program_change(1 + m_type - 0xC0, delta, d, n2)
+          Logger.debug("#{inspect(program_change_message)}, #{n3 - n_offset}")
+          [program_change_message] ++ read_messages(d, n3, m_type, n_offset)
+        (m_type >= 0xD0) && (m_type < 0xE0) ->
+          {aftertouch_message, n3} = aftertouch(1 + m_type - 0xD0, delta, d, n2)
+          Logger.debug("#{inspect(aftertouch_message)}, #{n3 - n_offset}")
+          [aftertouch_message] ++ read_messages(d, n3, m_type, n_offset)
+        (m_type >= 0xE0) && (m_type < 0xF0) ->
+          {pitch_wheel_message, n3} = pitch_wheel(1 + m_type - 0xE0, d, n2)
+          Logger.debug("#{inspect(pitch_wheel_message)}, #{n3 - n_offset}")
+          [pitch_wheel_message] ++ read_messages(d, n3, m_type, n_offset)
+        m_type == 0xF0 ->
+          {sysex_message, n3} = sysex_message(delta, d, n2)
+          Logger.debug("#{inspect(sysex_message)}, #{n3 - n_offset}")
+          [sysex_message] ++ read_messages(d, n3, m_type, n_offset)
+        # true ->
+        #   new_d = String.slice(d, 0..n) <> <<last_m_type>> <> String.slice(d, n+1..-1)
+        #   # {n, new_d}
+        #   read_messages(new_d, n, last_m_type, n_offset + 1) # if we don't recognize it, it must be another of the previous
+      end
+    rescue
+      e in CondClauseError -> Logger.info("m_type = #{Integer.to_string(m_type, 16)} n = #{n}"); e
+    end
+  end
 
 
   def variable_length(d, n) do
@@ -169,7 +179,7 @@ defmodule ReadMidiFile do
           {{:sequencer_specific_event, %{:delta => delta, :val => val}}, n3}
       end
     rescue
-      e in CaseClauseError -> Logger.debug("meta_type = #{meta_type} n = #{n}"); e
+      e in CaseClauseError -> Logger.info("meta_type = #{meta_type} n = #{n}"); e
     end
   end
 
@@ -229,6 +239,12 @@ defmodule ReadMidiFile do
     {note, n1} = int8(d, n)
     {vel, n2} = int8(d, n1)
     {{:noteoff, %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
+  end
+
+  def polyphonic_pressure(channel, delta, d, n) do
+    {note, n1} = int8(d, n)
+    {val, n2} = int8(d, n1)
+    {{:polyphonic_pressure_event, %{:channel => channel, :delta => delta, :note => note, :val => val}}, n2}
   end
 
   def control_change(channel, delta, d, n) do

@@ -48,4 +48,11 @@ defmodule ConversionPrims do
   def stol(<<fst, rest::binary>>, base \\ 16) do
     [Integer.to_string(fst, base)] ++ if String.length(rest) > 0 do stol(rest, base) else [] end
   end
+
+  @doc """
+  Takes a string type <<x, y, z>>, converts to a list of integers [x, y, z]
+  """
+  def stolist(d) do
+    Enum.map(stol(d, 10), fn x -> String.to_integer(x) end)
+  end
 end
