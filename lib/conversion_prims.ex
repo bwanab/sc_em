@@ -3,32 +3,38 @@ defmodule ConversionPrims do
   ##  conversion primatives
   ##
   def int32(s, i) do
-    <<res :: signed-big-integer-32>> = String.slice(s, i..i+3)
+    [a, b, c, d] = Enum.slice(s, i, 4)
+    <<res :: signed-big-integer-32>> = <<a, b, c, d>>
     {res, i + 4}
   end
 
   def int24(s, i) do
-    <<res :: signed-big-integer-24>> = String.slice(s, i..i+2)
+    [a, b, c] = Enum.slice(s, i, 3)
+    <<res :: signed-big-integer-24>> = <<a, b, c>>
     {res, i + 3}
   end
 
   def int16(s, i) do
-    <<res :: signed-big-integer-16>> = String.slice(s, i..i+1)
+    [a, b] = Enum.slice(s, i, 2)
+    <<res :: signed-big-integer-16>> = <<a, b>>
     {res, i + 2}
   end
 
   def int8(s, i) do
-    <<res :: big-integer-8>> = String.slice(s, i..i)
+    [a] = Enum.slice(s, i, 1)
+    <<res :: big-integer-8>> = <<a>>
     {res, i + 1}
   end
 
   def int8_signed(s, i) do
-    <<res :: signed-big-integer-8>> = String.slice(s, i..i)
+    [a] = Enum.slice(s, i, 1)
+    <<res :: signed-big-integer-8>> = <<a>>
     {res, i + 1}
   end
 
   def float32(s, i) do
-    <<res :: float-size(32)>> = String.slice(s, i..i+3)
+    [a, b, c, d] = Enum.slice(s, i, 4)
+    <<res :: float-size(32)>> = <<a, b, c, d>>
     {res, i + 4}
   end
 
@@ -38,7 +44,7 @@ defmodule ConversionPrims do
   """
   def pstring(s, i) do
     {size, n} = int8(s, i)
-    {String.slice(s, i+1..i+size), size + n}
+    {List.to_string(Enum.slice(s, n, size)), size + n}
   end
 
   @doc """
@@ -53,6 +59,6 @@ defmodule ConversionPrims do
   Takes a string type <<x, y, z>>, converts to a list of integers [x, y, z]
   """
   def stolist(d) do
-    Enum.map(stol(d, 10), fn x -> String.to_integer(x) end)
+    :binary.bin_to_list(d)
   end
 end

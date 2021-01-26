@@ -11,7 +11,8 @@ defmodule ReadMidiFile do
   """
 
   def readFile(name) do
-    {:ok, f} = File.read(name)
+    {:ok, f} = File.open(name, [:charlist], fn file ->
+      IO.read(file, :all) end )
     midifile(f)
   end
 
@@ -21,7 +22,7 @@ defmodule ReadMidiFile do
   end
 
   def read_header(d) do
-    ftype = String.slice(d, 0..3)
+    ftype = List.to_string(Enum.slice(d, 0, 4))
     {head_size, n1} = int32(d, 4)
     {midi_format, n2} = int16(d, n1)
     {n_tracks, n3} = int16(d, n2)
@@ -33,6 +34,7 @@ defmodule ReadMidiFile do
       :midi_format => midi_format,
       :n_tracks => n_tracks,
       :ticks_per_quarter_note => ticks_per_quarter_note,
+      :midi_tracks => []
     }, n4}
   end
 
@@ -44,7 +46,7 @@ defmodule ReadMidiFile do
   end
 
   def read_track(d, n) do
-    track_head = String.slice(d, n..n+3)
+    track_head = List.to_string(Enum.slice(d, n, 4))
     {track_size, n1} = int32(d, n+4)
     Logger.debug("track_head = #{track_head} track_size = #{track_size}")
     messages = read_messages(d, n1, 0, 0)
@@ -104,10 +106,6 @@ defmodule ReadMidiFile do
           {sysex_message, n3} = sysex_message(delta, d, n2)
           Logger.debug("#{inspect(sysex_message)}, #{n3 - n_offset}")
           [sysex_message] ++ read_messages(d, n3, m_type, n_offset)
-        # true ->
-        #   new_d = String.slice(d, 0..n) <> <<last_m_type>> <> String.slice(d, n+1..-1)
-        #   # {n, new_d}
-        #   read_messages(new_d, n, last_m_type, n_offset + 1) # if we don't recognize it, it must be another of the previous
       end
     rescue
       e in CondClauseError -> Logger.info("m_type = #{Integer.to_string(m_type, 16)} n = #{n}"); e
@@ -130,7 +128,7 @@ defmodule ReadMidiFile do
 
   def sysex_message(delta, d, n) do
     {length, n1} = variable_length(d, n)
-    {{:sysex_event, delta, String.slice(d, n1..n1+length-2)}, n1+length}
+    {{:sysex_event, delta, List.to_string(Enum.slice(d, n1, length-2))}, n1+length}
   end
 
   def meta_message(delta, d, n) do
@@ -140,22 +138,22 @@ defmodule ReadMidiFile do
     try do
       case meta_type do
         0x1 ->
-          val = String.slice(d, n2..n2+length-1)
+          val = List.to_string(Enum.slice(d, n2, length-1))
           {{:text_event, %{:delta => delta, :val => val}}, n2 + length}
         0x2 ->
-          val = String.slice(d, n2..n2+length-1)
+          val = List.to_string(Enum.slice(d, n2, length-1))
           {{:copyright_notice, %{:delta => delta, :val => val}}, n2 + length}
         0x3 ->
-          val = String.slice(d, n2..n2+length-1)
+          val = List.to_string(Enum.slice(d, n2, length-1))
           {{:track_name, %{:delta => delta, :val => val}}, n2 + length}
         0x4 ->
-          val = String.slice(d, n2..n2+length-1)
+          val = List.to_string(Enum.slice(d, n2, length-1))
           {{:instrument_name, %{:delta => delta, :val => val}}, n2 + length}
         0x5 ->
-          val = String.slice(d, n2..n2+length-1)
+          val = List.to_string(Enum.slice(d, n2, length-1))
           {{:lyrics_text, %{:delta => delta, :val => val}}, n2 + length}
         0x6 ->
-          val = String.slice(d, n2..n2+length-1)
+          val = List.to_string(Enum.slice(d, n2, length-1))
           {{:marker, %{:delta => delta, :val => val}}, n2 + length}
         0x20 ->
           {val, n3} = int8(d, n2)
@@ -175,7 +173,7 @@ defmodule ReadMidiFile do
           {val, n3} = int24(d, n2)
           {{:set_time_sig, %{:delta => delta, :val => val}}, n3}
         0x7F ->
-          {val, n3} = String.slice(d, n2..n2+length-1)
+          {val, n3} = List.to_string(Enum.slice(d, n2, length-1))
           {{:sequencer_specific_event, %{:delta => delta, :val => val}}, n3}
       end
     rescue

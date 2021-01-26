@@ -3,12 +3,13 @@ defmodule ReadSynthDef do
   require Logger
 
   def readFile(name) do
-    {:ok, f} = File.read(name)
+    {:ok, f} = File.open(name, [:charlist], fn file ->
+      IO.read(file, :all) end )
     synth_definition(f)
   end
 
   def synth_definition(f) do
-    ftype = String.slice(f, 0..3)
+    ftype = List.to_string(Enum.slice(f, 0, 4))
     {fversion, n1} = int32(f, 4)
     {ndefs, n2} = int16(f, n1)
     {synth_defs, _} = get_array(ndefs, f, n2, &synth_def_val/2)
