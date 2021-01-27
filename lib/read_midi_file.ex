@@ -50,7 +50,8 @@ defmodule ReadMidiFile do
     {track_size, n1} = int32(d, n+4)
     Logger.debug("track_head = #{track_head} track_size = #{track_size}")
     messages = read_messages(d, n1, 0, 0)
-    {_, n2} = List.last(messages)
+    {_, m} = List.last(messages)
+    n2 = m.val   # the index of the next message
     {%{
         :track_head => track_head,
         :track_size => track_size,
@@ -67,7 +68,7 @@ defmodule ReadMidiFile do
         m_type == 0xFF ->
           {{meta_type, val}, n3} = meta_message(delta, d, n2)
           if meta_type == :end_of_track do
-            [{meta_type, val}, {:last, n3}]
+            [{meta_type, val}, {:last, %{:val => n3}}]
           else
             meta_message = {meta_type, val}
             [meta_message] ++ read_messages(d, n3, m_type, n_offset)
@@ -259,6 +260,6 @@ defmodule ReadMidiFile do
 
   def program_change(channel, delta, d, n) do
     {program, n1} = int8(d, n)
-    {{:program_change, %{:channel => channel, :delta => delta, :program => program}}, n1}
+    {{:program_change, %{:channel => channel, :delta => delta, :program => program + 1}}, n1}
   end
  end

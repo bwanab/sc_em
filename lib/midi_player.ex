@@ -31,7 +31,8 @@ defmodule MidiPlayer do
     stream = Task.async_stream(list_of_message_lists,
       fn ml -> message_worker(ml,  %{:tickdiv => 0.003,
                                      :tpqn => midi.ticks_per_quarter_note,
-                                     :notes => Map.new(0..127, fn x -> {x, 0} end)}) end,
+                                     :notes => Map.new(0..127, fn x -> {x, 0} end),
+                                     :synth => Map.new(0..16, fn x -> {x, "miditest1"} end)}) end,
       [{:timeout, :infinity}])
     Stream.run(stream)
   end
@@ -45,23 +46,32 @@ defmodule MidiPlayer do
       Process.sleep(ms_to_sleep)
     end
     s = case type do
+          :program_change ->
+            synth = case val.program do
+                      1 -> "bad_piano"
+                      33 -> "miditest1"
+                      25 -> "pluck"
+                      74 -> "flute"
+                      _ -> "pluck"
+                    end
+            %{state.synth | val.channel => synth}
+            state
           :tempo ->
             tickdiv = (val.val / 1000000) / state.tpqn
-            Logger.info("set tempo tickdiv = #{tickdiv}" )
+            Logger.debug("set tempo tickdiv = #{tickdiv}" )
             %{state | :tickdiv => tickdiv}
           :noteon ->
-            if val.channel == 1 do
-              Logger.info("#{type} #{inspect(val)}")
-              id = midi_sound("miditest1", val.note)
+            if val.channel <= 4 do
+              Logger.debug("#{type} #{inspect(val)}")
+              id = midi_sound(state.synth[val.channel], val.note)
               %{state.notes | val.note => id}
-              # %{state | :id => id}
               state
             else
               state
             end
           :noteoff ->
-            if val.channel == 1 do
-              Logger.info("#{type} #{inspect(val)}")
+            if val.channel <= 4 do
+              Logger.debug("#{type} #{inspect(val)}")
               set_control(state.notes[val.note], "gate", 0)
             end
             state

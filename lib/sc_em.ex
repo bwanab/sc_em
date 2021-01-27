@@ -74,7 +74,7 @@ defmodule ScEm do
 
   @impl true
   def handle_call({:send, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
-    Logger.info("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, state}
   end
