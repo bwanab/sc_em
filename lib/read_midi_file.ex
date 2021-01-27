@@ -50,7 +50,7 @@ defmodule ReadMidiFile do
     {track_size, n1} = int32(d, n+4)
     Logger.debug("track_head = #{track_head} track_size = #{track_size}")
     messages = read_messages(d, n1, 0, 0)
-    {_, _, n2} = List.last(messages)
+    {_, n2} = List.last(messages)
     {%{
         :track_head => track_head,
         :track_size => track_size,
@@ -62,17 +62,14 @@ defmodule ReadMidiFile do
     {delta, n1} = variable_length(d, n)
     {status, nx} = int8(d, n1)
     {m_type, n2} = if status < 128 do {last_m_type, n1} else {status, nx} end
-    # {m_type, n2} = int8(d, n1)
-    # Logger.debug("delta = #{delta} m_type = #{Integer.to_string(m_type, 16)} n = #{n}")
     try do
       cond do
         m_type == 0xFF ->
           {{meta_type, val}, n3} = meta_message(delta, d, n2)
           if meta_type == :end_of_track do
-            [{meta_type, delta, n3}]
+            [{meta_type, val}, {:last, n3}]
           else
             meta_message = {meta_type, val}
-            # Logger.debug("#{inspect(meta_message)}, #{n3 - n_offset}")
             [meta_message] ++ read_messages(d, n3, m_type, n_offset)
           end
         (m_type >= 0x80) && (m_type < 0x90) ->
@@ -108,7 +105,7 @@ defmodule ReadMidiFile do
           [sysex_message] ++ read_messages(d, n3, m_type, n_offset)
       end
     rescue
-      e in CondClauseError -> Logger.info("m_type = #{Integer.to_string(m_type, 16)} n = #{n}"); e
+      e in CondClauseError -> Logger.warning("m_type = #{Integer.to_string(m_type, 16)} n = #{n}"); e
     end
   end
 
@@ -128,33 +125,27 @@ defmodule ReadMidiFile do
 
   def sysex_message(delta, d, n) do
     {length, n1} = variable_length(d, n)
-    {{:sysex_event, delta, List.to_string(Enum.slice(d, n1, length-2))}, n1+length}
+    {{:sysex_event, %{:delta => delta, :val => Enum.slice(d, n1, length-2)}}, n1+length}
   end
 
   def meta_message(delta, d, n) do
     {meta_type, n1} = int8(d, n)
-    # Logger.debug("meta_type == #{Integer.to_string(meta_type, 16)} n1 = #{n1}")
     {length, n2} = variable_length(d, n1)
+    Logger.debug("meta_type == #{Integer.to_string(meta_type, 16)} n1 = #{n1} length = #{length}")
     try do
       case meta_type do
         0x1 ->
-          val = List.to_string(Enum.slice(d, n2, length-1))
-          {{:text_event, %{:delta => delta, :val => val}}, n2 + length}
+          get_string_val(:text_event, delta, d, n2, length)
         0x2 ->
-          val = List.to_string(Enum.slice(d, n2, length-1))
-          {{:copyright_notice, %{:delta => delta, :val => val}}, n2 + length}
+          get_string_val(:copyright_notice, delta, d, n2, length)
         0x3 ->
-          val = List.to_string(Enum.slice(d, n2, length-1))
-          {{:track_name, %{:delta => delta, :val => val}}, n2 + length}
+          get_string_val(:track_name, delta, d, n2, length)
         0x4 ->
-          val = List.to_string(Enum.slice(d, n2, length-1))
-          {{:instrument_name, %{:delta => delta, :val => val}}, n2 + length}
+          get_string_val(:instrument_name, delta, d, n2, length)
         0x5 ->
-          val = List.to_string(Enum.slice(d, n2, length-1))
-          {{:lyrics_text, %{:delta => delta, :val => val}}, n2 + length}
+          get_string_val(:lyrics_text, delta, d, n2, length)
         0x6 ->
-          val = List.to_string(Enum.slice(d, n2, length-1))
-          {{:marker, %{:delta => delta, :val => val}}, n2 + length}
+          get_string_val(:marker, delta, d, n2, length)
         0x20 ->
           {val, n3} = int8(d, n2)
           {{:midi_channel_prefix, %{:delta => delta, :val => val}}, n3}
@@ -171,14 +162,18 @@ defmodule ReadMidiFile do
           {{:end_of_track, %{:delta => delta, :val => 0}}, n2}
         0x51 ->
           {val, n3} = int24(d, n2)
-          {{:set_time_sig, %{:delta => delta, :val => val}}, n3}
+          {{:tempo, %{:delta => delta, :val => val}}, n3}
         0x7F ->
-          {val, n3} = List.to_string(Enum.slice(d, n2, length-1))
-          {{:sequencer_specific_event, %{:delta => delta, :val => val}}, n3}
+          get_string_val(:sequencer_specific_event, delta, d, n2, length)
       end
     rescue
-      e in CaseClauseError -> Logger.info("meta_type = #{meta_type} n = #{n}"); e
+      e in CaseClauseError -> Logger.warning("meta_type = #{meta_type} n = #{n}"); e
     end
+  end
+
+  def get_string_val(event, delta, d, n, length) do
+    val = if length == 0 do "" else List.to_string(Enum.slice(d, n, length-1)) end
+    {{event, %{:delta => delta, :val => val}}, n + length}
   end
 
   def smpte_offset(delta, d, n) do
@@ -214,11 +209,11 @@ defmodule ReadMidiFile do
   end
 
   def key_sig_meta(delta, d, n) do
-    {n_sharps_flats, n1} = int8(d, n)
+    {n_sharps_flats, n1} = int8_signed(d, n)
     {mode, n2} = int8_signed(d, n1)
+    key = MusicPrims.key(if mode == 0 do :major else :minor end, n_sharps_flats)
     {{:key_sig,
-      %{:n_sharps_flats => n_sharps_flats,
-        :mode => if mode == 0 do :major else :minor end,
+      %{:key => key,
         :delta => delta}},
      n2}
   end
@@ -266,4 +261,4 @@ defmodule ReadMidiFile do
     {program, n1} = int8(d, n)
     {{:program_change, %{:channel => channel, :delta => delta, :program => program}}, n1}
   end
-end
+ end

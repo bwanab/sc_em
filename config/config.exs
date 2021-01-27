@@ -20,7 +20,7 @@ ip: {192,168,4,39}
 #
 # Or configure a 3rd-party app:
 #
-config :logger, level: :notice,
+config :logger, level: :info,
   format: "[$level] $messge $metadata\n",
   metadata: [:error_code, :file, :line]
 
