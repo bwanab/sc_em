@@ -24,9 +24,9 @@ defmodule ScClient do
     id
   end
 
-  def midi_sound(synth, note \\ 40) do
+  def midi_sound(synth, note \\ 40, amp \\ 0.4) do
     id = GenServer.call(ScEm, :next_id)
-    sendMsg({"/s_new", [synth, id, 0, 1, "note", note]})
+    sendMsg({"/s_new", [synth, id, 0, 1, "note", note, "amp", amp]})
     id
   end
 

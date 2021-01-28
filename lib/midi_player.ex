@@ -48,22 +48,24 @@ defmodule MidiPlayer do
     s = case type do
           :program_change ->
             synth = case val.program do
-                      1 -> "bad_piano"
+                      1 -> "sonic-pi-piano"
                       33 -> "miditest1"
-                      25 -> "pluck"
-                      74 -> "flute"
+                      25 -> "sonic-pi-pluck"
+                      74 -> "sonic-pi-fm"
                       _ -> "pluck"
                     end
-            %{state.synth | val.channel => synth}
-            state
+            Logger.info("channel = #{val.channel} synth = #{synth}")
+            state_synth = %{state.synth | val.channel => synth}
+            %{state | :synth => state_synth}
           :tempo ->
             tickdiv = (val.val / 1000000) / state.tpqn
             Logger.debug("set tempo tickdiv = #{tickdiv}" )
             %{state | :tickdiv => tickdiv}
           :noteon ->
             if val.channel <= 4 do
-              Logger.debug("#{type} #{inspect(val)}")
-              id = midi_sound(state.synth[val.channel], val.note)
+              Logger.info("#{type} #{inspect(val)}")
+              Logger.info("synth = #{state.synth[val.channel]}")
+              id = midi_sound(state.synth[val.channel], val.note, val.vel / 128)
               %{state.notes | val.note => id}
               state
             else
