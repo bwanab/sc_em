@@ -68,20 +68,18 @@ defmodule MidiPlayer do
   def message_worker([{type, val} | rest], state) do
     delta = val.delta
     channel_set = MapSet.new(1..7)
+    Logger.info("#{type} #{inspect(val)}")
     s = case type do
           :program_change ->
             synth = MidiMap.inst(val.program)
-            Logger.info("channel = #{val.channel} synth = #{synth}")
             state_synth = %{state.synth | val.channel => synth}
             %{state | :synth => state_synth}
           :tempo ->
             tickdiv = (val.val / 1000000) / state.tpqn
-            Logger.debug("set tempo tickdiv = #{tickdiv}" )
             %{state | :tickdiv => tickdiv}
           :noteon ->
+            wait(delta, state)
             if MapSet.member?(channel_set, val.channel) do
-              wait(delta, state)
-              Logger.info("#{type} #{inspect(val)} synth = #{state.synth[val.channel]}")
               id = midi_sound(state.synth[val.channel], val.note, val.vel / 256)
               %{state.notes | val.note => id}
               state
@@ -89,9 +87,8 @@ defmodule MidiPlayer do
               state
             end
           :noteoff ->
+            wait(delta, state)
             if MapSet.member?(channel_set, val.channel) do
-              wait(delta, state)
-              Logger.info("#{type} #{inspect(val)}")
               set_control(state.notes[val.note], "gate", 0)
             end
             state
@@ -99,16 +96,15 @@ defmodule MidiPlayer do
             wait(delta, state)
             state
           _ ->
-            Logger.info("#{type} #{inspect(val)} **********")
             state
         end
     message_worker(rest, s)
   end
 
   def wait(delta, state) do
-    Logger.info("delta = #{delta} state.tickdiv = #{state.tickdiv}")
     if delta > 0 do
       ms_to_sleep = round(delta * state.tickdiv * 1000)
+      Logger.info("delta = #{delta} state.tickdiv = #{state.tickdiv} ms_to_sleep = #{ms_to_sleep}")
       Process.sleep(ms_to_sleep)
     end
   end
