@@ -77,29 +77,36 @@ defmodule ReadMidiFile do
           {note_message, n3} = noteoff(1 + m_type - 0x80, delta, d, n2)
           Logger.debug("#{inspect(note_message)}, #{n3 - n_offset}")
           [note_message] ++ read_messages(d, n3, m_type, n_offset)
+
         (m_type >= 0x90) && (m_type < 0xA0) ->
           {note_message, n3} = note(1 + m_type - 0x90, delta, d, n2)
           Logger.debug("#{inspect(note_message)}, #{n3 - n_offset}")
           [note_message] ++ read_messages(d, n3, m_type, n_offset)
+
         (m_type >= 0xA0) && (m_type < 0xB0) ->
           {polyphonic_pressure_message, n3} = polyphonic_pressure(1 + m_type - 0xB0, delta, d, n2)
           [polyphonic_pressure_message] ++ read_messages(d, n3, m_type, n_offset)
+
         (m_type >= 0xB0) && (m_type < 0xC0) ->
           {control_message, n3} = control_change(1 + m_type - 0xB0, delta, d, n2)
           Logger.debug("#{inspect(control_message)}, #{n3 - n_offset}")
           [control_message] ++ read_messages(d, n3, m_type, n_offset)
+
         (m_type >= 0xC0) && (m_type < 0xD0) ->
           {program_change_message, n3} = program_change(1 + m_type - 0xC0, delta, d, n2)
           Logger.debug("#{inspect(program_change_message)}, #{n3 - n_offset}")
           [program_change_message] ++ read_messages(d, n3, m_type, n_offset)
+
         (m_type >= 0xD0) && (m_type < 0xE0) ->
           {aftertouch_message, n3} = aftertouch(1 + m_type - 0xD0, delta, d, n2)
           Logger.debug("#{inspect(aftertouch_message)}, #{n3 - n_offset}")
           [aftertouch_message] ++ read_messages(d, n3, m_type, n_offset)
+
         (m_type >= 0xE0) && (m_type < 0xF0) ->
-          {pitch_wheel_message, n3} = pitch_wheel(1 + m_type - 0xE0, d, n2)
+          {pitch_wheel_message, n3} = pitch_wheel(1 + m_type - 0xE0, delta, d, n2)
           Logger.debug("#{inspect(pitch_wheel_message)}, #{n3 - n_offset}")
           [pitch_wheel_message] ++ read_messages(d, n3, m_type, n_offset)
+
         m_type == 0xF0 ->
           {sysex_message, n3} = sysex_message(delta, d, n2)
           Logger.debug("#{inspect(sysex_message)}, #{n3 - n_offset}")
@@ -126,7 +133,7 @@ defmodule ReadMidiFile do
 
   def sysex_message(delta, d, n) do
     {length, n1} = variable_length(d, n)
-    {{:sysex_event, %{:delta => delta, :val => Enum.slice(d, n1, length-2)}}, n1+length}
+    {{:sysex_event, %{:delta => delta, :val => List.to_tuple(Enum.slice(d, n1, length-2))}}, n1+length}
   end
 
   def meta_message(delta, d, n) do
@@ -247,10 +254,10 @@ defmodule ReadMidiFile do
     {{:cc_event, %{:channel => channel, :delta => delta, :cc => cc, :val => val}}, n2}
   end
 
-  def pitch_wheel(channel, d, n) do
+  def pitch_wheel(channel, delta, d, n) do
     {lsb, n1} = int8(d, n)
     {msb, n2} = int8(d, n1)
-    {{:pitch_wheel_event, %{:channel => channel, :lsb => lsb, :msb => msb}}, n2}
+    {{:pitch_wheel_event, %{:channel => channel, :delta => delta, :lsb => lsb, :msb => msb}}, n2}
   end
 
   def aftertouch(channel, delta, d, n) do
