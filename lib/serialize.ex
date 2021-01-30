@@ -21,6 +21,8 @@ defmodule Serialize do
               decode_track(s[k])
             k == "midi_messages" ->
               decode_messages(s[k])
+            k == "key" ->
+              String.to_atom(s[k])
             true ->
               strings_to_atoms(s[k])
           end) end)
@@ -43,7 +45,7 @@ defmodule Serialize do
   be remediated easily.
   """
   def decode_messages(l) do
-    Enum.map(l, fn {k, v} -> {String.to_atom(k), strings_to_atoms(v)} end)
+    Enum.map(l, fn m -> %MidiMessage{type: String.to_atom(m["type"]), val: strings_to_atoms(m["val"])} end)
   end
 
   def decode_track(l) do

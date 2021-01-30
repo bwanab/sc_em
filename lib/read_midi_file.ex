@@ -10,7 +10,7 @@ defmodule ReadMidiFile do
   http://www.music.mcgill.ca/~ich/classes/mumt306/StandardMIDIfileformat.html#BM3_1
   """
 
-  def readFile(name) do
+  def read_file(name) do
     {:ok, f} = File.open(name, [:charlist], fn file ->
       IO.read(file, :all) end )
     midifile(f)
@@ -50,8 +50,8 @@ defmodule ReadMidiFile do
     {track_size, n1} = int32(d, n+4)
     Logger.debug("track_head = #{track_head} track_size = #{track_size}")
     messages = read_messages(d, n1, 0, 0)
-    {_, m} = List.last(messages)
-    n2 = m.val   # the index of the next message
+    last = List.last(messages)
+    n2 = last.val.val   # the index of the next message
     {%{
         :track_head => track_head,
         :track_size => track_size,
@@ -66,12 +66,13 @@ defmodule ReadMidiFile do
     try do
       cond do
         m_type == 0xFF ->
-          {{meta_type, val}, n3} = meta_message(delta, d, n2)
-          if meta_type == :end_of_track do
-            [{meta_type, val}, {:last, %{:val => n3}}]
+          {meta, n3} = meta_message(delta, d, n2)
+          if meta.type == :end_of_track do
+            [meta, %MidiMessage {
+                    type: :last,
+                    val: %{:val => n3}}]
           else
-            meta_message = {meta_type, val}
-            [meta_message] ++ read_messages(d, n3, m_type, n_offset)
+            [meta] ++ read_messages(d, n3, m_type, n_offset)
           end
         (m_type >= 0x80) && (m_type < 0x90) ->
           {note_message, n3} = noteoff(1 + m_type - 0x80, delta, d, n2)
@@ -156,10 +157,14 @@ defmodule ReadMidiFile do
           get_string_val(:marker, delta, d, n2, length)
         0x20 ->
           {val, n3} = int8(d, n2)
-          {{:midi_channel_prefix, %{:delta => delta, :val => val}}, n3}
+          {%MidiMessage{
+              type: :midi_channel_prefix,
+              val: %{:delta => delta, :val => val}}, n3}
         0x21 ->
           {val, n3} = int8(d, n2)
-          {{:midi_port, %{:delta => delta, :val => val}}, n3}
+          {%MidiMessage{
+              type: :midi_port,
+              val: %{:delta => delta, :val => val}}, n3}
         0x54 ->
           smpte_offset(delta, d, n2)
         0x58 ->
@@ -167,10 +172,14 @@ defmodule ReadMidiFile do
         0x59 ->
           key_sig_meta(delta, d, n2)
         0x2F ->
-          {{:end_of_track, %{:delta => delta, :val => 0}}, n2}
+          {%MidiMessage{
+              type: :end_of_track,
+              val: %{:delta => delta, :val => 0}}, n2}
         0x51 ->
           {val, n3} = int24(d, n2)
-          {{:tempo, %{:delta => delta, :val => val}}, n3}
+          {%MidiMessage{
+              type: :tempo,
+              val: %{:delta => delta, :val => val}}, n3}
         0x7F ->
           get_string_val(:sequencer_specific_event, delta, d, n2, length)
       end
@@ -181,7 +190,9 @@ defmodule ReadMidiFile do
 
   def get_string_val(event, delta, d, n, length) do
     val = if length == 0 do "" else List.to_string(Enum.slice(d, n, length-1)) end
-    {{event, %{:delta => delta, :val => val}}, n + length}
+    {%MidiMessage{
+        type: event,
+        val: %{:delta => delta, :val => val}}, n + length}
   end
 
   def smpte_offset(delta, d, n) do
@@ -190,14 +201,14 @@ defmodule ReadMidiFile do
     {se, n3} = int8(d, n2)
     {fr, n4} = int8(d, n3)
     {ff, n5} = int8(d, n4)
-    {{:smpte_offset,
-      %{:hr => hr,
-        :mn => mn,
-        :se => se,
-        :fr => fr,
-        :ff => ff,
-        :delta => delta
-      }},
+    {%MidiMessage{
+        type: :smpte_offset,
+        val: %{:hr => hr,
+               :mn => mn,
+               :se => se,
+               :fr => fr,
+               :ff => ff,
+               :delta => delta}},
      n5}
   end
 
@@ -207,12 +218,13 @@ defmodule ReadMidiFile do
     {beat, n2} = int8(d, n1)
     {ticks_per_quarter_note, n3} = int8(d, n2)
     {t32s_per_quarter_note, n4} = int8(d, n3)
-    {{:time_sig,
-      %{:bpm => bpm,
-        :beat => :math.pow(2, beat),
-        :ticks_per_quarter_note => ticks_per_quarter_note,
-        :t32s_per_quarter_note => t32s_per_quarter_note,
-        :delta => delta}},
+    {%MidiMessage{
+        type: :time_sig,
+        val: %{:bpm => bpm,
+               :beat => :math.pow(2, beat),
+               :ticks_per_quarter_note => ticks_per_quarter_note,
+               :t32s_per_quarter_note => t32s_per_quarter_note,
+               :delta => delta}},
      n4}
   end
 
@@ -220,9 +232,10 @@ defmodule ReadMidiFile do
     {n_sharps_flats, n1} = int8_signed(d, n)
     {mode, n2} = int8_signed(d, n1)
     key = MusicPrims.key(if mode == 0 do :major else :minor end, n_sharps_flats)
-    {{:key_sig,
-      %{:key => key,
-        :delta => delta}},
+    {%MidiMessage{
+        type: :key_sig,
+        val: %{:key => key,
+               :delta => delta}},
      n2}
   end
 
@@ -230,43 +243,59 @@ defmodule ReadMidiFile do
     {note, n1} = int8(d, n)
     {vel, n2} = int8(d, n1)
     if vel == 0 do
-      {{:noteoff, %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
+      {%MidiMessage{
+          type: :noteoff,
+          val: %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
     else
-      {{:noteon, %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
+      {%MidiMessage{
+          type: :noteon,
+          val: %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
     end
   end
 
   def noteoff(channel, delta, d, n) do
     {note, n1} = int8(d, n)
     {vel, n2} = int8(d, n1)
-    {{:noteoff, %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
+    {%MidiMessage{
+        type: :noteoff,
+        val: %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
   end
 
   def polyphonic_pressure(channel, delta, d, n) do
     {note, n1} = int8(d, n)
     {val, n2} = int8(d, n1)
-    {{:polyphonic_pressure_event, %{:channel => channel, :delta => delta, :note => note, :val => val}}, n2}
+    {%MidiMessage{
+        type: :polyphonic_pressure_event,
+        val: %{:channel => channel, :delta => delta, :note => note, :val => val}}, n2}
   end
 
   def control_change(channel, delta, d, n) do
     {cc, n1} = int8(d, n)
     {val, n2} = int8(d, n1)
-    {{:cc_event, %{:channel => channel, :delta => delta, :cc => cc, :val => val}}, n2}
+    {%MidiMessage{
+        type: :cc_event,
+        val: %{:channel => channel, :delta => delta, :cc => cc, :val => val}}, n2}
   end
 
   def pitch_wheel(channel, delta, d, n) do
     {lsb, n1} = int8(d, n)
     {msb, n2} = int8(d, n1)
-    {{:pitch_wheel_event, %{:channel => channel, :delta => delta, :lsb => lsb, :msb => msb}}, n2}
+    {%MidiMessage{
+        type: :pitch_wheel_event,
+        val: %{:channel => channel, :delta => delta, :lsb => lsb, :msb => msb}}, n2}
   end
 
   def aftertouch(channel, delta, d, n) do
     {pressure, n1} = int8(d, n)
-    {{:aftertouch_event, %{:channel => channel, :delta => delta, :pressure => pressure}}, n1}
+    {%MidiMessage{
+        type: :aftertouch_event,
+        val: %{:channel => channel, :delta => delta, :pressure => pressure}}, n1}
   end
 
   def program_change(channel, delta, d, n) do
     {program, n1} = int8(d, n)
-    {{:program_change, %{:channel => channel, :delta => delta, :program => program + 1}}, n1}
+    {%MidiMessage{
+        type: :program_change,
+        val: %{:channel => channel, :delta => delta, :program => program + 1}}, n1}
   end
  end

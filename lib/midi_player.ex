@@ -1,5 +1,4 @@
 defmodule MidiPlayer do
-  import ReadMidiFile
   import ScClient
   require Logger
 
@@ -22,14 +21,14 @@ defmodule MidiPlayer do
   from which it will read the next time.
   """
   def read_file(name) do
-    bin_name = String.replace_suffix(name, ".mid", ".bin")
+    bin_name = String.replace_suffix(name, ".mid", ".json")
     if File.exists?(bin_name) do
       {:ok, d} = File.read(bin_name)
-      :erlang.binary_to_term(d)
+      Serialize.decode(d)
     else
-      midi = readFile(name)
+      midi = ReadMidiFile.read_file(name)
       {:ok, file} = File.open(bin_name, [:write])
-      IO.binwrite(file, :erlang.term_to_binary(midi))
+      :ok = IO.binwrite(file, Serialize.encode(midi))
       File.close(file)
       midi
     end
