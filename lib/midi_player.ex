@@ -69,19 +69,15 @@ defmodule MidiPlayer do
     Stream.run(stream)
   end
 
-  def test_notes(n, delta) do
-    midi = %{:ticks_per_quarter_note => 120}
-    Enum.reduce(1..n, [], fn _x, acc -> acc ++
-        [{:noteon, %{:channel => 2, :delta => delta, :note => 30, :vel => 127}},
-         {:noteoff, %{:channel => 2, :delta => delta, :note => 30, :vel => 127}}]
-    end) ++ [{:end_of_track, %{}}] |> message_worker(initial_state(midi))
-    0
+  def eot() do
+    [%MidiMessage{:type => :end_of_track, :val => :anything}]
   end
 
-  def message_worker([{type, _val} | _rest], state) when type == :end_of_track do state end
-  def message_worker([{type, val} | rest], state) do
+
+  def message_worker([%{type: type, val: _val} | _rest], state) when type == :end_of_track do state end
+  def message_worker([%{type: type, val: val} | rest], state) do
     delta = val.delta
-    channel_set = MapSet.new([2])
+    channel_set = MapSet.new(1..7)
     Logger.info("#{type} #{inspect(val)}")
     s = case type do
           :program_change ->
@@ -126,4 +122,29 @@ defmodule MidiPlayer do
       Process.sleep(ms_to_sleep)
     end
   end
+
+  ###################################
+  # test code
+  ###################################
+
+  def test_type1() do
+    m1 = MidiPlayer.read_file("/Users/williamallen/Dropbox/music/midi/atrain.mid")
+    state = message_worker(Enum.at(m1.midi_tracks, 0).midi_messages, initial_state(m1))
+    piano = Enum.take(Enum.at(m1.midi_tracks, 1).midi_messages, 500) ++ eot()
+    bass = Enum.take(Enum.at(m1.midi_tracks, 2).midi_messages, 300) ++ eot()
+    # trumpet1 = Enum.take(Enum.at(m1.midi_tracks, 3).midi_messages, 100) ++ eot()
+    trumpet2 = Enum.take(Enum.at(m1.midi_tracks, 4).midi_messages, 180) ++ eot()
+    tracks = [piano, bass, trumpet2]
+    process_messages(tracks, state)
+  end
+
+  def test_notes(n, delta) do
+    midi = %{:ticks_per_quarter_note => 120}
+    Enum.reduce(1..n, [], fn _x, acc -> acc ++
+        [{:noteon, %{:channel => 2, :delta => delta, :note => 30, :vel => 127}},
+         {:noteoff, %{:channel => 2, :delta => delta, :note => 30, :vel => 127}}]
+    end) ++ [{:end_of_track, %{}}] |> message_worker(initial_state(midi))
+    0
+  end
+
 end

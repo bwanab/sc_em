@@ -134,7 +134,9 @@ defmodule ReadMidiFile do
 
   def sysex_message(delta, d, n) do
     {length, n1} = variable_length(d, n)
-    {{:sysex_event, %{:delta => delta, :val => List.to_tuple(Enum.slice(d, n1, length-2))}}, n1+length}
+    {%MidiMessage{
+        type: :sysex_event,
+        val: %{:delta => delta, :sysex => Enum.slice(d, n1, length-2)}}, n1+length}
   end
 
   def meta_message(delta, d, n) do
@@ -189,7 +191,7 @@ defmodule ReadMidiFile do
   end
 
   def get_string_val(event, delta, d, n, length) do
-    val = if length == 0 do "" else List.to_string(Enum.slice(d, n, length-1)) end
+    val = if length == 0 do "" else List.to_string(Enum.slice(d, n, length)) end
     {%MidiMessage{
         type: event,
         val: %{:delta => delta, :val => val}}, n + length}

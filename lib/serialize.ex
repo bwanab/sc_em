@@ -3,32 +3,38 @@ defmodule Serialize do
 
 
   def encode(midi) do
-    {:ok, je} = Jason.encode(midi)
-    String.replace(je, ",", ",\r\n")
+    midi
+    |> Jason.encode!()
+    |> String.replace(",", ",\r\n")
   end
 
   def decode(je) do
-    {:ok, s} = Jason.decode(je)
-    strings_to_atoms(s)
+    je
+    |> String.replace(",\r\n", ",")
+    |> Jason.decode!()
+    |> strings_to_atoms()
   end
 
   def strings_to_atoms(s) when is_map(s) do
     Enum.reduce(Map.keys(s), %{},
       fn k, acc ->
         Map.put(acc, String.to_atom(k),
-        cond do
-            k == "midi_tracks" ->
+        case k do
+            "midi_tracks" ->
               decode_track(s[k])
-            k == "midi_messages" ->
+            "midi_messages" ->
               decode_messages(s[k])
-            k == "key" ->
+            "key" ->
               String.to_atom(s[k])
-            true ->
+            "sysex" ->
+              s[k]
+            _ ->
               strings_to_atoms(s[k])
           end) end)
   end
 
   def strings_to_atoms([fst|rest]) do
+    Logger.info("fst = #{fst}")
     {String.to_atom(fst), strings_to_atoms(List.first(rest))}
   end
 
