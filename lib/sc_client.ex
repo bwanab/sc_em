@@ -30,6 +30,26 @@ defmodule ScClient do
     id
   end
 
+  @doc """
+  synth is the synth name
+  controls are a list of pairs where each is a control and a value which
+  can be a bus number (in which case it'll probably be overwritten) or
+  a constant, that might be used as is or might be overwritten.
+  """
+  def make_module(synth, controls) do
+    id = GenServer.call(ScEm, :next_id)
+    sendMsg({"/s_new", [synth, id, 0, 1] ++ List.flatten(controls)})
+    id
+  end
+
+  def get_audio_bus(name) do
+    GenServer.call(ScEm, {:next_audio_bus, name})
+  end
+
+  def get_control_bus(name) do
+    GenServer.call(ScEm, {:next_control_bus, name})
+  end
+
   def set_control(id, control, val) do
     sendMsg({"/n_set", [id, control, val]})
   end

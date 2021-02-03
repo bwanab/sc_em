@@ -1,15 +1,29 @@
+defmodule Modsynth.Bus do
+  defstruct name: "", type: :control, id: 0
+  @type t :: %__MODULE__{name: String.t, type: atom, id: integer}
+end
+
 defmodule ScEm.State do
 
-  @doc ~S"""
-  ScEm State:
-  port :: integer
-  handler :: function
-  socket :: %Socket
-  next_id :: integer
-  status :: map
-  """
-  defstruct port: nil, ip: {nil,nil,nil,nil} ,handler: {nil, nil}, socket: nil, next_id: 1001, status: %{}
-  @type t :: %__MODULE__{port: integer, ip: tuple, handler: tuple, socket: reference, next_id: integer, status: map}
+  defstruct port: nil,
+    ip: {nil,nil,nil,nil} ,
+    handler: {nil, nil},
+    socket: nil,
+    next_id: 1001,
+    status: %{},
+    next_control_bus: 50,
+    next_audio_bus: 15,
+    bus_map: %{}
+  @type t :: %__MODULE__{port: integer,
+                         ip: tuple,
+                         handler: tuple,
+                         socket: reference,
+                         next_id: integer,
+                         status: map,
+                         next_control_bus: integer,
+                         next_audio_bus: integer,
+                         bus_map: map
+  }
 end
 
 defmodule ScEm.Response do
@@ -82,6 +96,34 @@ defmodule ScEm do
   @impl true
   def handle_call(:next_id, _from, %State{next_id: next_id} = state) do
     {:reply, next_id, %{state | next_id: next_id + 1}}
+  end
+
+  @doc """
+  At some point we'll need to reuse old bus numbers which will mean scaning the currently used
+  ones and reassigning.
+  """
+  @impl true
+  def handle_call({:next_control_bus, name}, _from, %State{next_control_bus: next_control_bus} = state) do
+    bus = %Modsynth.Bus{name: name, type: :control, id: next_control_bus}
+    {:reply, next_control_bus,
+     %{state |
+       next_control_bus: next_control_bus + 1,
+       bus_map: Map.put(state.bus_map, name, bus)}}
+  end
+
+  @impl true
+  def handle_call({:next_audio_bus, name}, _from, %State{next_audio_bus: next_audio_bus} = state) do
+    bus = %Modsynth.Bus{name: name, type: :audio, id: next_audio_bus}
+    {:reply, next_audio_bus,
+     %{state |
+       next_audio_bus: next_audio_bus + 1,
+       bus_map: Map.put(state.bus_map, name, bus)}}
+  end
+
+  @impl true
+  def handle_call({:get_bus_info, name}, _from, %State{bus_map: bus_map} = state) do
+    bus = Map.get(bus_map, name)
+    {:reply, bus, state}
   end
 
   @impl true
