@@ -13,7 +13,8 @@ defmodule ScEm.State do
     status: %{},
     next_control_bus: 50,
     next_audio_bus: 15,
-    bus_map: %{}
+    bus_map: %{},
+    load_dir_status: :pending
   @type t :: %__MODULE__{port: integer,
                          ip: tuple,
                          handler: tuple,
@@ -22,7 +23,8 @@ defmodule ScEm.State do
                          status: map,
                          next_control_bus: integer,
                          next_audio_bus: integer,
-                         bus_map: map
+                         bus_map: map,
+                         load_dir_status: atom
   }
 end
 
@@ -90,7 +92,7 @@ defmodule ScEm do
   def handle_call({:send, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
     Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
-    {:reply, response, state}
+    {:reply, response, %{state | load_dir_status: :pending}}
   end
 
   @impl true
@@ -133,6 +135,12 @@ defmodule ScEm do
   end
 
   @impl true
+  def handle_call(:load_dir_status, _from, state) do
+    %State{load_dir_status: status} = state
+    {:reply, status, state}
+  end
+
+  @impl true
   def handle_call(:stop, _from, status) do
     {:stop, :normal, status}
   end
@@ -151,6 +159,8 @@ defmodule ScEm do
       case f do
         "/status.reply" ->
           {:noreply, %{state | status: form_status(l)}}
+        "/done" ->
+          {:noreply, %{state | load_dir_status: :done}}
         _ ->
           apply mod, fun, [%Response{ip: format_ip(ip), fromport: fromport, packet: String.trim(packet)}]
           {:noreply, state}

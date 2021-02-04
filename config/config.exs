@@ -11,8 +11,11 @@ use Mix.Config
 # You can configure for your application as:
 #
 config :sc_em,
-port: 57110,
-ip: {192,168,4,39}
+  port: 57110,
+  ip: {192,168,4,39},
+  remote_synth_dir: "/home/bill/Dropbox/music/supercollider/synthdefs/modsynth",
+  local_synth_dir: "/Users/williamallen/Dropbox/music/supercollider/synthdefs/modsynth"
+
 #
 # And access this configuration in your application as:
 #

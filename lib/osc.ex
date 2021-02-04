@@ -36,7 +36,7 @@ defmodule OSC do
       Logger.debug("Error: too few bytes for int #{s} #{length}")
       {0, <<>>}
     else
-      bin = String.slice(s, 0..3)
+      bin = oslice4(s)
       Logger.debug("bin = #{inspect(bin)}")
       <<res :: big-integer-32>> = bin
       {res, String.slice(s, 4..-1)}
@@ -91,7 +91,7 @@ defmodule OSC do
         ?s -> read_string(data)
         ?i -> read_int(data)
         ?f -> read_float(data)
-        ?d -> read_float(data)
+        ?d -> read_double(data)
         _ -> read_string(data)
       end
     if length(l) > 0 do

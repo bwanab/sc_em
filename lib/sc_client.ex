@@ -12,6 +12,14 @@ defmodule ScClient do
 
   def load_synths() do
     sendMsg({"/d_load", ["synthdefs/void.scsyndef"]})
+    query_status()
+  end
+
+  def query_status() do
+    case GenServer.call(ScEm, :load_dir_status) do
+      :done -> :ok
+      :pending -> query_status()
+    end
   end
 
   def load_synths(dir) do
