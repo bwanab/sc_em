@@ -53,7 +53,9 @@ defmodule OSC do
       Logger.debug("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
-      bin = String.slice(s, 0..7)
+      # bin = String.slice(s, 0..7)
+      bin = oslice8(s)
+      Logger.debug("double bin = #{inspect(bin)}")
       <<res :: float>> = bin
       {res, String.slice(s, 8..-1)}
     end
@@ -69,8 +71,9 @@ defmodule OSC do
       Logger.info("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
-      bin = String.slice(s, 0..3)
-      Logger.debug("bin = #{inspect(bin)}")
+      # bin = String.slice(s, 0..3)
+      bin = oslice4(s)
+      Logger.debug("float bin = #{inspect(bin)}")
       <<res :: float-size(32)>> = bin
       {res, String.slice(s, 4..-1)}
     end
@@ -85,10 +88,11 @@ defmodule OSC do
     [h|l] = tags
     {val, r_data} =
       case h do
-        115 -> read_string(data)
-        105 -> read_int(data)
-        102 -> read_float(data)
-        _ -> read_double(data)
+        ?s -> read_string(data)
+        ?i -> read_int(data)
+        ?f -> read_float(data)
+        ?d -> read_float(data)
+        _ -> read_string(data)
       end
     if length(l) > 0 do
       read_vals(l, r_data, [val|res])
@@ -144,5 +148,15 @@ defmodule OSC do
 
   def encode(addr, data) do
     write_string(addr) <> write_vals(data)
+  end
+
+  def oslice4(bin) do
+    [a, b, c, d] = Enum.slice(:erlang.binary_to_list(bin), 0, 4)
+    <<a, b, c, d>>
+  end
+
+  def oslice8(bin) do
+    [a, b, c, d, e, f, g, h] = Enum.slice(:erlang.binary_to_list(bin), 0, 8)
+    <<a, b, c, d, e, f, g, h>>
   end
 end
