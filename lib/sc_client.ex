@@ -59,6 +59,7 @@ defmodule ScClient do
   end
 
   def set_control(id, control, val) do
+    Logger.info("set control id #{id} control #{control} val #{val}")
     sendMsg({"/n_set", [id, control, val]})
   end
 

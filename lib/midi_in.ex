@@ -49,6 +49,11 @@ defmodule MidiIn do
   end
 
   @impl true
+  def handle_call(:stop, _from, status) do
+    {:stop, :normal, status}
+  end
+
+  @impl true
   def handle_call({:start_midi, device, synth, note_control}, _from, state) do
     {:ok, midi_pid} = PortMidi.open(:input, device)
     PortMidi.listen(midi_pid, self())
@@ -80,7 +85,7 @@ defmodule MidiIn do
         (status >= 0x90) && (status < 0xA0) ->
         if state.note_module_id != 0 do
           ScClient.set_control(state.note_module_id, state.note_control, note)
-          Logger.info("note #{note} vel #{vel} synth #{state.note_module_id}")
+          Logger.info("note #{note} vel #{vel} synth #{state.note_module_id} control #{state.note_control}")
         end
 
         (status >= 0xA0) && (status < 0xB0) ->
@@ -89,6 +94,7 @@ defmodule MidiIn do
         (status >= 0xB0) && (status < 0xC0) ->
             case Map.get(state.cc_registry, note, 0) do
               %MidiIn.CC{cc_id: cc_id, cc_control: cc_control} ->
+                Logger.info("cc message cc_num #{note} cc_id #{cc_id} cc_control #{cc_control} vel #{vel}")
                 ScClient.set_control(cc_id, cc_control, vel / 127)
               0 ->
                 Logger.info("cc message #{Integer.to_string(note, 16)} val #{vel} not handled")
@@ -109,8 +115,8 @@ defmodule MidiIn do
     {:noreply, state}
   end
 
-  def handle_info({_pid, stuff}, state) do
-    Logger.info("stuff #{inspect(stuff)}")
+  def handle_info({_pid, _stuff}, state) do
+    # Logger.info("stuff #{inspect(stuff)}")
     {:noreply, state}
   end
 
