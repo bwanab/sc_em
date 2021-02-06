@@ -15,6 +15,8 @@ defmodule ScEm.State do
     next_audio_bus: 15,
     bus_map: %{},
     load_dir_status: :pending
+    # midi_module_id: 0,
+    # amp_module_id: 0
   @type t :: %__MODULE__{port: integer,
                          ip: tuple,
                          handler: tuple,
@@ -25,6 +27,8 @@ defmodule ScEm.State do
                          next_audio_bus: integer,
                          bus_map: map,
                          load_dir_status: atom
+                         # midi_module_id: integer,
+                         # amp_module_id: integer
   }
 end
 
@@ -78,6 +82,7 @@ defmodule ScEm do
 
     # uncomment to get status going
     schedule_status()
+
 
     {:ok, %{state | socket: socket}}
   end
@@ -145,6 +150,21 @@ defmodule ScEm do
     {:stop, :normal, status}
   end
 
+  # @impl true
+  # def handle_call({:start_midi, device, synth, synth_controls, amp, amp_controls}, _from, state) do
+  #   {:ok, midi_pid} = PortMidi.open(:input, device)
+  #   PortMidi.listen(midi_pid, self())
+  #   module_id = ScClient.make_module(synth, synth_controls)
+  #   amp_id = ScClient.make_module(amp, amp_controls)
+  #   {:reply, {:ok, midi_pid, module_id, amp_id}, %{state | midi_module_id: module_id, amp_module_id: amp_id}}
+  # end
+
+  # @impl true
+  # def handle_call({:stop_midi, midi_pid}, _from, state) do
+  #   :ok = PortMidi.close(:input, midi_pid)
+  #   {:reply, :ok, %{state | midi_module_id: 0}}
+  # end
+
   @impl true
   def handle_info(:timed_status, %State{socket: socket, ip: ip, port: port} = state) do
     :gen_udp.send(socket, ip, port, OSC.encode("/status", []))
@@ -169,6 +189,50 @@ defmodule ScEm do
       MatchError -> {:noreply, state}
     end
   end
+
+  # @impl true
+  # def handle_info({_pid, [{{status, note, vel}, _timestamp}]}, %State{midi_module_id: module_id, amp_module_id: amp_id} = state) do
+  #   #Logger.info("midi status #{Integer.to_string(status, 16)} event #{note} val #{vel}")
+  #   cond do
+  #       (status >= 0x80) && (status < 0x90) ->
+  #         Logger.warn("unexpected noteoff message")
+
+  #       (status >= 0x90) && (status < 0xA0) ->
+  #       if module_id != 0 do
+  #         ScClient.set_control(module_id, "note", note)
+  #         ScClient.set_control(amp_id, "gain", vel)
+  #       end
+
+  #       (status >= 0xA0) && (status < 0xB0) ->
+  #         Logger.warn("unexpected polyphonic touch message")
+
+  #       (status >= 0xB0) && (status < 0xC0) ->
+  #       if module_id != 0 do
+  #         case note do
+  #           0x2 -> ScClient.set_control(amp_id, "gain", vel)
+  #           _ -> Logger.info("cc message #{Integer.to_string(note, 16)} val #{vel} not handled")
+  #         end
+  #       end
+
+  #       (status >= 0xC0) && (status < 0xD0) ->
+  #         Logger.info("pc message #{Integer.to_string(note, 16)} val #{vel} not handled")# program_change
+
+  #       (status >= 0xD0) && (status < 0xE0) ->
+  #         Logger.warn("unexpected aftertouch_message")
+
+  #       (status >= 0xE0) && (status < 0xF0) ->
+  #         Logger.warn("unexpected pitch_wheel_message")
+
+  #       status == 0xF0 ->
+  #         Logger.warn("unexpected sysex_message")
+  #    end
+  #   {:noreply, state}
+  # end
+
+  # def handle_info({_pid, stuff}, state) do
+  #   Logger.info("stuff #{inspect(stuff)}")
+  #   {:noreply, state}
+  # end
 
   defp schedule_status do
     Process.send_after(self(), :timed_status, 5000)

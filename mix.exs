@@ -14,6 +14,7 @@ defmodule ScEm.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      applications: [:portmidi],
       extra_applications: [:logger],
       mod: {ScEm, []}
     ]
@@ -22,7 +23,8 @@ defmodule ScEm.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.2"},
+      {:portmidi, git: "https://github.com/lucidstack/ex-portmidi.git"}
     ]
   end
 end
