@@ -100,4 +100,25 @@ defmodule Modsynth do
     %{:midi_pid => midi_pid, :gain => gain}
   end
 
+  def tt() do
+    MidiIn.start(0,0)
+    synths = init()
+    Process.sleep(2000)
+    t2(synths)
+  end
+
+  def tpm() do
+    {:ok, input} = PortMidi.open(:input, "mio")
+    PortMidi.listen(input, self())
+    t_rec()
+  end
+
+  def t_rec() do
+    receive do
+      # {_input, [{{status, note, _vel}, _timestamp}]} -> Logger.info("#{Integer.to_string(status)} #{note}")
+      {_input, messages} -> Logger.info("#{inspect(messages)}")
+    end
+    t_rec()
+  end
+
 end

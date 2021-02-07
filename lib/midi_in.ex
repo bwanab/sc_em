@@ -9,10 +9,12 @@ end
 defmodule MidiIn.State do
   defstruct note_module_id: 0,
     note_control: "",
-    cc_registry: %{}
+    cc_registry: %{},
+    bad_midi_messages: 0
   @type t :: %__MODULE__{note_module_id: integer,
                          note_control: String.t,
-                         cc_registry: map
+                         cc_registry: map,
+                         bad_midi_messages: integer
   }
 end
 
@@ -77,7 +79,13 @@ defmodule MidiIn do
 
 
   @impl true
-  def handle_info({_pid, [{{status, note, vel}, _timestamp}]}, state) do
+  def handle_info({_pid, messages}, state) do
+    # Logger.info("midi_in messages #{inspect(messages)}")
+    Enum.each(messages, &(process_message(&1, state)))
+    {:noreply, state}
+  end
+
+  def process_message({{status, note, vel}, _timestamp}, state) do
     cond do
         (status >= 0x80) && (status < 0x90) ->
           Logger.warn("unexpected noteoff message")
@@ -85,7 +93,7 @@ defmodule MidiIn do
         (status >= 0x90) && (status < 0xA0) ->
         if state.note_module_id != 0 do
           ScClient.set_control(state.note_module_id, state.note_control, note)
-          Logger.info("note #{note} vel #{vel} synth #{state.note_module_id} control #{state.note_control}")
+          # Logger.info("note #{note} vel #{vel} synth #{state.note_module_id} control #{state.note_control}")
         end
 
         (status >= 0xA0) && (status < 0xB0) ->
@@ -94,7 +102,7 @@ defmodule MidiIn do
         (status >= 0xB0) && (status < 0xC0) ->
             case Map.get(state.cc_registry, note, 0) do
               %MidiIn.CC{cc_id: cc_id, cc_control: cc_control} ->
-                Logger.info("cc message cc_num #{note} cc_id #{cc_id} cc_control #{cc_control} vel #{vel}")
+                # Logger.info("cc message cc_num #{note} cc_id #{cc_id} cc_control #{cc_control} vel #{vel}")
                 ScClient.set_control(cc_id, cc_control, vel / 127)
               0 ->
                 Logger.info("cc message #{Integer.to_string(note, 16)} val #{vel} not handled")
@@ -111,13 +119,6 @@ defmodule MidiIn do
 
         status == 0xF0 ->
           Logger.warn("unexpected sysex_message")
-     end
-    {:noreply, state}
+    end
   end
-
-  def handle_info({_pid, _stuff}, state) do
-    # Logger.info("stuff #{inspect(stuff)}")
-    {:noreply, state}
-  end
-
 end
