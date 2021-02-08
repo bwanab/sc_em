@@ -1,21 +1,21 @@
-#+TITLE ScEm
+#+TITLE: ScEm
 
 ** Supercollider emulator **
 
-* This is far earlier than alpha software. If there's anything useful here it is strictly coincidental. 
+** This is far earlier than alpha software. If there's anything useful here it is strictly coincidental.
 
-* There are a number of thus far half-baked functions that are implemented:
-** Receives and decodes supercollider OSC messages. That's all. It is useful for building a supercollider client. (osc.ex)
-** A working supercollider client (sc_em.ex, sc_client.ex)
-** Reads and decodes supercollider compiled SynthDef files (read_synth_def.ex)
-** Reads and decodes midi files (read_midi_file.ex)
-** Implements a midi player (midi_player.ex). The purpose of this isn't really to build a full featured midi-player capability, but to:
+** There are a number of thus far half-baked functions that are implemented:
+*** Receives and decodes supercollider OSC messages. That's all. It is useful for building a supercollider client. (osc.ex)
+*** A working supercollider client (sc_em.ex, sc_client.ex)
+*** Reads and decodes supercollider compiled SynthDef files (read_synth_def.ex)
+*** Reads and decodes midi files (read_midi_file.ex)
+*** Implements a midi player (midi_player.ex). The purpose of this isn't really to build a full featured midi-player capability, but to:
 1. demonstrate that the midi decoder is working properly.
 2. provide a sequencing capability for supercollider using midi files as the base sequencing notation.
-** A midi-in implementation. (midi_in.ex, midi_in_client.ex). This is expressly built to support my midi instrument which is a wind synth and as such has slightly different needs than a traditional keyboard.
-** A modular synth (modsynth.ex). This is largely a reimplementation of my modsynth that was written in clojure and implemented on top of Sam Aaron's Overtone project. Why reimplement? In the intervening years, enough small changes in both Overtone and clojure plus the really bad architecture of having the swing GUI (using seesaw) mixed in with the synth implementation have made it somewhat difficult to move forward as is. I also get the feeling that Overtone is somewhat affected by bit-rot since Sam left the project to concentrate on Sonic-Pi. This brings up, why not do my work with Sonic-Pi itself instead of reinventing everything. The reason is that Sonic-Pi has a somewhat different motivation than modsynth. OTOH, I'd love to roll stuff into Sonic-Pi if that's ever possible. It just isn't the priority right now.
+*** A midi-in implementation. (midi_in.ex, midi_in_client.ex). This is expressly built to support my midi instrument which is a wind synth and as such has slightly different needs than a traditional keyboard.
+*** A modular synth (modsynth.ex). This is largely a reimplementation of my modsynth that was written in clojure and implemented on top of Sam Aaron's Overtone project. Why reimplement? In the intervening years, enough small changes in both Overtone and clojure plus the really bad architecture of having the swing GUI (using seesaw) mixed in with the synth implementation have made it somewhat difficult to move forward as is. I also get the feeling that Overtone is somewhat affected by bit-rot since Sam left the project to concentrate on Sonic-Pi. This brings up, why not do my work with Sonic-Pi itself instead of reinventing everything. The reason is that Sonic-Pi has a somewhat different motivation than modsynth. OTOH, I'd love to roll stuff into Sonic-Pi if that's ever possible. It just isn't the priority right now.
 
 
-* Installation
+** Installation
 
 The only thing that would make sense at this point is to clone the repository and have at it. I'll post some documentation here when I get the chance.
