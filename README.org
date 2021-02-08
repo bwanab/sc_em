@@ -26,9 +26,9 @@ Let's take them one at a time.
 
 1. Read a midi file (note there are midi files in the midi directory):
 
-   mid = ReadMidiFile.read_file("midi/Type0_The_Look_Of_Love.mid"); 0
-    mid
-    %{
+   ~mid = ReadMidiFile.read_file("midi/Type0_The_Look_Of_Love.mid"); 0~
+   ~mid~
+   =%{
         ftype: "MThd",
             head_size: 6,
                 midi_format: 0,
@@ -52,7 +52,7 @@ Let's take them one at a time.
           type: :cc_event,
           val: %{cc: 10, channel: 6, delta: 0, val: 84}
         },
-    ...
+    ...=
 
 2. Play that midi file (a couple of steps):
    1. You've got a working supercollider I assume (if not you need to get it)
@@ -62,23 +62,24 @@ Let's take them one at a time.
 
    Now,
 
-   MidiPlayer.play("midi/Type0_The_Look_Of_Love.mid")
+   ~MidiPlayer.play("midi/Type0_The_Look_Of_Love.mid")~
 
    Note: this really isn't going to sound that good - as in barely recognizable. Sorry. Maybe when I get some better synths programmed :)
 
 3. Read a synth def file:
 
-   sd = ReadSynthDef.read_file("sc_defs/sonic-pi/sonic-pi-piano.scsyndef"); 0
+   ~sd = ReadSynthDef.read_file("sc_defs/sonic-pi/sonic-pi-piano.scsyndef"); 0~
 
    If you know what you're looking at there's lots of good stuff here. For me, for now, the only important items are:
 
-   sd.ndefs # number of synths defined in this file
+   ~sd.ndefs~ # number of synths defined in this file
    1        # in this case 1 defined
 
-   osd = Enum.at(sd.synth_defs, 0); 0 # gets the synth def
+   ~osd = Enum.at(sd.synth_defs, 0); 0~ # gets the synth def
 
-   osd.parameter_names
-   [
+   ~osd.parameter_names~
+
+   =[
    {"note", 0},
    {"amp", 1},
    {"amp_slide", 2},
@@ -101,9 +102,10 @@ Let's take them one at a time.
    {"velcurve", 19},
    {"stereo_width", 20},
    {"out_bus", 21}
-   ]
-   osd.parameter_vals
-   [52.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, -1.0, 1.0, 1.0, 0.20000000298023224, 0.5, 0.800000011920929, 0.0, 0.0]
+   ]=
+
+   ~osd.parameter_vals~
+   =[52.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, -1.0, 1.0, 1.0, 0.20000000298023224, 0.5, 0.800000011920929, 0.0, 0.0]=
 
    where the number for each of the names corresponds to that position in the vals.
 
@@ -112,4 +114,4 @@ Let's take them one at a time.
    2. Execute the synthdefs to load them into supercollider. (put cursor into the brackets of the synthdefs and hit Cntrl-Enter). There's only one bracket, but multiple synths. This step actually loads the synths into supercollider semi-permanently.
    3. You've got a working wind synth, right? Like a yamaha WX-5 or an AKAI EWI 4000s? And a midi interface. Assuming yes, a simple synth will load and play with:
 
-      Modsynth.tt()
+      ~Modsynth.tt()~
