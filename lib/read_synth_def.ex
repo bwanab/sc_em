@@ -2,7 +2,7 @@ defmodule ReadSynthDef do
   import ConversionPrims
   require Logger
 
-  def readFile(name) do
+  def read_file(name) do
     {:ok, f} = File.open(name, [:charlist], fn file ->
       IO.read(file, :all) end )
     synth_definition(f)

@@ -19,3 +19,97 @@
 ** Installation
 
 The only thing that would make sense at this point is to clone the repository and have at it. I'll post some documentation here when I get the chance.
+
+** Usage
+
+Let's take them one at a time.
+
+1. Read a midi file (note there are midi files in the midi directory):
+
+   mid = ReadMidiFile.read_file("midi/Type0_The_Look_Of_Love.mid"); 0
+    mid
+    %{
+        ftype: "MThd",
+            head_size: 6,
+                midi_format: 0,
+                    midi_tracks: [
+                        %{
+                            midi_messages: [
+                                %MidiMessage{
+                                    type: :track_name,
+                                        val: %{delta: 0, val:       "T10307 The Look of Love"}
+                                        },
+    ...
+    %MidiMessage{
+        type: :program_change,
+        val: %{channel: 6, delta: 0, program: 50}
+        },
+        %MidiMessage{
+          type: :cc_event,
+          val: %{cc: 7, channel: 6, delta: 0, val: 60}
+        },
+        %MidiMessage{
+          type: :cc_event,
+          val: %{cc: 10, channel: 6, delta: 0, val: 84}
+        },
+    ...
+
+2. Play that midi file (a couple of steps):
+   1. You've got a working supercollider I assume (if not you need to get it)
+   2. Using the supercollider gui, load the synths in the sc_defs directory into it. (File/Open ...)
+   3. Execute each of the synthdefs to load them into supercollider. (put cursor into the brackets of the synthdef and hit Cntrl-Enter).
+   4. One last one which is from Sonic-Pi. In the supercollider gui, type s.loadDirectory("path-to-this-repository-on-your machine/sc_defs/sonic-pi") and hit Cntrl-Enter.
+
+   Now,
+
+   MidiPlayer.play("midi/Type0_The_Look_Of_Love.mid")
+
+   Note: this really isn't going to sound that good - as in barely recognizable. Sorry. Maybe when I get some better synths programmed :)
+
+3. Read a synth def file:
+
+   sd = ReadSynthDef.read_file("sc_defs/sonic-pi/sonic-pi-piano.scsyndef"); 0
+
+   If you know what you're looking at there's lots of good stuff here. For me, for now, the only important items are:
+
+   sd.ndefs # number of synths defined in this file
+   1        # in this case 1 defined
+
+   osd = Enum.at(sd.synth_defs, 0); 0 # gets the synth def
+
+   osd.parameter_names
+   [
+   {"note", 0},
+   {"amp", 1},
+   {"amp_slide", 2},
+   {"amp_slide_shape", 3},
+   {"amp_slide_curve", 4},
+   {"pan", 5},
+   {"pan_slide", 6},
+   {"pan_slide_shape", 7},
+   {"pan_slide_curve", 8},
+   {"attack", 9},
+   {"decay", 10},
+   {"sustain", 11},
+   {"release", 12},
+   {"attack_level", 13},
+   {"decay_level", 14},
+   {"sustain_level", 15},
+   {"env_curve", 16},
+   {"vel", 17},
+   {"hard", 18},
+   {"velcurve", 19},
+   {"stereo_width", 20},
+   {"out_bus", 21}
+   ]
+   osd.parameter_vals
+   [52.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, -1.0, 1.0, 1.0, 0.20000000298023224, 0.5, 0.800000011920929, 0.0, 0.0]
+
+   where the number for each of the names corresponds to that position in the vals.
+
+4. Play your handy wind synth using modsynth:
+   1. Using the supercollider gui, load the synths in the sc_defs directory into it. (File/Open ...)
+   2. Execute the synthdefs to load them into supercollider. (put cursor into the brackets of the synthdefs and hit Cntrl-Enter). There's only one bracket, but multiple synths. This step actually loads the synths into supercollider semi-permanently.
+   3. You've got a working wind synth, right? Like a yamaha WX-5 or an AKAI EWI 4000s? And a midi interface. Assuming yes, a simple synth will load and play with:
+
+      Modsynth.tt()
