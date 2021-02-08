@@ -24,7 +24,7 @@ defmodule ScEm.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:portmidi, git: "https://github.com/Kovak/ex-portmidi.git"}
+      {:portmidi, git: "https://github.com/bwanab/ex-portmidi.git"}
     ]
   end
 end
