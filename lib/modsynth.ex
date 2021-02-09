@@ -26,7 +26,10 @@ defmodule Modsynth do
         fn [from, to] ->
           {from_name, from_node_param, from_bus_type} = parse_connection_name(nodes, from)
           {to_name, to_node_param, _} = parse_connection_name(nodes, to)
-          # connect_nodes(from_node_param, to_node_param, from_bus_type, from_name <> "_to_" <> to_name)
+          #
+          # Note: side effect!
+          #
+          connect_nodes(from_node_param, to_node_param, from_bus_type, from_name <> "_to_" <> to_name)
           Logger.info("connect_nodes(#{inspect(from_node_param)}, #{inspect(to_node_param)}, #{from_bus_type}, #{from_name <> "_to_" <> to_name}")
           {from_node_param, to_node_param, from_bus_type, from_name <> "_to_" <> to_name}
         end)
@@ -56,7 +59,10 @@ defmodule Modsynth do
   end
 
   def is_external_control(name) do
-    String.starts_with?(name, "const") || String.starts_with?(name, "slider")
+    String.starts_with?(name, "const")
+    || String.starts_with?(name, "slider")
+    || String.starts_with?(name, "cc-in")
+    || String.starts_with?(name, "midi-in")
   end
 
   @doc """
@@ -138,12 +144,12 @@ defmodule Modsynth do
     {note, _, _} = build_module(synths, "const")
     {gain, _, _} = build_module(synths, "const")
 
-    connect_nodes({gain, "ob"}, {amp, "gain"}, :control, "c_to_gain")
-    connect_nodes({note, "ob"}, {note_freq, "note"}, :control, "c_to_note")
-    connect_nodes({note_freq, "ob"}, {saw, "ib" }, :control,"note_to_saw")
-    connect_nodes({saw, "ob"}, {amp, "ib" }, :audio, "saw_to_gain")
-    connect_nodes({amp, "ob"}, {audio_out, "ib1" }, :audio, "gain_to_audio")
-    set_control(gain, "val", 0.1)
+    connect_nodes({gain, "val"}, {amp, "gain"}, :control, "c_to_gain")
+    connect_nodes({note, "val"}, {note_freq, "note"}, :control, "c_to_note")
+    connect_nodes({note_freq, "freq"}, {saw, "in" }, :control,"note_to_saw")
+    connect_nodes({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain")
+    connect_nodes({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio")
+    set_control(gain, "in", 0.1)
     %{:note => note, :gain => gain}
   end
 
@@ -152,32 +158,32 @@ defmodule Modsynth do
     {amp, _, _} = build_module(synths, "amp")
     {saw, _, _} = build_module(synths, "saw-osc")
     {note_freq, _, _} = build_module(synths, "note-freq")
-    {midi_in, _, _} = build_module(synths, "midi-in")
+    {midi_in, _, _} = build_module(synths, "midi-in-note")
     midi_pid = MidiInClient.start_midi(midi_in)
     {gain, _, _} = build_module(synths, "cc-in")
-    :ok = MidiInClient.register_cc(2, gain, "ib")
-    :ok = MidiInClient.register_cc(7, gain, "ib")
+    :ok = MidiInClient.register_cc(2, gain, "in")
+    :ok = MidiInClient.register_cc(7, gain, "in")
 
-    connect_nodes({gain, "ob"}, {amp, "gain"}, :control, "c_to_gain")
-    connect_nodes({midi_in, "ob"}, {note_freq, "note"}, :control, "c_to_note")
-    connect_nodes({note_freq, "ob"}, {saw, "ib" }, :control,"note_to_saw")
-    connect_nodes({saw, "ob"}, {amp, "ib" }, :audio, "saw_to_gain")
-    connect_nodes({amp, "ob"}, {audio_out, "ib1" }, :audio, "gain_to_audio")
-    set_control(gain, "ib", 0.1)
+    connect_nodes({gain, "val"}, {amp, "gain"}, :control, "c_to_gain")
+    connect_nodes({midi_in, "out"}, {note_freq, "note"}, :control, "c_to_note")
+    connect_nodes({note_freq, "freq"}, {saw, "freq" }, :control,"note_to_saw")
+    connect_nodes({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain")
+    connect_nodes({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio")
+    set_control(gain, "in", 0.1)
     %{:midi_pid => midi_pid, :gain => gain}
   end
 
   def tt() do
-    MidiIn.start(0,0)
+    #MidiIn.start(0,0)
     synths = init()
     Process.sleep(2000)
     t2(synths)
   end
 
 
-  def trf() do
+  def trf(file) do
     synths = init()
-    read_file(synths, "examples/cc-in.json")
+    read_file(synths, file)
   end
 
   def tpm() do

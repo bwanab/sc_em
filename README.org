@@ -20,6 +20,8 @@
 
 The only thing that would make sense at this point is to clone the repository and have at it. I'll post some documentation here when I get the chance.
 
+Note that before doing mix deps.get, ensure that libportmidi is installed on the same system. On macos use: brew install portmidi.
+
 ** Usage
 
 Let's take them one at a time.
@@ -30,28 +32,28 @@ Let's take them one at a time.
    ~mid~
    =%{
         ftype: "MThd",
-            head_size: 6,
-                midi_format: 0,
-                    midi_tracks: [
-                        %{
-                            midi_messages: [
-                                %MidiMessage{
-                                    type: :track_name,
-                                        val: %{delta: 0, val:       "T10307 The Look of Love"}
-                                        },
+        head_size: 6,
+        midi_format: 0,
+        midi_tracks: [
+        %{
+            midi_messages: [
+                %MidiMessage{
+                    type: :track_name,
+                    val: %{delta: 0, val:       "T10307 The Look of Love"}
+                    },
     ...
-    %MidiMessage{
-        type: :program_change,
-        val: %{channel: 6, delta: 0, program: 50}
-        },
-        %MidiMessage{
-          type: :cc_event,
-          val: %{cc: 7, channel: 6, delta: 0, val: 60}
-        },
-        %MidiMessage{
-          type: :cc_event,
-          val: %{cc: 10, channel: 6, delta: 0, val: 84}
-        },
+                %MidiMessage{
+                    type: :program_change,
+                    val: %{channel: 6, delta: 0, program: 50}
+                    },
+                %MidiMessage{
+                    type: :cc_event,
+                    val: %{cc: 7, channel: 6, delta: 0, val: 60}
+                    },
+                %MidiMessage{
+                    type: :cc_event,
+                    val: %{cc: 10, channel: 6, delta: 0, val: 84}
+                    },
     ...=
 
 2. Play that midi file (a couple of steps):
