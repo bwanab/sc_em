@@ -30,7 +30,6 @@ defmodule Modsynth do
           # Note: side effect!
           #
           connect_nodes(from_node_param, to_node_param, from_bus_type, from_name <> "_to_" <> to_name)
-          Logger.info("connect_nodes(#{inspect(from_node_param)}, #{inspect(to_node_param)}, #{from_bus_type}, #{from_name <> "_to_" <> to_name}")
           {from_node_param, to_node_param, from_bus_type, from_name <> "_to_" <> to_name}
         end)
       Enum.filter(connections, fn {_fnp, _tnp, _bus, name} -> is_external_control(name)  end)
@@ -61,6 +60,7 @@ defmodule Modsynth do
   def is_external_control(name) do
     String.starts_with?(name, "const")
     || String.starts_with?(name, "slider")
+    || String.starts_with?(name, "cc-cont-in")
     || String.starts_with?(name, "cc-in")
     || String.starts_with?(name, "midi-in")
   end
@@ -98,6 +98,7 @@ defmodule Modsynth do
   end
 
   def connect_nodes({n1, outc}, {n2, inc}, ct, name) do
+    Logger.info("connect_nodes(#{inspect({n1, outc})}, #{inspect({n2, inc})}, #{ct}, #{name}")
     bus = get_bus(ct, name)
     set_control(n1, outc, bus)
     set_control(n2, inc, bus)
@@ -173,11 +174,29 @@ defmodule Modsynth do
     %{:midi_pid => midi_pid, :gain => gain}
   end
 
+  def t3(synths) do
+    {audio_out, _, _} = build_module(synths, "audio-out")
+    {amp, _, _} = build_module(synths, "amp")
+    {saw, _, _} = build_module(synths, "saw-osc")
+    {midi_in, _, _} = build_module(synths, "midi-in")
+    midi_pid = MidiInClient.start_midi(midi_in)
+    {gain, _, _} = build_module(synths, "cc-cont-in")
+    :ok = MidiInClient.register_cc(2, gain, "in")
+    :ok = MidiInClient.register_cc(7, gain, "in")
+
+    connect_nodes({gain, "val"}, {amp, "gain"}, :control, "c_to_gain")
+    connect_nodes({midi_in, "freq"}, {saw, "freq" }, :control,"note_to_saw")
+    connect_nodes({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain")
+    connect_nodes({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio")
+    set_control(gain, "in", 0.1)
+    %{:midi_pid => midi_pid, :gain => gain}
+  end
+
   def tt() do
     #MidiIn.start(0,0)
     synths = init()
     Process.sleep(2000)
-    t2(synths)
+    t3(synths)
   end
 
 
