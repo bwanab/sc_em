@@ -10,10 +10,12 @@ defmodule MidiIn.State do
   defstruct note_module_id: 0,
     note_control: "",
     cc_registry: %{},
+    midi_pid: 0,
     bad_midi_messages: 0
   @type t :: %__MODULE__{note_module_id: integer,
                          note_control: String.t,
                          cc_registry: map,
+                         midi_pid: integer,
                          bad_midi_messages: integer
   }
 end
@@ -56,11 +58,14 @@ defmodule MidiIn do
   end
 
   @impl true
-  def handle_call({:start_midi, device, synth, note_control}, _from, state) do
+  def handle_call({:start_midi, device, synth, note_control}, _from, %State{midi_pid: old_pid} = state) do
+    if old_pid != 0 do
+      :ok = PortMidi.close(:input, old_pid)
+    end
     {:ok, midi_pid} = PortMidi.open(:input, device)
     PortMidi.listen(midi_pid, self())
     Logger.info("device #{device}, synth #{synth}, note_control #{note_control}")
-    {:reply, {:ok, midi_pid}, %{state | note_module_id: synth, note_control: note_control}}
+    {:reply, {:ok, midi_pid}, %{state | note_module_id: synth, note_control: note_control, midi_pid: midi_pid}}
   end
 
   @impl true
@@ -74,7 +79,7 @@ defmodule MidiIn do
   @impl true
   def handle_call({:stop_midi, midi_pid}, _from, state) do
     :ok = PortMidi.close(:input, midi_pid)
-    {:reply, :ok, %{state | midi_module_id: 0}}
+    {:reply, :ok, %{state | midi_pid: 0}}
   end
 
 

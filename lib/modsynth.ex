@@ -125,19 +125,21 @@ defmodule Modsynth do
 
   def handle_midi_connection(%Modsynth.Connection{
         from_node_param: %Modsynth.Node_Param{
-          node: node}}) when node.name == "midi-in" do
-    MidiInClient.start_midi(node.sc_id)
-    node
-  end
-
-  def handle_midi_connection(%Modsynth.Connection{
-        from_node_param: %Modsynth.Node_Param{
-          node: from_node},
+          node: node},
         to_node_param: %Modsynth.Node_Param{
-            node: to_node}}) when from_node.name == "cc-in" and to_node.name == "gain" do
-    MidiInClient.register_cc(2, from_node.sc_id, "in")
-    MidiInClient.register_cc(7, from_node.sc_id, "in")
-    from_node
+          param_name: param_name}}) do
+    case node.name do
+      "midi-in" ->
+        #Logger.info("handle_midi_connection: #{node.sc_id}")
+        MidiInClient.start_midi(node.sc_id)
+      "cc-in" ->
+        #Logger.info("handle_midi_connection: cc-in: #{param_name}")
+        if param_name == "gain" do
+          MidiInClient.register_cc(2, node.sc_id, "in")
+          MidiInClient.register_cc(7, node.sc_id, "in")
+        end
+    end
+    node
   end
 
   def parse_connections(nodes, connections) do
