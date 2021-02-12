@@ -37,8 +37,21 @@ end
 defmodule Modsynth do
   require Logger
   import ScClient
+  alias Modsynth.Node
+  alias Modsynth.Node_Param
+  alias Modsynth.Connection
+
+  @doc """
+  play an instrument definition file. There are several in the examples directory.
+  """
+  def play(fname) do
+    init()
+    |> read_file(fname)
+    |> build_modules
+  end
 
   def init() do
+    MidiIn.start(0,0)
     load_synths(Application.get_env(:sc_em, :remote_synth_dir))
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
   end
@@ -98,7 +111,7 @@ defmodule Modsynth do
     end
   end
 
-  def build_modules(nodes, connections) do
+  def build_modules({nodes, connections}) do
     node_map = reorder_nodes(connections, nodes)
     |> Enum.map(fn node -> %{node | sc_id: build_module(node)} end)
     |> map_nodes_by_node_id()
@@ -109,10 +122,10 @@ defmodule Modsynth do
     # hold the nodes which the connections have pointers to.
     #
     Enum.map(connections, fn cnct ->
-      %Modsynth.Connection{cnct |
-                           from_node_param: %Modsynth.Node_Param{cnct.from_node_param |
+      %Connection{cnct |
+                           from_node_param: %Node_Param{cnct.from_node_param |
                                                                  node: node_map[cnct.from_node_param.node.node_id]},
-                           to_node_param: %Modsynth.Node_Param{cnct.to_node_param |
+                           to_node_param: %Node_Param{cnct.to_node_param |
                                                                  node: node_map[cnct.to_node_param.node.node_id]}}
     end)
     #
@@ -123,10 +136,10 @@ defmodule Modsynth do
     |> Enum.map(fn connection -> handle_midi_connection(connection) end)
   end
 
-  def handle_midi_connection(%Modsynth.Connection{
-        from_node_param: %Modsynth.Node_Param{
+  def handle_midi_connection(%Connection{
+        from_node_param: %Node_Param{
           node: node},
-        to_node_param: %Modsynth.Node_Param{
+        to_node_param: %Node_Param{
           param_name: param_name}}) do
     case node.name do
       "midi-in" ->
@@ -137,6 +150,7 @@ defmodule Modsynth do
         if param_name == "gain" do
           MidiInClient.register_cc(2, node.sc_id, "in")
           MidiInClient.register_cc(7, node.sc_id, "in")
+          ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
         end
     end
     node
@@ -147,7 +161,7 @@ defmodule Modsynth do
       fn [from, to] ->
         from_node_param = parse_connection_name(nodes, from)
         to_node_param = parse_connection_name(nodes, to)
-        %Modsynth.Connection{from_node_param: from_node_param,
+        %Connection{from_node_param: from_node_param,
                              to_node_param: to_node_param,
                              bus_type: from_node_param.node.bus_type,
                              desc: from_node_param.node.name <> "_to_" <> to_node_param.node.name}
@@ -171,7 +185,7 @@ defmodule Modsynth do
     [ids, param] = String.split(id_spec, "-", parts: 2)
     id = String.to_integer(ids)
     node = nodes[id]
-    %Modsynth.Node_Param{node: node, param_name: param}
+    %Node_Param{node: node, param_name: param}
   end
 
   def is_external_control(name) do
@@ -216,11 +230,11 @@ defmodule Modsynth do
 
   def connect_nodes(connection) do
     Logger.info("connect_nodes(#{inspect(connection)}")
-    %Modsynth.Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
+    %Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
     bus = get_bus(from.node.bus_type, desc)
     set_control(from.node.sc_id, from.param_name, bus)
     set_control(to.node.sc_id, to.param_name, bus)
-    %Modsynth.Connection{connection | bus_id: bus}
+    %Connection{connection | bus_id: bus}
   end
 
   def get_module(synths, name) do
@@ -237,13 +251,13 @@ defmodule Modsynth do
 
     if synth_name != "" do
       {synth_params, bus_type} = synths[synth_name]
-      %Modsynth.Node{name: synth_name, parameters: synth_params, bus_type: bus_type}
+      %Node{name: synth_name, parameters: synth_params, bus_type: bus_type}
     else 0
     end
   end
 
   def build_module(node) do
-    %Modsynth.Node{name: synth_name, parameters: synth_params} = node
+    %Node{name: synth_name, parameters: synth_params} = node
     id = make_module(synth_name, synth_params)
     Logger.info("build_module: #{synth_name} id #{id}")
     id
@@ -262,9 +276,9 @@ defmodule Modsynth do
   #################################################################################
 
   def make_connection({from_node, from_param}, {to_node, to_param}, bus_type, desc) do
-    %Modsynth.Connection{
-      from_node_param: %Modsynth.Node_Param{node: from_node, param_name: from_param},
-      to_node_param: %Modsynth.Node_Param{node: to_node, param_name: to_param},
+    %Connection{
+      from_node_param: %Node_Param{node: from_node, param_name: from_param},
+      to_node_param: %Node_Param{node: to_node, param_name: to_param},
       bus_type: bus_type,
       desc: desc
     }
