@@ -2,7 +2,7 @@
 ~dir = "/home/bill/Dropbox/music/supercollider/synthdefs/modsynth/";
 
 SynthDef("audio-out", {arg b1 = 55, b2 = 56;
-	Out.ar(0, In.ar(b1), In.ar(b2));
+	Out.ar(0, In.ar([b1, b2]));
 }).writeDefFile(~dir);
 
 SynthDef("audio-in", {arg out = 55;
@@ -14,7 +14,7 @@ SynthDef("c-splitter", {arg ob1 = 65, ob2 = 66, in = 55;
 }).writeDefFile(~dir);
 
 SynthDef("a-splitter", {arg ob1 = 65, ob2 = 66, in = 55, pos = 0, lev = 0.1;
-	Out.ar([ob1, ob2], Pan2.ar(In.ar(in), pos, lev));
+	Out.ar([ob1, ob2], Pan2.ar(In.ar(in), pos, In.kr(lev)));
 }).writeDefFile(~dir);
 
 SynthDef("a-mixer-2", {arg out = 65, in1 = 55, in2 = 56;

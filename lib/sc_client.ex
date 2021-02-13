@@ -67,6 +67,10 @@ defmodule ScClient do
     sendMsg({"/n_free", [id]})
   end
 
+  def group_free(id) do
+    sendMsg({"/g_freeAll", [id]})
+  end
+
   def quit() do
     sendMsg({"/quit", [24, 0]})
   end

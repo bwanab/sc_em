@@ -54,6 +54,7 @@ defmodule Modsynth do
 
   def init() do
     MidiIn.start(0,0)
+    group_free(1)
     load_synths(Application.get_env(:sc_em, :remote_synth_dir))
     Process.sleep(2000)  # should be a better way to do this!
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
@@ -244,12 +245,13 @@ defmodule Modsynth do
   end
 
   def connect_nodes(connection) do
-    Logger.info("connect_nodes(#{inspect(connection)}")
     %Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
     bus = get_bus(from.node.bus_type, desc)
     set_control(from.node.sc_id, from.param_name, bus)
     set_control(to.node.sc_id, to.param_name, bus)
-    %Connection{connection | bus_id: bus}
+    c = %Connection{connection | bus_id: bus}
+    Logger.info("connect_nodes #{desc}, #{from.node.sc_id}, #{inspect(List.first(from.node.parameters))} #{bus}")
+    c
   end
 
   def get_module(synths, name) do
