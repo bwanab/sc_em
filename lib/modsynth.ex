@@ -3,11 +3,13 @@ defmodule Modsynth.Node do
     parameters: [],
     bus_type: :audio,
     node_id: 0,
+    val: nil,
     sc_id: 1001
   @type t :: %__MODULE__{name: String.t,
                          parameters: list,
                          bus_type: atom,
                          node_id: integer,
+                         val: float,
                          sc_id: integer
   }
 end
@@ -53,6 +55,7 @@ defmodule Modsynth do
   def init() do
     MidiIn.start(0,0)
     load_synths(Application.get_env(:sc_em, :remote_synth_dir))
+    Process.sleep(2000)  # should be a better way to do this!
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
   end
 
@@ -65,11 +68,11 @@ defmodule Modsynth do
       {:ok, d} = File.read(fname)
       {:ok, ms} = Jason.decode(d)
       node_specs = Enum.map(ms["nodes"],
-        fn x -> parse_node_name(x["w"]) end) |> Enum.into(%{})
+        fn x -> parse_node_name(x["w"], x["v"]) end) |> Enum.into(%{})
 
       nodes = Enum.map(Map.keys(node_specs),
-        fn k -> {k, get_module(synths, node_specs[k])} end)
-      |> Enum.map(fn {k, node} -> %{node | node_id: k} end)
+        fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k].val} end)
+      |> Enum.map(fn {k, node, val} -> %{node | node_id: k, val: val} end)
 
       connections = parse_connections(map_nodes_by_node_id(nodes), ms["connections"])
       {nodes, connections}
@@ -83,14 +86,6 @@ defmodule Modsynth do
     |> Enum.into(%{})
   end
 
-  def map_nodes_by_name(nodes) do
-    Enum.map(nodes, fn node ->
-      %{name: name} = node
-      {name, node}
-    end)
-    |> Enum.into(%{})
-  end
-
   @doc """
   The order in which the synths are built matters to supercollider. In general, the
   closest to the output must be built first, the the next closest and so-on.
@@ -98,18 +93,26 @@ defmodule Modsynth do
   This function does the proper ordering.
   """
   def reorder_nodes(connections, nodes) when is_list(nodes) do
-    order = ["audio-out"] ++ List.flatten(reorder_nodes(connections, "audio-out"))
-    |> Enum.take_while(fn x -> !is_nil(x) end)
-    node_map = map_nodes_by_name(nodes)
-    Enum.map(order, fn name -> node_map[name] end)
+    audio_out = Enum.find(nodes, fn node -> node.name == "audio-out" end).node_id
+    order = [audio_out] ++ List.flatten(reorder_nodes(connections, audio_out))
+    |> Enum.reject(&is_nil/1) |> Enum.reverse |> Enum.uniq |> Enum.reverse   # remove_nils and dups
+    node_map = map_nodes_by_node_id(nodes)
+    Enum.map(order, fn id -> node_map[id] end)
   end
 
   def reorder_nodes(connections, node) do
-    nodes = for c when c.to_node_param.node.name == node <- connections do c.from_node_param.node.name end
+    nodes = for c when c.to_node_param.node.node_id == node <- connections do c.from_node_param.node.node_id end
     if length(nodes) > 0 do
       nodes ++ for innode <- nodes, do: reorder_nodes(connections, innode)
     end
   end
+
+  # def remove_dups(nodes) do
+  #   new_nodes = Enum.reduce(nodes, %{}, fn x, acc -> Map.put(acc, x, Map.get(acc, x, -1) + 1) end)
+  #   |> Enum.filter(fn {_k, v} -> v > 0 end)
+  #   |> Enum.reduce(nodes, fn {x, _num}, acc ->  List.delete(acc, x) end)
+  #   if new_nodes != nodes do remove_dups(new_nodes) else new_nodes end
+  #  end
 
   def build_modules({nodes, connections}) do
     node_map = reorder_nodes(connections, nodes)
@@ -134,13 +137,20 @@ defmodule Modsynth do
     |> Enum.map(fn connection -> connect_nodes(connection) end)
     |> Enum.filter(fn connection -> is_external_control(connection.from_node_param.node.name)  end)
     |> Enum.map(fn connection -> handle_midi_connection(connection) end)
+    |> Enum.map(fn connection ->
+      from_node = connection.from_node_param.node
+      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0)}
+    end)
   end
 
-  def handle_midi_connection(%Connection{
+  def handle_midi_connection(connection) do
+    %Connection{
         from_node_param: %Node_Param{
           node: node},
         to_node_param: %Node_Param{
-          param_name: param_name}}) do
+          param_name: param_name}} = connection
+
+    Logger.info("handle_midi_connection: #{node.name}")
     case node.name do
       "midi-in" ->
         #Logger.info("handle_midi_connection: #{node.sc_id}")
@@ -152,8 +162,13 @@ defmodule Modsynth do
           MidiInClient.register_cc(7, node.sc_id, "in")
           ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
         end
-    end
-    node
+      "const" ->
+        if !is_nil(node.val) do
+          ScClient.set_control(node.sc_id, "in", node.val)
+        end
+        _ -> Logger.info("not handled")
+     end
+    connection
   end
 
   def parse_connections(nodes, connections) do
@@ -168,9 +183,9 @@ defmodule Modsynth do
       end)
   end
 
-  def parse_node_name(s) do
+  def parse_node_name(s, v) do
     [node, id] = String.split(s, ":")
-    {String.to_integer(id), node}
+    {String.to_integer(id), %{name: node, val: v}}
   end
 
   @doc """
