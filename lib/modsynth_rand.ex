@@ -2,10 +2,12 @@ defmodule Modsynth.Rand.State do
   defstruct last_note: 0,
     last_rhythm: 0,
     note_control: 0,
+    bpm: 240,
     scale: []
   @type t :: %__MODULE__{last_note: integer,
                          last_rhythm: integer,
                          note_control: integer,
+                         bpm: integer,
                          scale: list
   }
 end
@@ -38,6 +40,14 @@ defmodule Modsynth.Rand do
     GenServer.call(pid, {:set_scale, scale})
   end
 
+  def set_bpm(pid, bpm) do
+    GenServer.call(pid, {:set_bpm, bpm})
+  end
+
+  def get_bpm(pid) do
+    GenServer.call(pid, :get_bpm)
+  end
+
   def next(pid) do
     GenServer.call(pid, :next)
   end
@@ -53,13 +63,13 @@ defmodule Modsynth.Rand do
     {first_note, first_dur} = next(pid)
     Logger.info("first note #{first_note} first dur #{first_dur}")
     ScClient.set_control(note, "in", first_note)
-    schedule_next_note(pid, first_dur)
+    schedule_next_note(pid, first_dur, get_bpm(pid))
   end
 
 
-  defp schedule_next_note(pid, dur) do
+  defp schedule_next_note(pid, dur, bpm) do
     Logger.info("schedule next note at: #{dur * 250}")
-    Process.send_after(pid, :next_note, dur * 250)
+    Process.send_after(pid, :next_note, dur * floor(1000 * 60 / bpm))
   end
 
   #######################
@@ -73,6 +83,7 @@ defmodule Modsynth.Rand do
 
   @impl true
   def handle_call(:stop, _from, status) do
+    ScClient.group_free(1)
     {:stop, :normal, status}
   end
 
@@ -88,6 +99,16 @@ defmodule Modsynth.Rand do
   end
 
   @impl true
+  def handle_call({:set_bpm, bpm}, _from, state) do
+    {:reply, :ok, %State{state | bpm: bpm}}
+  end
+
+  @impl true
+  def handle_call(:get_bpm, _from, %State{bpm: bpm} = state) do
+    {:reply, bpm, state}
+  end
+
+  @impl true
   def handle_call(:next, _from, %State{last_note: last_note,
                                        scale: scale} = state) do
     next_note = Modsynth.Rand.rand(last_note, scale)
@@ -98,11 +119,12 @@ defmodule Modsynth.Rand do
   @impl true
   def handle_info(:next_note, %State{last_note: last_note,
                                      scale: scale,
-                                     note_control: note} = state) do
+                                     note_control: note,
+                                     bpm: bpm} = state) do
     next_note = Modsynth.Rand.rand(last_note, scale)
     next_rhythm = rhythm()
     ScClient.set_control(note, "in", next_note)
-    schedule_next_note(self(), next_rhythm)
+    schedule_next_note(self(), next_rhythm, bpm)
     {:noreply, %State{state | last_note: next_note, last_rhythm: next_rhythm}}
   end
 
