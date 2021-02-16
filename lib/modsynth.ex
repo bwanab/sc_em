@@ -62,29 +62,35 @@ defmodule Modsynth do
     terminal_node = List.first(reorder_nodes(connections, nodes))
     params = Enum.reduce(terminal_node.parameters, "", fn [name, _], acc -> name <> " " <> acc  end)
     build_visualization(terminal_node, connections, "to #{params}")
+    |> unroll_tree(0)
   end
 
   def build_visualization(node, connections, params) do
     connects_from = Enum.filter(connections, fn c -> c.to_node_param.node.node_id == node.node_id end)
     |> Enum.uniq_by(fn c -> c.from_node_param.node.node_id end)
-    Enum.map(connects_from, fn c ->
+    [{node.name, node.node_id, params}] ++ Enum.map(connects_from, fn c ->
       connect_points = "from #{c.from_node_param.param_name} to #{c.to_node_param.param_name}"
       build_visualization(c.from_node_param.node, connections, connect_points)
-    end) ++ [{node.name, node.node_id, params}]
+    end)
   end
+
 
   @blank "                                         "
-  def unroll_tree(t, n) when is_list(t) do
-    new_t = List.first(t)
-    new_n = unroll_tree(new_t, n+1)
-    Logger.info("#{String.slice(@blank, 0..4*(new_n-n-1))} #{inspect(List.last(t))}")
-    new_n
-  end
-
-  def unroll_tree(t, n) do
+  @doc """
+  A really crappy ciruit display :(
+  """
+  def unroll_tree([fst|rest], n) when length(rest) == 0 do
+    label = "#{String.slice(@blank, 0..(4*(10 - n))-20)} #{inspect(fst)} #{n}"
+    Logger.info(label)
     n
   end
-  
+
+  def unroll_tree([fst|rest], n) do
+    Enum.map(rest, fn t -> unroll_tree(t, n+1) end)
+    unroll_tree([fst], n+1)
+    n+1
+  end
+
   def init() do
     MidiIn.start(0,0)
     group_free(1)

@@ -52,19 +52,32 @@ defmodule Modsynth.Rand do
     GenServer.call(pid, :next)
   end
 
-  def play(pid, _file) do
-    controls = Modsynth.play("examples/cc-in3.json")
+  def get_scale({key, scale_type}) do
+    f = case scale_type do
+      :pent -> &MusicPrims.pent_scale/2
+      :major -> &MusicPrims.major_scale/2
+      :minor -> &MusicPrims.minor_scale/2
+    end
+    MusicPrims.scale_seq(key, 4, f)
+  end
+
+  def play(file, scale \\ {:D, :pent}, bpm \\ 240) do
+    pid = start()
+    set_scale(pid, get_scale(scale))
+    controls = Modsynth.play(file)
     {_, note, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_note-freq" end)
     {_, amp, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_amp" end)
-    {_, splitter_level, _} = Enum.find(controls, fn {name, _, _} -> name == "const_to_a-splitter" end)
-    ScClient.set_control(splitter_level, "in", 1)
+    # {_, splitter_level, _} = Enum.find(controls, fn {name, _, _} -> name == "const_to_a-splitter" end)
+    # ScClient.set_control(splitter_level, "in", 1)
     ScClient.set_control(amp, "in", 0.3)
     Logger.info("note control: #{note}")
     GenServer.call(pid, {:set_note_control, note})
     {first_note, first_dur} = next(pid)
     Logger.info("first note #{first_note} first dur #{first_dur}")
     ScClient.set_control(note, "in", first_note)
-    schedule_next_note(pid, first_dur, get_bpm(pid))
+    set_bpm(pid, bpm)
+    schedule_next_note(pid, first_dur, bpm)
+    pid
   end
 
 
