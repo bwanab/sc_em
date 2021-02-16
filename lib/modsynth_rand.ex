@@ -55,9 +55,10 @@ defmodule Modsynth.Rand do
   def play(pid, _file) do
     controls = Modsynth.play("examples/cc-in3.json")
     {_, note, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_note-freq" end)
-    # {_, amp, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_amp" end)
+    {_, amp, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_amp" end)
     {_, splitter_level, _} = Enum.find(controls, fn {name, _, _} -> name == "const_to_a-splitter" end)
     ScClient.set_control(splitter_level, "in", 1)
+    ScClient.set_control(amp, "in", 0.3)
     Logger.info("note control: #{note}")
     GenServer.call(pid, {:set_note_control, note})
     {first_note, first_dur} = next(pid)
@@ -68,7 +69,6 @@ defmodule Modsynth.Rand do
 
 
   defp schedule_next_note(pid, dur, bpm) do
-    Logger.info("schedule next note at: #{dur * 250}")
     Process.send_after(pid, :next_note, dur * floor(1000 * 60 / bpm))
   end
 
@@ -132,7 +132,13 @@ defmodule Modsynth.Rand do
   def closest(note, scale) do
     index = Enum.find_index(scale, fn x -> x > note end)
     if is_nil(index) do
-      Enum.at(scale,:rand.uniform(length(scale)))
+      len = length(scale)
+      pos = :rand.uniform(floor(len / 4))
+      if note < List.first(scale) do
+        Enum.at(scale, pos)
+      else
+        Enum.at(scale, len - pos)
+      end
     else
       val1 = Enum.at(scale, index - 1)
       val2 = Enum.at(scale, index)

@@ -52,6 +52,39 @@ defmodule Modsynth do
     |> build_modules
   end
 
+  def look(fname) do
+    init()
+    |> read_file(fname)
+    |> visualize
+  end
+
+  def visualize({nodes, connections}) do
+    terminal_node = List.first(reorder_nodes(connections, nodes))
+    params = Enum.reduce(terminal_node.parameters, "", fn [name, _], acc -> name <> " " <> acc  end)
+    build_visualization(terminal_node, connections, "to #{params}")
+  end
+
+  def build_visualization(node, connections, params) do
+    connects_from = Enum.filter(connections, fn c -> c.to_node_param.node.node_id == node.node_id end)
+    |> Enum.uniq_by(fn c -> c.from_node_param.node.node_id end)
+    Enum.map(connects_from, fn c ->
+      connect_points = "from #{c.from_node_param.param_name} to #{c.to_node_param.param_name}"
+      build_visualization(c.from_node_param.node, connections, connect_points)
+    end) ++ [{node.name, node.node_id, params}]
+  end
+
+  @blank "                                         "
+  def unroll_tree(t, n) when is_list(t) do
+    new_t = List.first(t)
+    new_n = unroll_tree(new_t, n+1)
+    Logger.info("#{String.slice(@blank, 0..4*(new_n-n-1))} #{inspect(List.last(t))}")
+    new_n
+  end
+
+  def unroll_tree(t, n) do
+    n
+  end
+  
   def init() do
     MidiIn.start(0,0)
     group_free(1)
@@ -108,12 +141,6 @@ defmodule Modsynth do
     end
   end
 
-  # def remove_dups(nodes) do
-  #   new_nodes = Enum.reduce(nodes, %{}, fn x, acc -> Map.put(acc, x, Map.get(acc, x, -1) + 1) end)
-  #   |> Enum.filter(fn {_k, v} -> v > 0 end)
-  #   |> Enum.reduce(nodes, fn {x, _num}, acc ->  List.delete(acc, x) end)
-  #   if new_nodes != nodes do remove_dups(new_nodes) else new_nodes end
-  #  end
 
   def build_modules({nodes, connections}) do
     node_map = reorder_nodes(connections, nodes)
