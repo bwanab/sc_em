@@ -14,7 +14,7 @@ defmodule ScEm.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:portmidi],
+      applications: [:portmidi, :jason, :music_prims],
       extra_applications: [:logger],
       mod: {ScEm, []}
     ]
