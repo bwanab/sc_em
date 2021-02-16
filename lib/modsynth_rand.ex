@@ -65,11 +65,12 @@ defmodule Modsynth.Rand do
     pid = start()
     set_scale(pid, get_scale(scale))
     controls = Modsynth.play(file)
-    {_, note, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_note-freq" end)
-    {_, amp, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_amp" end)
+    {_, note, _, _} = Enum.find(controls, fn {_, _, _, note_control} -> note_control end)
+    # {_, note, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_note-freq" end)
+    # {_, amp, _} = Enum.find(controls, fn {name, _, _} -> name == "cc-in_to_amp" end)
     # {_, splitter_level, _} = Enum.find(controls, fn {name, _, _} -> name == "const_to_a-splitter" end)
     # ScClient.set_control(splitter_level, "in", 1)
-    ScClient.set_control(amp, "in", 0.3)
+    # ScClient.set_control(amp, "in", 0.3)
     Logger.info("note control: #{note}")
     GenServer.call(pid, {:set_note_control, note})
     {first_note, first_dur} = next(pid)
@@ -77,7 +78,7 @@ defmodule Modsynth.Rand do
     ScClient.set_control(note, "in", first_note)
     set_bpm(pid, bpm)
     schedule_next_note(pid, first_dur, bpm)
-    pid
+    {pid, controls}
   end
 
 

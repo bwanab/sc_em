@@ -4,12 +4,14 @@ defmodule Modsynth.Node do
     bus_type: :audio,
     node_id: 0,
     val: nil,
+    note_control: false,
     sc_id: 1001
   @type t :: %__MODULE__{name: String.t,
                          parameters: list,
                          bus_type: atom,
                          node_id: integer,
                          val: float,
+                         note_control: boolean,
                          sc_id: integer
   }
 end
@@ -62,7 +64,7 @@ defmodule Modsynth do
     terminal_node = List.first(reorder_nodes(connections, nodes))
     params = Enum.reduce(terminal_node.parameters, "", fn [name, _], acc -> name <> " " <> acc  end)
     build_visualization(terminal_node, connections, "to #{params}")
-    |> unroll_tree(0)
+    # |> unroll_tree(0)
   end
 
   def build_visualization(node, connections, params) do
@@ -80,7 +82,7 @@ defmodule Modsynth do
   A really crappy ciruit display :(
   """
   def unroll_tree([fst|rest], n) when length(rest) == 0 do
-    label = "#{String.slice(@blank, 0..(4*(10 - n))-20)} #{inspect(fst)} #{n}"
+    label = "#{String.slice(@blank, 0..(4*(10 - n))-10)} #{inspect(fst)} #{n}"
     Logger.info(label)
     n
   end
@@ -108,12 +110,12 @@ defmodule Modsynth do
       {:ok, d} = File.read(fname)
       {:ok, ms} = Jason.decode(d)
       node_specs = Enum.map(ms["nodes"],
-        fn x -> parse_node_name(x["w"], x["v"]) end) |> Enum.into(%{})
+        fn x -> parse_node_name(x["w"], x["v"], x["note-control"]) end) |> Enum.into(%{})
 
       nodes = Enum.map(Map.keys(node_specs),
-        fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k].val} end)
-      |> Enum.map(fn {k, node, val} -> %{node | node_id: k, val: val} end)
-
+        fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end)
+        |> Enum.map(fn {k, node, specs} -> %{node | node_id: k, val: specs.val,
+                                            note_control: specs.note_control} end)
       connections = parse_connections(map_nodes_by_node_id(nodes), ms["connections"])
       {nodes, connections}
   end
@@ -173,7 +175,7 @@ defmodule Modsynth do
     |> Enum.map(fn connection -> handle_midi_connection(connection) end)
     |> Enum.map(fn connection ->
       from_node = connection.from_node_param.node
-      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0)}
+      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), from_node.note_control}
     end)
   end
 
@@ -217,9 +219,9 @@ defmodule Modsynth do
       end)
   end
 
-  def parse_node_name(s, v) do
+  def parse_node_name(s, v, note_control) do
     [node, id] = String.split(s, ":")
-    {String.to_integer(id), %{name: node, val: v}}
+    {String.to_integer(id), %{name: node, val: v, note_control: note_control}}
   end
 
   @doc """
