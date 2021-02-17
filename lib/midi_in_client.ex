@@ -1,6 +1,6 @@
 defmodule MidiInClient do
-  def start_midi(synth) do
-    GenServer.call(MidiIn, {:start_midi, "mio", synth, "note"})
+  def start_midi(synth, param) do
+    GenServer.call(MidiIn, {:start_midi, "mio", synth, param})
   end
 
   def register_cc(cc_num, cc, control) do

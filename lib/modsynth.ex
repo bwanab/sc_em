@@ -4,14 +4,14 @@ defmodule Modsynth.Node do
     bus_type: :audio,
     node_id: 0,
     val: nil,
-    note_control: false,
+    control: false,
     sc_id: 1001
   @type t :: %__MODULE__{name: String.t,
                          parameters: list,
                          bus_type: atom,
                          node_id: integer,
                          val: float,
-                         note_control: boolean,
+                         control: atom,
                          sc_id: integer
   }
 end
@@ -101,6 +101,9 @@ defmodule Modsynth do
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
   end
 
+  def atom_or_nil(s) when is_nil(s) do nil end
+  def atom_or_nil(s) do String.to_atom(s) end
+
   @doc """
   read a stored modsynth circuit spec file, create the modules and make the connections
 
@@ -110,12 +113,12 @@ defmodule Modsynth do
       {:ok, d} = File.read(fname)
       {:ok, ms} = Jason.decode(d)
       node_specs = Enum.map(ms["nodes"],
-        fn x -> parse_node_name(x["w"], x["v"], x["note-control"]) end) |> Enum.into(%{})
+        fn x -> parse_node_name(x["w"], x["v"], atom_or_nil(x["control"])) end) |> Enum.into(%{})
 
       nodes = Enum.map(Map.keys(node_specs),
         fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end)
         |> Enum.map(fn {k, node, specs} -> %{node | node_id: k, val: specs.val,
-                                            note_control: specs.note_control} end)
+                                            control: specs.control} end)
       connections = parse_connections(map_nodes_by_node_id(nodes), ms["connections"])
       {nodes, connections}
   end
@@ -175,35 +178,26 @@ defmodule Modsynth do
     |> Enum.map(fn connection -> handle_midi_connection(connection) end)
     |> Enum.map(fn connection ->
       from_node = connection.from_node_param.node
-      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), from_node.note_control}
+      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), from_node.control}
     end)
   end
 
   def handle_midi_connection(connection) do
     %Connection{
         from_node_param: %Node_Param{
-          node: node},
-        to_node_param: %Node_Param{
-          param_name: param_name}} = connection
-
+          node: node}} = connection
     Logger.info("handle_midi_connection: #{node.name}")
-    case node.name do
-      "midi-in" ->
-        #Logger.info("handle_midi_connection: #{node.sc_id}")
-        MidiInClient.start_midi(node.sc_id)
-      "cc-in" ->
-        #Logger.info("handle_midi_connection: cc-in: #{param_name}")
-        if param_name == "gain" do
-          MidiInClient.register_cc(2, node.sc_id, "in")
-          MidiInClient.register_cc(7, node.sc_id, "in")
-          ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
-        end
-      "const" ->
-        if !is_nil(node.val) do
-          ScClient.set_control(node.sc_id, "in", node.val)
-        end
-        _ -> Logger.info("not handled")
+    cond do
+      node.control == :note ->
+        # Logger.info("handle_midi_connection: #{node.sc_id}")
+        MidiInClient.start_midi(node.sc_id, node.parameters |> List.first |> List.first)
+      node.control == :gain ->
+        MidiInClient.register_cc(2, node.sc_id, "in")
+        MidiInClient.register_cc(7, node.sc_id, "in")
+        # ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
+      true -> Logger.info("not handled")
      end
+    if !is_nil(node.val) do ScClient.set_control(node.sc_id, "in", node.val) end
     connection
   end
 
@@ -219,9 +213,9 @@ defmodule Modsynth do
       end)
   end
 
-  def parse_node_name(s, v, note_control) do
+  def parse_node_name(s, v, control) do
     [node, id] = String.split(s, ":")
-    {String.to_integer(id), %{name: node, val: v, note_control: note_control}}
+    {String.to_integer(id), %{name: node, val: v, control: control}}
   end
 
   @doc """
@@ -359,7 +353,7 @@ defmodule Modsynth do
     {saw, _, _} = get_module(synths, "saw-osc") |> build_module
     {note_freq, _, _} = get_module(synths, "note-freq") |> build_module
     {midi_in, _, _} = get_module(synths, "midi-in-note") |> build_module
-    midi_pid = MidiInClient.start_midi(midi_in)
+    midi_pid = MidiInClient.start_midi(midi_in, "note")
     {gain, _, _} = get_module(synths, "cc-in") |> build_module
     :ok = MidiInClient.register_cc(2, gain, "in")
     :ok = MidiInClient.register_cc(7, gain, "in")
@@ -378,7 +372,7 @@ defmodule Modsynth do
     {amp, _, _} = get_module(synths, "amp") |> build_module
     {saw, _, _} = get_module(synths, "saw-osc") |> build_module
     {midi_in, _, _} = get_module(synths, "midi-in") |> build_module
-    midi_pid = MidiInClient.start_midi(midi_in)
+    midi_pid = MidiInClient.start_midi(midi_in, "note")
     {gain, _, _} = get_module(synths, "cc-cont-in") |> build_module
     :ok = MidiInClient.register_cc(2, gain, "in")
     :ok = MidiInClient.register_cc(7, gain, "in")
