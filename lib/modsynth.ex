@@ -40,7 +40,6 @@ end
 
 defmodule Modsynth do
   require Logger
-  import ScClient
   alias Modsynth.Node
   alias Modsynth.Node_Param
   alias Modsynth.Connection
@@ -95,8 +94,8 @@ defmodule Modsynth do
 
   def init() do
     MidiIn.start(0,0)
-    group_free(1)
-    load_synths(Application.get_env(:sc_em, :remote_synth_dir))
+    ScClient.group_free(1)
+    ScClient.load_synths(Application.get_env(:sc_em, :remote_synth_dir))
     Process.sleep(2000)  # should be a better way to do this!
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
   end
@@ -190,12 +189,13 @@ defmodule Modsynth do
     cond do
       node.control == :note ->
         # Logger.info("handle_midi_connection: #{node.sc_id}")
-        MidiInClient.start_midi(node.sc_id, node.parameters |> List.first |> List.first)
+        param_name = node.parameters |> List.first |> List.first
+        MidiInClient.start_midi(node.sc_id, param_name, &ScClient.set_control/3)
       node.control == :gain ->
         MidiInClient.register_cc(2, node.sc_id, "in")
         MidiInClient.register_cc(7, node.sc_id, "in")
         # ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
-      true -> Logger.info("not handled")
+      true -> 0
      end
     if !is_nil(node.val) do ScClient.set_control(node.sc_id, "in", node.val) end
     connection
@@ -266,18 +266,18 @@ defmodule Modsynth do
   end
 
   def get_bus(ct, name)  when ct == :audio do
-    get_audio_bus(name)
+    ScClient.get_audio_bus(name)
   end
 
   def get_bus(ct, name)  when ct == :control do
-    get_control_bus(name)
+    ScClient.get_control_bus(name)
   end
 
   def connect_nodes(connection) do
     %Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
     bus = get_bus(from.node.bus_type, desc)
-    set_control(from.node.sc_id, from.param_name, bus)
-    set_control(to.node.sc_id, to.param_name, bus)
+    ScClient.set_control(from.node.sc_id, from.param_name, bus)
+    ScClient.set_control(to.node.sc_id, to.param_name, bus)
     c = %Connection{connection | bus_id: bus}
     Logger.info("connect_nodes #{desc}, #{from.node.sc_id}, #{inspect(List.first(from.node.parameters))} #{bus}")
     c
@@ -304,7 +304,7 @@ defmodule Modsynth do
 
   def build_module(node) do
     %Node{name: synth_name, parameters: synth_params} = node
-    id = make_module(synth_name, synth_params)
+    id = ScClient.make_module(synth_name, synth_params)
     Logger.info("build_module: #{synth_name} id #{id}")
     id
   end
@@ -313,7 +313,7 @@ defmodule Modsynth do
   special purpose for "const" controls
   """
   def ctl(id, val) do
-    set_control(id, "val", val)
+    ScClient.set_control(id, "val", val)
   end
 
   #################################################################################
@@ -343,7 +343,7 @@ defmodule Modsynth do
     connect_nodes(make_connection({note_freq, "freq"}, {saw, "in" }, :control,"note_to_saw"))
     connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
     connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
-    set_control(gain, "in", 0.1)
+    ScClient.set_control(gain, "in", 0.1)
     %{:note => note, :gain => gain}
   end
 
@@ -353,7 +353,7 @@ defmodule Modsynth do
     {saw, _, _} = get_module(synths, "saw-osc") |> build_module
     {note_freq, _, _} = get_module(synths, "note-freq") |> build_module
     {midi_in, _, _} = get_module(synths, "midi-in-note") |> build_module
-    midi_pid = MidiInClient.start_midi(midi_in, "note")
+    midi_pid = MidiInClient.start_midi(midi_in, "note", &ScClient.set_control/3)
     {gain, _, _} = get_module(synths, "cc-in") |> build_module
     :ok = MidiInClient.register_cc(2, gain, "in")
     :ok = MidiInClient.register_cc(7, gain, "in")
@@ -363,7 +363,7 @@ defmodule Modsynth do
     connect_nodes(make_connection({note_freq, "freq"}, {saw, "freq" }, :control,"note_to_saw"))
     connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
     connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
-    set_control(gain, "in", 0.1)
+    ScClient.set_control(gain, "in", 0.1)
     %{:midi_pid => midi_pid, :gain => gain}
   end
 
@@ -372,7 +372,7 @@ defmodule Modsynth do
     {amp, _, _} = get_module(synths, "amp") |> build_module
     {saw, _, _} = get_module(synths, "saw-osc") |> build_module
     {midi_in, _, _} = get_module(synths, "midi-in") |> build_module
-    midi_pid = MidiInClient.start_midi(midi_in, "note")
+    midi_pid = MidiInClient.start_midi(midi_in, "note", &ScClient.set_control/3)
     {gain, _, _} = get_module(synths, "cc-cont-in") |> build_module
     :ok = MidiInClient.register_cc(2, gain, "in")
     :ok = MidiInClient.register_cc(7, gain, "in")
@@ -381,7 +381,7 @@ defmodule Modsynth do
     connect_nodes(make_connection({midi_in, "freq"}, {saw, "freq" }, :control,"note_to_saw"))
     connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
     connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
-    set_control(gain, "in", 0.1)
+    ScClient.set_control(gain, "in", 0.1)
     %{:midi_pid => midi_pid, :gain => gain}
   end
 

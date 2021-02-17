@@ -9,14 +9,16 @@ end
 defmodule MidiIn.State do
   defstruct note_module_id: 0,
     note_control: "",
+    control_function: nil,
     cc_registry: %{},
     midi_pid: 0,
-    bad_midi_messages: 0
+    last_note: 0
   @type t :: %__MODULE__{note_module_id: integer,
                          note_control: String.t,
+                         control_function: function,
                          cc_registry: map,
                          midi_pid: integer,
-                         bad_midi_messages: integer
+                         last_note: integer
   }
 end
 
@@ -25,12 +27,16 @@ end
 defmodule MidiIn do
   use Application
   use GenServer
+  import Bitwise
   require Logger
   alias MidiIn.State
 
   @impl true
   def start(_type, _args) do
-    MidiIn.Supervisor.start_link(name: MidiIn.Supervisor)
+    case MidiIn.Supervisor.start_link(name: MidiIn.Supervisor) do
+      {:ok, pid} -> pid
+      {:error, {:already_started, pid}} -> pid
+    end
   end
 
   @impl true
@@ -58,14 +64,18 @@ defmodule MidiIn do
   end
 
   @impl true
-  def handle_call({:start_midi, device, synth, note_control}, _from, %State{midi_pid: old_pid} = state) do
+  def handle_call({:start_midi, device, synth, note_control, control_function}, _from, %State{midi_pid: old_pid} = state) do
     if old_pid != 0 do
       :ok = PortMidi.close(:input, old_pid)
     end
     {:ok, midi_pid} = PortMidi.open(:input, device)
     PortMidi.listen(midi_pid, self())
     Logger.info("device #{device}, synth #{synth}, note_control #{note_control}")
-    {:reply, {:ok, midi_pid}, %{state | note_module_id: synth, note_control: note_control, midi_pid: midi_pid}}
+    {:reply, {:ok, midi_pid}, %{state |
+                                note_module_id: synth,
+                                control_function: control_function,
+                                note_control: note_control,
+                                midi_pid: midi_pid}}
   end
 
   @impl true
@@ -79,32 +89,38 @@ defmodule MidiIn do
   end
 
   @impl true
-  def handle_call({:stop_midi, midi_pid}, _from, state) do
+  def handle_call({:stop_midi, midi_pid}, _from, _state) do
     :ok = PortMidi.close(:input, midi_pid)
-    {:reply, :ok, %{state | midi_pid: 0}}
+    {:reply, :ok, %State{}}
   end
 
 
   @impl true
   def handle_info({_pid, messages}, state) do
     # Logger.info("midi_in messages #{inspect(messages)}")
-    Enum.each(messages, &(process_message(&1, state)))
-    {:noreply, state}
+    {:noreply, Enum.reduce(messages, state, fn m, acc -> process_message(m, acc) end)}
   end
 
-  def process_message({{status, note, vel}, _timestamp}, state) do
-    cond do
+  @doc """
+  processes the message and returns a possibly new state
+  """
+  def process_message({{status, note, vel}, _timestamp}, %State{control_function: set_control, last_note: last_note} = state) do
+    new_note = cond do
         (status >= 0x80) && (status < 0x90) ->
           Logger.warn("unexpected noteoff message")
-
+          last_note
         (status >= 0x90) && (status < 0xA0) ->
         if state.note_module_id != 0 do
-          ScClient.set_control(state.note_module_id, state.note_control, note)
+          set_control.(state.note_module_id, state.note_control, note)
           #Logger.info("note #{note} vel #{vel} synth #{state.note_module_id} control #{state.note_control}")
+          note
+        else
+          last_note
         end
 
         (status >= 0xA0) && (status < 0xB0) ->
           Logger.warn("unexpected polyphonic touch message")
+          last_note
 
         (status >= 0xB0) && (status < 0xC0) ->
             cc_list = Map.get(state.cc_registry, note, 0)
@@ -112,21 +128,50 @@ defmodule MidiIn do
               Logger.info("cc message #{Integer.to_string(note, 16)} val #{vel} not handled")
             else
               Enum.each(cc_list, fn %MidiIn.CC{cc_id: cc_id, cc_control: cc_control} ->
-                ScClient.set_control(cc_id, cc_control, vel / 127)
+                set_control.(cc_id, cc_control, vel / 127)
               end)
             end
+          last_note
 
         (status >= 0xC0) && (status < 0xD0) ->
           Logger.info("pc message #{Integer.to_string(note, 16)} val #{vel} not handled")# program_change
+          last_note
 
         (status >= 0xD0) && (status < 0xE0) ->
-          Logger.warn("unexpected aftertouch_message")
+          Logger.warn("unexpected aftertouch_message note #{note} #{vel}")
+          last_note
 
         (status >= 0xE0) && (status < 0xF0) ->
-          Logger.warn("unexpected pitch_wheel_message")
+          msb = vel
+          lsb = note
+          bend = (((msb <<< 7) + lsb) - 8192) / 4000.0
+          if state.note_module_id != 0 do
+            set_control.(state.note_module_id, state.note_control, last_note + bend)
+          end
+          #Logger.warn("unexpected pitch_wheel_message note #{bend}")
+          last_note
 
         status == 0xF0 ->
           Logger.warn("unexpected sysex_message")
+          last_note
     end
+    %State{state | last_note: new_note}
   end
+
+  ###########################################################
+  # test functions
+  ###########################################################
+
+  @doc """
+  instantiate a supercollider synth and play it using midi input device.
+  """
+  def tm(synth) do
+    MidiIn.start(0,0)
+    id = ScClient.make_module(synth, ["amp", 0.2, "note", 55])
+    {:ok, pid} = MidiInClient.start_midi(id, "note", &ScClient.set_control/3)
+    MidiInClient.register_cc(2, id, "amp")
+    pid
+  end
+
+  ###########################################################
 end
