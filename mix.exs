@@ -24,8 +24,8 @@ defmodule ScEm.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
-      {:portmidi, git: "https://github.com/bwanab/ex-portmidi.git"},
-      {:music_prims, path: "/Users/williamallen/src/music_prims"}
+      {:music_prims, path: "../music_prims"},
+      {:midi_in, path: "../midi_in"}
     ]
   end
 end
