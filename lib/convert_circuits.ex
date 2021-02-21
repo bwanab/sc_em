@@ -1,9 +1,11 @@
 defmodule ConvertCircuits do
+  require Logger
 
   def atom_or_nil(s) when is_nil(s) do nil end
   def atom_or_nil(s) do String.to_atom(s) end
 
-  def read_file(fname) do
+  def read_file(fname, outdir) do
+    Logger.info("convert #{fname}")
     {:ok, d} = File.read(fname)
     {:ok, ms} = Jason.decode(d)
     node_specs = Enum.map(ms["nodes"],
@@ -20,7 +22,7 @@ defmodule ConvertCircuits do
     |> String.replace("\"master_vol\":", "\r\n\"master_vol\":")
     |> String.replace("\"frame\":", "\r\n\"frame\":")
     |> String.replace("{\"from", "{\r\n\"from")
-    File.write(String.replace_suffix(fname, ".json", "_new.json"), data)
+    File.write(Path.join(outdir, Path.basename(fname)), data)
   end
 
   def parse_node_name(s, v, control, x, y) do

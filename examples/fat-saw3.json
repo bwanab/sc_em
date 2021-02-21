@@ -1,31 +1,59 @@
-{"nodes":
- [{"v":1,"x":600.0,"y":179.0,"w":"const:11"},
-  {"x":795.0,"y":149.0,"w":"amp:12"},
-  {"x":795.0,"y":149.0,"w":"amp:17"},
-  {"v":0.3,"x":42.0,"y":36.0,"w":"cc-in:18", "control": "gain"},
-  {"x":357.0,"y":35.0,"w":"saw-osc:3"},
-  {"x":353.0,"y":349.0,"w":"saw-osc:4"},
-  {"v":0.995,"x":23.0,"y":165.0,"w":"const:6"},
-  {"x":207.0,"y":127.0,"w":"pct-add:5"},
-  {"x":865.0,"y":278.0,"w":"audio-out:7"},
-  {"x":102.0,"y":20.0,"w":"c-splitter:2"},
-  {"x":42.0,"y":36.0,"w":"cc-cont-in:14", "control": "note"},
-  {"x":42.0,"y":36.0,"w":"note-freq:15"},
-  {"x":42.0,"y":36.0,"w":"note-freq:16"},
-  {"v":0.3,"x":615.0,"y":257.0,"w":"cc-in:13", "control": "gain"}],
- "connections":
- [["cc-in:13-val","amp:12-gain"],
-  ["amp:12-out","audio-out:7-b1"],
-  ["cc-cont-in:14-val","c-splitter:2-in"],
-  ["c-splitter:2-ob2","pct-add:5-in"],
-  ["const:6-val","pct-add:5-gain"],
-  ["pct-add:5-out","note-freq:15-note"],
-  ["note-freq:15-freq","saw-osc:4-freq"],
-  ["saw-osc:4-sig","amp:17-in"],
-  ["cc-in:18-val","amp:17-gain"],
-  ["amp:17-out", "audio-out:7-b2"],
-  ["c-splitter:2-ob1", "note-freq:16-note"],
-  ["note-freq:16-freq","saw-osc:3-freq"],
-  ["saw-osc:3-sig","amp:12-in"]],
- "master-vol":0.3,"frame":
- {"height":600.0,"width":1007.0}}
+{
+"connections":
+[{
+"from_node":{"id":2,"name":"c-splitter","param_name":"ob2"},
+"to_node":{"id":5,"name":"pct-add","param_name":"in"}},
+{
+"from_node":{"id":2,"name":"c-splitter","param_name":"ob1"},
+"to_node":{"id":16,"name":"note-freq","param_name":"note"}},
+{
+"from_node":{"id":3,"name":"saw-osc","param_name":"sig"},
+"to_node":{"id":12,"name":"amp","param_name":"in"}},
+{
+"from_node":{"id":4,"name":"saw-osc","param_name":"sig"},
+"to_node":{"id":17,"name":"amp","param_name":"in"}},
+{
+"from_node":{"id":5,"name":"pct-add","param_name":"out"},
+"to_node":{"id":15,"name":"note-freq","param_name":"note"}},
+{
+"from_node":{"id":6,"name":"const","param_name":"val"},
+"to_node":{"id":5,"name":"pct-add","param_name":"gain"}},
+{
+"from_node":{"id":12,"name":"amp","param_name":"out"},
+"to_node":{"id":7,"name":"audio-out","param_name":"b1"}},
+{
+"from_node":{"id":13,"name":"cc-in","param_name":"val"},
+"to_node":{"id":12,"name":"amp","param_name":"gain"}},
+{
+"from_node":{"id":14,"name":"cc-cont-in","param_name":"val"},
+"to_node":{"id":2,"name":"c-splitter","param_name":"in"}},
+{
+"from_node":{"id":15,"name":"note-freq","param_name":"freq"},
+"to_node":{"id":4,"name":"saw-osc","param_name":"freq"}},
+{
+"from_node":{"id":16,"name":"note-freq","param_name":"freq"},
+"to_node":{"id":3,"name":"saw-osc","param_name":"freq"}},
+{
+"from_node":{"id":17,"name":"amp","param_name":"out"},
+"to_node":{"id":7,"name":"audio-out","param_name":"b2"}},
+{
+"from_node":{"id":18,"name":"cc-in","param_name":"val"},
+"to_node":{"id":17,"name":"amp","param_name":"gain"}}],
+"frame":{"height":600.0,"width":1007.0},
+
+"master_vol":0.3,
+"nodes":
+[{"control":null,"id":2,"name":"c-splitter","val":null,"x":102.0,"y":20.0},
+{"control":null,"id":3,"name":"saw-osc","val":null,"x":357.0,"y":35.0},
+{"control":null,"id":4,"name":"saw-osc","val":null,"x":353.0,"y":349.0},
+{"control":null,"id":5,"name":"pct-add","val":null,"x":207.0,"y":127.0},
+{"control":null,"id":6,"name":"const","val":0.995,"x":23.0,"y":165.0},
+{"control":null,"id":7,"name":"audio-out","val":null,"x":865.0,"y":278.0},
+{"control":null,"id":11,"name":"const","val":1,"x":600.0,"y":179.0},
+{"control":null,"id":12,"name":"amp","val":null,"x":795.0,"y":149.0},
+{"control":"gain","id":13,"name":"cc-in","val":0.3,"x":615.0,"y":257.0},
+{"control":"note","id":14,"name":"cc-cont-in","val":null,"x":42.0,"y":36.0},
+{"control":null,"id":15,"name":"note-freq","val":null,"x":42.0,"y":36.0},
+{"control":null,"id":16,"name":"note-freq","val":null,"x":42.0,"y":36.0},
+{"control":null,"id":17,"name":"amp","val":null,"x":795.0,"y":149.0},
+{"control":"gain","id":18,"name":"cc-in","val":0.3,"x":42.0,"y":36.0}]}
