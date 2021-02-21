@@ -13,7 +13,14 @@ defmodule ConvertCircuits do
     connections = parse_connections(ms["connections"])
     |> Enum.sort_by(fn c -> c.from_node.id end)
     {:ok, enc} = Jason.encode(%{nodes: node_specs, connections: connections, master_vol: ms["master-vol"], frame: ms["frame"]})
-    File.write(String.replace_suffix(fname, ".json", "_new.json"), String.replace(enc, "},", "},\r\n"))
+    data = enc
+    |> String.replace("},", "},\r\n")
+    |> String.replace("\"connections\":", "\r\n\"connections\":\r\n")
+    |> String.replace("\"nodes\":", "\r\n\"nodes\":\r\n")
+    |> String.replace("\"master_vol\":", "\r\n\"master_vol\":")
+    |> String.replace("\"frame\":", "\r\n\"frame\":")
+    |> String.replace("{\"from", "{\r\n\"from")
+    File.write(String.replace_suffix(fname, ".json", "_new.json"), data)
   end
 
   def parse_node_name(s, v, control, x, y) do

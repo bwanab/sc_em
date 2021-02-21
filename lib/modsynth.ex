@@ -17,9 +17,9 @@ defmodule Modsynth.Node do
 end
 
 defmodule Modsynth.Node_Param do
-  defstruct node: %{},
+  defstruct node_id: 0,
     param_name: ""
-  @type t :: %__MODULE__{node: Modsynth.Node,
+  @type t :: %__MODULE__{node_id: integer,
                          param_name: String.t
   }
 end
@@ -111,14 +111,18 @@ defmodule Modsynth do
   def read_file(synths, fname) do
       {:ok, d} = File.read(fname)
       {:ok, ms} = Jason.decode(d)
+
       node_specs = Enum.map(ms["nodes"],
-        fn x -> parse_node_name(x["w"], x["v"], atom_or_nil(x["control"])) end) |> Enum.into(%{})
+        fn x -> {x["id"], Enum.map(x,
+                    fn {k, v} -> {String.to_atom(k), if k == "control" do atom_or_nil(v) else v end} end) |> Enum.into(%{})} end)
+      |> Enum.into(%{})
 
       nodes = Enum.map(Map.keys(node_specs),
         fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end)
-        |> Enum.map(fn {k, node, specs} -> %{node | node_id: k, val: specs.val,
-                                            control: specs.control} end)
-      connections = parse_connections(map_nodes_by_node_id(nodes), ms["connections"])
+        |> Enum.map(fn {k, node, specs} -> {k, %{node | node_id: k, val: specs.val,
+                                                control: specs.control}} end)
+        |> Enum.into(%{})
+      connections = parse_connections(nodes, ms["connections"])
       {nodes, connections}
   end
 
@@ -144,8 +148,8 @@ defmodule Modsynth do
     Enum.map(order, fn id -> node_map[id] end)
   end
 
-  def reorder_nodes(connections, node) do
-    nodes = for c when c.to_node_param.node.node_id == node <- connections do c.from_node_param.node.node_id end
+  def reorder_nodes(connections, node_id) do
+    nodes = for c when c.to_node_param.node_id == node_id <- connections do c.from_node_param.node_id end
     if length(nodes) > 0 do
       nodes ++ for innode <- nodes, do: reorder_nodes(connections, innode)
     end
@@ -153,38 +157,27 @@ defmodule Modsynth do
 
 
   def build_modules({nodes, connections}) do
-    node_map = reorder_nodes(connections, nodes)
+    node_map = reorder_nodes(connections, Map.values(nodes))
     |> Enum.map(fn node -> %{node | sc_id: build_module(node)} end)
     |> map_nodes_by_node_id()
-
-    #
-    # Here, we have to replace all the nodes in the connections with the newly updated nodes. Seems really
-    # dorky, but I'm not sure how to get around it. Maybe this is a place to consider using ets or dets to
-    # hold the nodes which the connections have pointers to.
-    #
-    Enum.map(connections, fn cnct ->
-      %Connection{cnct |
-                           from_node_param: %Node_Param{cnct.from_node_param |
-                                                                 node: node_map[cnct.from_node_param.node.node_id]},
-                           to_node_param: %Node_Param{cnct.to_node_param |
-                                                                 node: node_map[cnct.to_node_param.node.node_id]}}
-    end)
     #
     # now, we can actually do the connections with the updated versions
     #
-    |> Enum.map(fn connection -> connect_nodes(connection) end)
-    |> Enum.filter(fn connection -> is_external_control(connection.from_node_param.node.name)  end)
-    |> Enum.map(fn connection -> handle_midi_connection(connection) end)
+    connections
+    |> Enum.map(fn connection -> connect_nodes(node_map, connection) end)
+    |> Enum.filter(fn connection -> is_external_control(node_map[connection.from_node_param.node_id].name)  end)
+    |> Enum.map(fn connection -> handle_midi_connection(node_map, connection) end)
     |> Enum.map(fn connection ->
-      from_node = connection.from_node_param.node
+      from_node = node_map[connection.from_node_param.node_id]
       {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), from_node.control}
     end)
   end
 
-  def handle_midi_connection(connection) do
+  def handle_midi_connection(nodes, connection) do
     %Connection{
         from_node_param: %Node_Param{
-          node: node}} = connection
+          node_id: node_id}} = connection
+    node = nodes[node_id]
     Logger.info("handle_midi_connection: #{node.name}")
     cond do
       node.control == :note ->
@@ -197,40 +190,23 @@ defmodule Modsynth do
         # ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
       true -> 0
      end
-    if !is_nil(node.val) do ScClient.set_control(node.sc_id, "in", node.val) end
+    if !is_nil(node.val) do
+      Logger.info("set_control(#{node.sc_id}, in, #{node.val})")
+      ScClient.set_control(node.sc_id, "in", node.val)
+    end
     connection
   end
 
   def parse_connections(nodes, connections) do
     Enum.map(connections,
-      fn [from, to] ->
-        from_node_param = parse_connection_name(nodes, from)
-        to_node_param = parse_connection_name(nodes, to)
+      fn %{"from_node" => from, "to_node" => to} ->
+        from_node_param = %Node_Param{node_id: from["id"], param_name: from["param_name"]}
+        to_node_param = %Node_Param{node_id: to["id"], param_name: to["param_name"]}
         %Connection{from_node_param: from_node_param,
-                             to_node_param: to_node_param,
-                             bus_type: from_node_param.node.bus_type,
-                             desc: from_node_param.node.name <> "_to_" <> to_node_param.node.name}
+                    to_node_param: to_node_param,
+                    bus_type: nodes[from["id"]].bus_type,
+                    desc: nodes[from["id"]].name <> "_to_" <> nodes[to["id"]].name}
       end)
-  end
-
-  def parse_node_name(s, v, control) do
-    [node, id] = String.split(s, ":")
-    {String.to_integer(id), %{name: node, val: v, control: control}}
-  end
-
-  @doc """
-  in:
-  nodes - a map indexed by the node id (e.g. "amp:7" the node is an amp the id is the 7),
-  s - the connection definition (e.g. "amp:5-out", node is amp, id is 5 and the param to connect is "out")
-
-  returns a tuple containing {node_name, {node, param}, output_bus_type}
-  """
-  def parse_connection_name(nodes, s) do
-    [_node_name, id_spec] = String.split(s, ":")
-    [ids, param] = String.split(id_spec, "-", parts: 2)
-    id = String.to_integer(ids)
-    node = nodes[id]
-    %Node_Param{node: node, param_name: param}
   end
 
   def is_external_control(name) do
@@ -273,13 +249,15 @@ defmodule Modsynth do
     ScClient.get_control_bus(name)
   end
 
-  def connect_nodes(connection) do
+  def connect_nodes(nodes, connection) do
     %Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
-    bus = get_bus(from.node.bus_type, desc)
-    ScClient.set_control(from.node.sc_id, from.param_name, bus)
-    ScClient.set_control(to.node.sc_id, to.param_name, bus)
+    from_node = nodes[from.node_id]
+    to_node = nodes[to.node_id]
+    bus = get_bus(from_node.bus_type, desc)
+    ScClient.set_control(from_node.sc_id, from.param_name, bus)
+    ScClient.set_control(to_node.sc_id, to.param_name, bus)
     c = %Connection{connection | bus_id: bus}
-    Logger.info("connect_nodes #{desc}, #{from.node.sc_id}, #{inspect(List.first(from.node.parameters))} #{bus}")
+    Logger.info("connect_nodes #{desc}, #{from_node.sc_id}, #{inspect(List.first(from_node.parameters))} #{bus}")
     c
   end
 
@@ -321,76 +299,76 @@ defmodule Modsynth do
   #################################################################################
   #################################################################################
 
-  def make_connection({from_node, from_param}, {to_node, to_param}, bus_type, desc) do
-    %Connection{
-      from_node_param: %Node_Param{node: from_node, param_name: from_param},
-      to_node_param: %Node_Param{node: to_node, param_name: to_param},
-      bus_type: bus_type,
-      desc: desc
-    }
-  end
+  # def make_connection({from_node, from_param}, {to_node, to_param}, bus_type, desc) do
+  #   %Connection{
+  #     from_node_param: %Node_Param{node_id: from_node.id, param_name: from_param},
+  #     to_node_param: %Node_Param{node_id: to_node.id, param_name: to_param},
+  #     bus_type: bus_type,
+  #     desc: desc
+  #   }
+  # end
 
-  def t1(synths) do
-    audio_out = get_module(synths, "audio-out") |> build_module
-    amp = get_module(synths, "amp") |> build_module
-    saw = get_module(synths, "saw-osc") |> build_module
-    note_freq = get_module(synths, "note-freq") |> build_module
-    note = get_module(synths, "const") |> build_module
-    gain = get_module(synths, "const") |> build_module
+  # def t1(synths) do
+  #   audio_out = get_module(synths, "audio-out") |> build_module
+  #   amp = get_module(synths, "amp") |> build_module
+  #   saw = get_module(synths, "saw-osc") |> build_module
+  #   note_freq = get_module(synths, "note-freq") |> build_module
+  #   note = get_module(synths, "const") |> build_module
+  #   gain = get_module(synths, "const") |> build_module
 
-    connect_nodes(make_connection({gain, "val"}, {amp, "gain"}, :control, "c_to_gain"))
-    connect_nodes(make_connection({note, "val"}, {note_freq, "note"}, :control, "c_to_note"))
-    connect_nodes(make_connection({note_freq, "freq"}, {saw, "in" }, :control,"note_to_saw"))
-    connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
-    connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
-    ScClient.set_control(gain, "in", 0.1)
-    %{:note => note, :gain => gain}
-  end
+  #   connect_nodes(make_connection({gain, "val"}, {amp, "gain"}, :control, "c_to_gain"))
+  #   connect_nodes(make_connection({note, "val"}, {note_freq, "note"}, :control, "c_to_note"))
+  #   connect_nodes(make_connection({note_freq, "freq"}, {saw, "in" }, :control,"note_to_saw"))
+  #   connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
+  #   connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
+  #   ScClient.set_control(gain, "in", 0.1)
+  #   %{:note => note, :gain => gain}
+  # end
 
-  def t2(synths) do
-    {audio_out, _, _} = get_module(synths, "audio-out") |> build_module
-    {amp, _, _} = get_module(synths, "amp") |> build_module
-    {saw, _, _} = get_module(synths, "saw-osc") |> build_module
-    {note_freq, _, _} = get_module(synths, "note-freq") |> build_module
-    {midi_in, _, _} = get_module(synths, "midi-in-note") |> build_module
-    midi_pid = MidiInClient.start_midi(midi_in, "note", &ScClient.set_control/3)
-    {gain, _, _} = get_module(synths, "cc-in") |> build_module
-    :ok = MidiInClient.register_cc(2, gain, "in")
-    :ok = MidiInClient.register_cc(7, gain, "in")
+  # def t2(synths) do
+  #   {audio_out, _, _} = get_module(synths, "audio-out") |> build_module
+  #   {amp, _, _} = get_module(synths, "amp") |> build_module
+  #   {saw, _, _} = get_module(synths, "saw-osc") |> build_module
+  #   {note_freq, _, _} = get_module(synths, "note-freq") |> build_module
+  #   {midi_in, _, _} = get_module(synths, "midi-in-note") |> build_module
+  #   midi_pid = MidiInClient.start_midi(midi_in, "note", &ScClient.set_control/3)
+  #   {gain, _, _} = get_module(synths, "cc-in") |> build_module
+  #   :ok = MidiInClient.register_cc(2, gain, "in")
+  #   :ok = MidiInClient.register_cc(7, gain, "in")
 
-    connect_nodes(make_connection({gain, "val"}, {amp, "gain"}, :control, "c_to_gain"))
-    connect_nodes(make_connection({midi_in, "out"}, {note_freq, "note"}, :control, "c_to_note"))
-    connect_nodes(make_connection({note_freq, "freq"}, {saw, "freq" }, :control,"note_to_saw"))
-    connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
-    connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
-    ScClient.set_control(gain, "in", 0.1)
-    %{:midi_pid => midi_pid, :gain => gain}
-  end
+  #   connect_nodes(make_connection({gain, "val"}, {amp, "gain"}, :control, "c_to_gain"))
+  #   connect_nodes(make_connection({midi_in, "out"}, {note_freq, "note"}, :control, "c_to_note"))
+  #   connect_nodes(make_connection({note_freq, "freq"}, {saw, "freq" }, :control,"note_to_saw"))
+  #   connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
+  #   connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
+  #   ScClient.set_control(gain, "in", 0.1)
+  #   %{:midi_pid => midi_pid, :gain => gain}
+  # end
 
-  def t3(synths) do
-    {audio_out, _, _} = get_module(synths, "audio-out") |> build_module
-    {amp, _, _} = get_module(synths, "amp") |> build_module
-    {saw, _, _} = get_module(synths, "saw-osc") |> build_module
-    {midi_in, _, _} = get_module(synths, "midi-in") |> build_module
-    midi_pid = MidiInClient.start_midi(midi_in, "note", &ScClient.set_control/3)
-    {gain, _, _} = get_module(synths, "cc-cont-in") |> build_module
-    :ok = MidiInClient.register_cc(2, gain, "in")
-    :ok = MidiInClient.register_cc(7, gain, "in")
+  # def t3(synths) do
+  #   {audio_out, _, _} = get_module(synths, "audio-out") |> build_module
+  #   {amp, _, _} = get_module(synths, "amp") |> build_module
+  #   {saw, _, _} = get_module(synths, "saw-osc") |> build_module
+  #   {midi_in, _, _} = get_module(synths, "midi-in") |> build_module
+  #   midi_pid = MidiInClient.start_midi(midi_in, "note", &ScClient.set_control/3)
+  #   {gain, _, _} = get_module(synths, "cc-cont-in") |> build_module
+  #   :ok = MidiInClient.register_cc(2, gain, "in")
+  #   :ok = MidiInClient.register_cc(7, gain, "in")
 
-    connect_nodes(make_connection({gain, "val"}, {amp, "gain"}, :control, "c_to_gain"))
-    connect_nodes(make_connection({midi_in, "freq"}, {saw, "freq" }, :control,"note_to_saw"))
-    connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
-    connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
-    ScClient.set_control(gain, "in", 0.1)
-    %{:midi_pid => midi_pid, :gain => gain}
-  end
+  #   connect_nodes(make_connection({gain, "val"}, {amp, "gain"}, :control, "c_to_gain"))
+  #   connect_nodes(make_connection({midi_in, "freq"}, {saw, "freq" }, :control,"note_to_saw"))
+  #   connect_nodes(make_connection({saw, "sig"}, {amp, "in" }, :audio, "saw_to_gain"))
+  #   connect_nodes(make_connection({amp, "out"}, {audio_out, "b1" }, :audio, "gain_to_audio"))
+  #   ScClient.set_control(gain, "in", 0.1)
+  #   %{:midi_pid => midi_pid, :gain => gain}
+  # end
 
-  def tt() do
-    #MidiIn.start(0,0)
-    synths = init()
-    Process.sleep(2000)
-    t3(synths)
-  end
+  # def tt() do
+  #   #MidiIn.start(0,0)
+  #   synths = init()
+  #   Process.sleep(2000)
+  #   t3(synths)
+  # end
 
 
   def trf(file) do
