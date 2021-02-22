@@ -47,4 +47,10 @@ defmodule ConvertCircuits do
     %{name: node_name, param_name: param, id: id}
   end
 
+  def convert_all(from_dir, to_dir) do
+    File.ls!(from_dir)
+    |> Enum.filter(fn fname -> String.ends_with?(fname, ".json") end)
+    |> Enum.each(fn fname -> ConvertCircuits.read_file(Path.join(from_dir, fname), to_dir) end)
+  end
+
 end
