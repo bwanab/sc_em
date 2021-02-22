@@ -48,6 +48,8 @@ defmodule Modsynth do
   play an instrument definition file. There are several in the examples directory.
   """
   def play(fname) do
+    ScClient.group_free(1)
+    MidiInClient.stop_midi()
     init()
     |> read_file(fname)
     |> build_modules
@@ -169,7 +171,7 @@ defmodule Modsynth do
     |> Enum.map(fn connection -> handle_midi_connection(node_map, connection) end)
     |> Enum.map(fn connection ->
       from_node = node_map[connection.from_node_param.node_id]
-      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), from_node.control}
+      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), connection.to_node_param.param_name, from_node.control}
     end)
   end
 
