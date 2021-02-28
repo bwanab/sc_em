@@ -8,15 +8,6 @@
 "to_node":{"id":16,"name":"note-freq","param_name":"note"}},
 {
 "from_node":{"id":3,"name":"saw-osc","param_name":"sig"},
-"to_node":{"id":19,"name":"echo","param_name":"in"}},
-{
-"from_node":{"id":21,"name":"cc-in","param_name":"in"},
-"to_node":{"id":19,"name":"echo","param_name":"delay_time"}},
-{
-"from_node":{"id":23,"name":"cc-in","param_name":"in"},
-"to_node":{"id":19,"name":"echo","param_name":"decay_time"}},
-{
-"from_node":{"id":19,"name":"echo","param_name":"out"},
 "to_node":{"id":12,"name":"amp","param_name":"in"}},
 {
 "from_node":{"id":4,"name":"saw-osc","param_name":"sig"},
@@ -77,8 +68,6 @@
  {"control":"gain","id":18,"name":"cc-in","val":0.3,"x":42.0,"y":36.0},
  {"control":null,"id":19,"name":"echo","val":null,"x":795.0,"y":149.0},
  {"control":null,"id":20,"name":"echo","val":null,"x":795.0,"y":149.0},
-{"control":null,"id":21,"name":"cc-in","val":0.5,"x":615.0,"y":257.0},
-{"control":null,"id":22,"name":"cc-in","val":0.5,"x":615.0,"y":257.0},
-{"control":null,"id":23,"name":"cc-in","val":0.5,"x":615.0,"y":257.0},
-{"control":null,"id":24,"name":"cc-in","val":0.5,"x":615.0,"y":257.0}
+{"control":null,"id":22,"name":"cc-in","val":0.1,"x":615.0,"y":257.0},
+{"control":null,"id":24,"name":"cc-in","val":5,"x":615.0,"y":257.0}
 ]}

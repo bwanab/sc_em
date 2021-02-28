@@ -76,21 +76,24 @@ defmodule Modsynth do
   returns a list of the external controls other than midi in or audio in
   """
   def read_file(synths, fname) do
-      {:ok, d} = File.read(fname)
-      {:ok, ms} = Jason.decode(d)
+    case File.read(fname) do
+      {:error, reason} -> {:error, reason}
+      {:ok, d} ->
+        {:ok, ms} = Jason.decode(d)
 
-      node_specs = Enum.map(ms["nodes"],
-        fn x -> {x["id"], Enum.map(x,
-                    fn {k, v} -> {String.to_atom(k), if k == "control" do atom_or_nil(v) else v end} end) |> Enum.into(%{})} end)
-      |> Enum.into(%{})
-
-      nodes = Enum.map(Map.keys(node_specs),
-        fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end)
-        |> Enum.map(fn {k, node, specs} -> {k, %{node | node_id: k, val: specs.val,
-                                                control: specs.control}} end)
+        node_specs = Enum.map(ms["nodes"],
+          fn x -> {x["id"], Enum.map(x,
+                      fn {k, v} -> {String.to_atom(k), if k == "control" do atom_or_nil(v) else v end} end) |> Enum.into(%{})} end)
         |> Enum.into(%{})
-      connections = parse_connections(nodes, ms["connections"])
-      {nodes, connections}
+
+        nodes = Enum.map(Map.keys(node_specs),
+          fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end)
+          |> Enum.map(fn {k, node, specs} -> {k, %{node | node_id: k, val: specs.val,
+                                                  control: specs.control}} end)
+                                                  |> Enum.into(%{})
+        connections = parse_connections(nodes, ms["connections"])
+        {nodes, connections}
+    end
   end
 
   def map_nodes_by_node_id(nodes) do
