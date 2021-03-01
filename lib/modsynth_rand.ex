@@ -65,7 +65,7 @@ defmodule Modsynth.Rand do
     pid = start()
     set_scale(pid, get_scale(scale))
     controls = Modsynth.play(file)
-    {_, note, _, _} = Enum.find(controls, fn {_, _, _, control} -> control == :note end)
+    {_, note, _, _, _} = Enum.find(controls, fn {_, _, _, _, control} -> control == :note end)
     Logger.info("note control: #{note}")
     GenServer.call(pid, {:set_note_control, note})
     {first_note, first_dur} = next(pid)
