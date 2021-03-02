@@ -14,10 +14,10 @@
 "to_node":{"id":3,"name":"audio-out","param_name":"b1"}},
 {
 "from_node":{"id":4,"name":"const","param_name":"val"},
-"to_node":{"id":2,"name":"echo","param_name":"delay-time"}},
+"to_node":{"id":2,"name":"echo","param_name":"delay_time"}},
 {
 "from_node":{"id":5,"name":"const","param_name":"val"},
-"to_node":{"id":2,"name":"echo","param_name":"decay-time"}}],
+"to_node":{"id":2,"name":"echo","param_name":"decay_time"}}],
 "frame":null,
 "master_vol":0.3,
 "nodes":

@@ -53,4 +53,19 @@ defmodule ConvertCircuits do
     |> Enum.each(fn fname -> ConvertCircuits.read_file(Path.join(from_dir, fname), to_dir) end)
   end
 
+  def dashes_to_underscores(fname) do
+    Logger.info("convert #{fname}")
+    {:ok, d} = File.read(fname)
+    {:ok, ms} = Jason.decode(d)
+    froms = Enum.map(ms["connections"], fn c -> c["from_node"]["param_name"] end)
+    tos = Enum.map(ms["connections"], fn c -> c["to_node"]["param_name"] end)
+    Enum.filter(froms ++ tos, fn s -> String.contains?(s, "-") end)
+  end
+
+  def dashes_all(from_dir) do
+    File.ls!(from_dir)
+    |> Enum.filter(fn fname -> String.ends_with?(fname, ".json") end)
+    |> Enum.filter(fn fname -> !Enum.empty?(dashes_to_underscores(Path.join(from_dir, fname))) end)
+  end
+
 end

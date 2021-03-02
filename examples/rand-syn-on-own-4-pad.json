@@ -92,13 +92,13 @@
 "to_node":{"id":38,"name":"freeverb","param_name":"dampening"}},
 {
 "from_node":{"id":37,"name":"const","param_name":"val"},
-"to_node":{"id":38,"name":"freeverb","param_name":"room-size"}},
+"to_node":{"id":38,"name":"freeverb","param_name":"room_size"}},
 {
 "from_node":{"id":38,"name":"freeverb","param_name":"out"},
 "to_node":{"id":24,"name":"amp","param_name":"in"}},
 {
 "from_node":{"id":39,"name":"const","param_name":"val"},
-"to_node":{"id":38,"name":"freeverb","param_name":"wet-dry"}}],
+"to_node":{"id":38,"name":"freeverb","param_name":"wet_dry"}}],
 "frame":{"height":831.0,"width":1540.0},
 
 "master_vol":0.3,

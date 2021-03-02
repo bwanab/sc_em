@@ -29,7 +29,7 @@
 "to_node":{"id":8,"name":"moog-filt","param_name":"cutoff"}},
 {
 "from_node":{"id":11,"name":"const","param_name":"val"},
-"to_node":{"id":8,"name":"moog-filt","param_name":"lpf-res"}},
+"to_node":{"id":8,"name":"moog-filt","param_name":"lpf_res"}},
 {
 "from_node":{"id":12,"name":"amp","param_name":"out"},
 "to_node":{"id":7,"name":"audio-out","param_name":"b1"}},

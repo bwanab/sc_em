@@ -23,7 +23,7 @@
 "to_node":{"id":12,"name":"amp","param_name":"in"}},
 {
 "from_node":{"id":11,"name":"const","param_name":"val"},
-"to_node":{"id":8,"name":"moog-filt","param_name":"lpf-res"}},
+"to_node":{"id":8,"name":"moog-filt","param_name":"lpf_res"}},
 {
 "from_node":{"id":12,"name":"amp","param_name":"out"},
 "to_node":{"id":23,"name":"a-mixer-2","param_name":"in1"}},
