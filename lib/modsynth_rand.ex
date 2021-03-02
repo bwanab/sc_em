@@ -52,6 +52,11 @@ defmodule Modsynth.Rand do
     GenServer.call(pid, :next)
   end
 
+  def stop() do
+    stop(Modsynth.Rand)
+    ScClient.group_free(1)
+  end
+
   def get_scale({key, scale_type}) do
     f = case scale_type do
       :pent -> &MusicPrims.pent_scale/2
@@ -66,10 +71,10 @@ defmodule Modsynth.Rand do
     set_scale(pid, get_scale(scale))
     controls = Modsynth.play(file)
     {_, note, _, _, _} = Enum.find(controls, fn {_, _, _, _, control} -> control == :note end)
-    Logger.info("note control: #{note}")
+    # Logger.info("note control: #{note}")
     GenServer.call(pid, {:set_note_control, note})
     {first_note, first_dur} = next(pid)
-    Logger.info("first note #{first_note} first dur #{first_dur}")
+    # Logger.info("first note #{first_note} first dur #{first_dur}")
     ScClient.set_control(note, "in", first_note)
     set_bpm(pid, bpm)
     schedule_next_note(pid, first_dur, bpm)

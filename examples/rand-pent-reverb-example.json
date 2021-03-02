@@ -11,6 +11,9 @@
             "from_node":{"id":25,"name":"saw-osc","param_name":"sig"},
             "to_node":{"id":6,"name":"moog-filt","param_name":"in"}},
         {
+            "from_node":{"id":27,"name":"const","param_name":"val"},
+            "to_node":{"id":26,"name":"sin-vco","param_name":"freq"}},
+        {
             "from_node":{"id":6,"name":"moog-filt","param_name":"out"},
             "to_node":{"id":7,"name":"freeverb","param_name":"in"}},
         {
@@ -18,19 +21,28 @@
             "to_node":{"id":13,"name":"amp","param_name":"in"}},
         {
             "from_node":{"id":8,"name":"const","param_name":"val"},
-            "to_node":{"id":7,"name":"freeverb","param_name":"wet-dry"}},
+            "to_node":{"id":7,"name":"freeverb","param_name":"wet_dry"}},
         {
             "from_node":{"id":9,"name":"const","param_name":"val"},
-            "to_node":{"id":7,"name":"freeverb","param_name":"room-size"}},
+            "to_node":{"id":7,"name":"freeverb","param_name":"room_size"}},
         {
             "from_node":{"id":10,"name":"const","param_name":"val"},
             "to_node":{"id":7,"name":"freeverb","param_name":"dampening"}},
         {
-            "from_node":{"id":11,"name":"const","param_name":"val"},
+            "from_node":{"id":31,"name":"const","param_name":"val"},
+            "to_node":{"id":33,"name":"c-scale","param_name":"out_lo"}},
+        {
+            "from_node":{"id":32,"name":"const","param_name":"val"},
+            "to_node":{"id":33,"name":"c-scale","param_name":"out_hi"}},
+        {
+            "from_node":{"id":26,"name":"sin-vco","param_name":"out"},
+            "to_node":{"id":33,"name":"c-scale","param_name":"in"}},
+        {
+            "from_node":{"id":33,"name":"c-scale","param_name":"out"},
             "to_node":{"id":6,"name":"moog-filt","param_name":"cutoff"}},
         {
             "from_node":{"id":12,"name":"const","param_name":"val"},
-            "to_node":{"id":6,"name":"moog-filt","param_name":"lpf-res"}},
+            "to_node":{"id":6,"name":"moog-filt","param_name":"lpf_res"}},
         {
             "from_node":{"id":13,"name":"amp","param_name":"out"},
             "to_node":{"id":16,"name":"a-splitter","param_name":"in"}},
@@ -54,6 +66,11 @@
     "master_vol":0.3,
     "nodes":
     [
+        {"control":null,"id":27,"name":"const","val":2,"x":89.0,"y":103.0},
+        {"control":null,"id":26,"name":"sin-vco","val":null,"x":588.0,"y":150.0},
+        {"control":null,"id":31,"name":"const","val":400,"x":89.0,"y":103.0},
+        {"control":null,"id":32,"name":"const","val":600,"x":89.0,"y":103.0},
+        {"control":null,"id":33,"name":"c-scale","val":null,"x":588.0,"y":150.0},
         {"control":null,"id":1,"name":"note-freq","val":null,"x":588.0,"y":150.0},
         {"control":"note","id":24,"name":"cc-in","val":null,"x":588.0,"y":74.0},
         {"control":null,"id":25,"name":"saw-osc","val":null,"x":586.0,"y":224.0},
@@ -68,7 +85,7 @@
         {"control":null,"id":11,"name":"const","val":500,"x":470.0,"y":304.0},
         {"control":null,"id":12,"name":"const","val":1,"x":473.0,"y":363.0},
         {"control":null,"id":13,"name":"amp","val":null,"x":910.0,"y":84.0},
-        {"control":"gain","id":14,"name":"const","val":80,"x":753.0,"y":22.0},
+        {"control":"gain","id":14,"name":"const","val":0.5,"x":753.0,"y":22.0},
         {"control":null,"id":16,"name":"a-splitter","val":null,"x":1148.0,"y":145.0},
         {"control":null,"id":17,"name":"const","val":0,"x":975.0,"y":182.0},
         {"control":null,"id":18,"name":"const","val":1,"x":984.0,"y":244.0}
