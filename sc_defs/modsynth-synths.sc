@@ -10,12 +10,23 @@ SynthDef("audio-in", {arg out = 55;
 }).writeDefFile(~dir);
 
 SynthDef("c-splitter", {arg ob1 = 65, ob2 = 66, in = 55;
-	Out.kr([ob1, ob2], In.ar(in));
+	var sig = In.kr(in);
+	Out.kr(ob1, sig);
+	Out.kr(ob2, sig);
 }).writeDefFile(~dir);
 
-SynthDef("a-splitter", {arg ob1 = 65, ob2 = 66, in = 55, pos = 0, lev = 0.1;
-	Out.ar([ob1, ob2], Pan2.ar(In.ar(in), pos, In.kr(lev)));
+// SynthDef("a-splitter", {arg ob1 = 65, ob2 = 66, in = 55, pos = 0, lev = 0.1;
+// 	Out.ar([ob1, ob2], Pan2.ar(In.ar(in), In.kr(pos), In.kr(lev)));
+// }).writeDefFile(~dir)
+
+SynthDef("a-splitter", {arg ob1 = 65, ob2 = 66, in = 55, pos = 0, lev = 1;
+	var sig = In.ar(in) * In.kr(lev);
+	var v1 = (1 - In.kr(pos)) / 2;
+	var v2 = 1 - v1;
+	Out.ar(ob1, sig * v1.sqrt);
+	Out.ar(ob2, sig * v2.sqrt);
 }).writeDefFile(~dir);
+
 
 SynthDef("a-mixer-2", {arg out = 65, in1 = 55, in2 = 56;
 	Out.ar(out, In.ar(in1) + In.ar(in2));
@@ -70,7 +81,8 @@ SynthDef("rand-in", {arg out = 65, lo = 0, hi = 0, trig = 0;
 }).writeDefFile(~dir);
 
 SynthDef("square-osc", {arg freq = 55, sig = 56, width = 0.5;
-	Out.ar(sig, Pulse.ar(In.ar(freq), 0.004 * In.kr(width)));
+	var w = In.kr(width) / 2 + 0.5;
+	Out.ar(sig, Pulse.ar(In.kr(freq),  * w));
 }).writeDefFile(~dir);
 
 SynthDef("lp-filt", {arg in = 55, out = 65, cutoff = 11;
@@ -86,7 +98,11 @@ SynthDef("bp-filt", {arg in = 55, out = 65, freq = 300, q = 1;
 }).writeDefFile(~dir);
 
 SynthDef("moog-filt", {arg in = 55, out = 65, cutoff = 300, lpf_res = 1;
-	Out.ar(out, MoogFF.ar(In.ar(in), In.kr(cutoff), In.kr(lpf_res)));
+	Out.ar(out, MoogFF.ar(In.ar(in), In.kr(cutoff), In.kr(lpf_res), 0, 2));
+}).writeDefFile(~dir);
+
+SynthDef("c-scale", {arg in = 55, out = 65, in_lo = -1, in_hi = 1, out_lo = 10, out_hi = 100;
+	Out.kr(out, In.kr(in).linlin(in_lo, in_hi, In.kr(out_lo), In.kr(out_hi)));
 }).writeDefFile(~dir);
 
 SynthDef("mult", {arg in = 55, out = 65, gain = 1;
@@ -94,11 +110,11 @@ SynthDef("mult", {arg in = 55, out = 65, gain = 1;
 }).writeDefFile(~dir);
 
 SynthDef("pct-add", {arg in = 55, out = 65, gain = 1;
-	Out.ar(out, In.ar(in) * In.kr(gain));
+	Out.kr(out, In.kr(in) * In.kr(gain));
 }).writeDefFile(~dir);
 
 SynthDef("val-add", {arg in = 55, out = 65, val = 0;
-	Out.ar(out, In.ar(in) + In.kr(val));
+	Out.kr(out, In.kr(in) + In.kr(val));
 }).writeDefFile(~dir);
 
 SynthDef("adsr-env", {arg in = 55, out = 65, attack = 0.1, decay = 0.2, sustain = 0.5, release = 1, gate = 1;
@@ -114,11 +130,12 @@ SynthDef("freeverb", {arg in = 55, out = 65, wet_dry = 0.5,  room_size = 0.3, da
 }).writeDefFile(~dir);
 
 SynthDef("echo", {arg in = 55, out = 65, delay_time = 1, decay_time = 1;
-	Out.ar(out, CombN.ar(In.ar(in), 5, In.kr(delay_time), In.kr(decay_time)));
+	var sig = In.ar(in);
+	Out.ar(out, CombL.ar(sig, 3, In.kr(delay_time), In.kr(decay_time)));
 }).writeDefFile(~dir);
 
-)
 
+)
 
 (
 ~gaintoaudio = Bus.audio();
