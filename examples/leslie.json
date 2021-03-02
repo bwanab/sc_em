@@ -35,7 +35,8 @@
 
 "master_vol":0.3,
 "nodes":
-    [{"control":"note","id":10,"name":"cc-in","val":null,"x":0.0,"y":0.0},
+    [
+        {"control":"note","id":10,"name":"cc-in","val":null,"x":0.0,"y":0.0},
      {"control":null,"id":1,"name":"note-freq","val":null,"x":0.0,"y":0.0},
 {"control":null,"id":2,"name":"square-osc","val":null,"x":196.0,"y":54.0},
 {"control":null,"id":3,"name":"const","val":2,"x":11.0,"y":267.0},

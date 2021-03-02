@@ -1,7 +1,11 @@
 {
 "connections":
-[{
-"from_node":{"id":1,"name":"midi-in","param_name":"freq"},
+    [
+        {
+        "from_node":{"id":11,"name":"cc-in","param_name":"val"},
+     "to_node":{"id":1,"name":"note-freq","param_name":"note"}},
+     {
+"from_node":{"id":1,"name":"note-freq","param_name":"freq"},
 "to_node":{"id":2,"name":"square-osc","param_name":"freq"}},
 {
 "from_node":{"id":2,"name":"square-osc","param_name":"sig"},
@@ -31,12 +35,14 @@
 
 "master_vol":0.3,
 "nodes":
-[{"control":null,"id":1,"name":"midi-in","val":null,"x":0.0,"y":0.0},
+    [
+        {"control":"note","id":11,"name":"cc-in","val":null,"x":0.0,"y":0.0},
+     {"control":null,"id":1,"name":"note-freq","val":null,"x":0.0,"y":0.0},
 {"control":null,"id":2,"name":"square-osc","val":null,"x":196.0,"y":54.0},
 {"control":null,"id":3,"name":"const","val":2,"x":109.0,"y":511.0},
 {"control":null,"id":4,"name":"sin-vco","val":null,"x":6.0,"y":199.0},
 {"control":null,"id":5,"name":"a-splitter","val":null,"x":387.0,"y":224.0},
 {"control":null,"id":6,"name":"audio-out","val":null,"x":571.0,"y":220.0},
-{"control":null,"id":8,"name":"const","val":50,"x":195.0,"y":314.0},
+{"control":"gain","id":8,"name":"const","val":0.5,"x":195.0,"y":314.0},
 {"control":null,"id":9,"name":"c-splitter","val":null,"x":28.0,"y":96.0},
-{"control":null,"id":10,"name":"slider-ctl","val":null,"x":17.0,"y":281.0}]}
+        {"control":null,"id":10,"name":"slider-ctl","val":2,"x":17.0,"y":281.0}]}
