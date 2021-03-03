@@ -17,6 +17,18 @@
 "to_node":{"id":5,"name":"audio-out","param_name":"b2"}},
 {
 "from_node":{"id":6,"name":"slider-ctl","param_name":"val"},
+"to_node":{"id":7,"name":"sin-vco","param_name":"freq"}},
+{
+"from_node":{"id":7,"name":"sin-vco","param_name":"out"},
+"to_node":{"id":17,"name":"c-scale","param_name":"in"}},
+{
+"from_node":{"id":15,"name":"const","param_name":"val"},
+"to_node":{"id":17,"name":"c-scale","param_name":"out_lo"}},
+{
+"from_node":{"id":16,"name":"const","param_name":"val"},
+"to_node":{"id":17,"name":"c-scale","param_name":"out_hi"}},
+{
+"from_node":{"id":17,"name":"c-scale","param_name":"out"},
 "to_node":{"id":12,"name":"bp-filt","param_name":"freq"}},
 {
 "from_node":{"id":8,"name":"const","param_name":"val"},
@@ -46,11 +58,14 @@
 {"control":null,"id":3,"name":"lp-filt","val":null,"x":215.0,"y":33.0},
 {"control":null,"id":4,"name":"a-splitter","val":null,"x":481.0,"y":290.0},
 {"control":null,"id":5,"name":"audio-out","val":null,"x":651.0,"y":281.0},
-{"control":null,"id":6,"name":"slider-ctl","val":600,"x":3.0,"y":70.0},
+{"control":null,"id":6,"name":"slider-ctl","val":1,"x":3.0,"y":70.0},
+{"control":null,"id":7,"name":"sin-vco","val":null,"x":3.0,"y":70.0},
 {"control":null,"id":8,"name":"const","val":1,"x":169.0,"y":460.0},
 {"control":null,"id":9,"name":"const","val":0,"x":164.0,"y":350.0},
 {"control":null,"id":10,"name":"amp","val":null,"x":396.0,"y":137.0},
 {"control":"gain","id":11,"name":"slider-ctl","val":0.5,"x":579.0,"y":32.0},
 {"control":null,"id":12,"name":"bp-filt","val":null,"x":227.0,"y":180.0},
- {"control":null,"id":13,"name":"const","val":3,"x":8.0,"y":326.0}
-]}
+ {"control":null,"id":13,"name":"const","val":3,"x":8.0,"y":326.0},
+ {"control":null,"id":15,"name":"const","val":100,"x":8.0,"y":326.0},
+ {"control":null,"id":16,"name":"const","val":900,"x":8.0,"y":326.0},
+{"control":null,"id":17,"name":"c-scale","val":null,"x":8.0,"y":326.0}]}

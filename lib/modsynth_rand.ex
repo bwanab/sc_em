@@ -52,8 +52,8 @@ defmodule Modsynth.Rand do
     GenServer.call(pid, :next)
   end
 
-  def stop() do
-    stop(Modsynth.Rand)
+  def stop_playing() do
+    GenServer.call(Modsynth.Rand, :stop_playing)
     ScClient.group_free(1)
   end
 
@@ -102,6 +102,12 @@ defmodule Modsynth.Rand do
   end
 
   @impl true
+  def handle_call(:stop_playing, _from, state) do
+    ScClient.group_free(1)
+    {:reply, :ok, %State{state | last_note: -1}}
+  end
+
+  @impl true
   def handle_call({:set_scale, scale}, _from, state) do
     first_note = Enum.at(scale,:rand.uniform(length(scale)))
     {:reply, :ok, %State{state | scale: scale, last_note: first_note}}
@@ -135,11 +141,15 @@ defmodule Modsynth.Rand do
                                      scale: scale,
                                      note_control: note,
                                      bpm: bpm} = state) do
-    next_note = Modsynth.Rand.rand(last_note, scale)
-    next_rhythm = rhythm()
-    ScClient.set_control(note, "in", next_note)
-    schedule_next_note(self(), next_rhythm, bpm)
-    {:noreply, %State{state | last_note: next_note, last_rhythm: next_rhythm}}
+    if last_note < 0 do
+      {:noreply, state}
+    else
+      next_note = Modsynth.Rand.rand(last_note, scale)
+      next_rhythm = rhythm()
+      ScClient.set_control(note, "in", next_note)
+      schedule_next_note(self(), next_rhythm, bpm)
+      {:noreply, %State{state | last_note: next_note, last_rhythm: next_rhythm}}
+    end
   end
 
   

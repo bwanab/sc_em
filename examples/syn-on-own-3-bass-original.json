@@ -5,7 +5,7 @@
 "to_node":{"id":20,"name":"note-freq","param_name":"note"}},
 {
 "from_node":{"id":3,"name":"lp-filt","param_name":"out"},
-"to_node":{"id":18,"name":"amp","param_name":"in"}},
+"to_node":{"id":14,"name":"perc-env","param_name":"in"}},
 {
 "from_node":{"id":4,"name":"a-splitter","param_name":"ob1"},
 "to_node":{"id":5,"name":"audio-out","param_name":"b1"}},
@@ -24,6 +24,15 @@
 {
 "from_node":{"id":13,"name":"const","param_name":"val"},
 "to_node":{"id":12,"name":"square-osc","param_name":"width"}},
+{
+"from_node":{"id":14,"name":"perc-env","param_name":"out"},
+"to_node":{"id":18,"name":"amp","param_name":"in"}},
+{
+"from_node":{"id":15,"name":"const","param_name":"val"},
+"to_node":{"id":14,"name":"perc-env","param_name":"attack"}},
+{
+"from_node":{"id":16,"name":"const","param_name":"val"},
+"to_node":{"id":14,"name":"perc-env","param_name":"release"}},
 {
 "from_node":{"id":17,"name":"const","param_name":"val"},
 "to_node":{"id":3,"name":"lp-filt","param_name":"cutoff"}},
@@ -48,6 +57,7 @@
 {"control":null,"id":9,"name":"const","val":0,"x":610.0,"y":495.0},
 {"control":null,"id":12,"name":"square-osc","val":null,"x":187.0,"y":29.0},
 {"control":null,"id":13,"name":"const","val":0.5,"x":-2.0,"y":116.0},
+{"control":null,"id":14,"name":"perc-env","val":null,"x":540.0,"y":98.0},
 {"control":null,"id":15,"name":"const","val":0.1,"x":363.0,"y":156.0},
 {"control":null,"id":16,"name":"const","val":1,"x":362.0,"y":223.0},
 {"control":null,"id":17,"name":"const","val":300,"x":14.0,"y":253.0},
