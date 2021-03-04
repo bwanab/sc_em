@@ -11,8 +11,7 @@ defmodule ScClient do
   end
 
   def load_synths() do
-    sendMsg({"/d_load", ["synthdefs/void.scsyndef"]})
-    query_status()
+    load_synths("synthdefs/void.scsyndef")
   end
 
   def query_status() do
@@ -23,7 +22,8 @@ defmodule ScClient do
   end
 
   def load_synths(dir) do
-    sendMsg({"/d_loadDir", [dir]})
+    GenServer.call(ScEm, {:load_dir, OSC.encode("/d_load", [dir])})
+    query_status()
   end
 
   def make_sound(synth) do
@@ -54,6 +54,18 @@ defmodule ScClient do
     GenServer.call(ScEm, {:next_audio_bus, name})
   end
 
+  def get_bus_val(bus) do
+    GenServer.call(ScEm, {:get_bus_val, OSC.encode("/c_get", [bus]), bus})
+    query_bus_val(bus)
+  end
+
+  def query_bus_val(bus) do
+    case GenServer.call(ScEm, {:bus_val_status, bus}) do
+      :pending -> query_bus_val(bus)
+      val -> val
+    end
+  end
+
   def get_control_bus(name) do
     GenServer.call(ScEm, {:next_control_bus, name})
   end
@@ -61,6 +73,10 @@ defmodule ScClient do
   def set_control(id, control, val) do
     # Logger.info("set control id #{id} control #{control} val #{val}")
     sendMsg({"/n_set", [id, control, val]})
+  end
+
+  def get_control_val(id, control) do
+    sendMsg({"/s_get", [id, control]})
   end
 
   def stop_sound(id) do

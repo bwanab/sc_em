@@ -14,7 +14,8 @@ defmodule ScEm.State do
     next_control_bus: 50,
     next_audio_bus: 15,
     bus_map: %{},
-    load_dir_status: :pending
+    load_dir_status: :pending,
+    bus_val_status: %{}
     # midi_module_id: 0,
     # amp_module_id: 0
   @type t :: %__MODULE__{port: integer,
@@ -26,7 +27,8 @@ defmodule ScEm.State do
                          next_control_bus: integer,
                          next_audio_bus: integer,
                          bus_map: map,
-                         load_dir_status: atom
+                         load_dir_status: atom,
+                         bus_val_status: map
                          # midi_module_id: integer,
                          # amp_module_id: integer
   }
@@ -97,6 +99,26 @@ defmodule ScEm do
   def handle_call({:send, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
     Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
+    {:reply, response, state}
+  end
+
+  @impl true
+  def handle_call({:get_bus_val, packet, bus}, _from,
+    %State{socket: socket, ip: ip, port: port, bus_val_status: bus_val_status} = state) do
+    Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    response = :gen_udp.send(socket, ip, port, packet)
+    {:reply, response, %{state | bus_val_status: Map.put(bus_val_status, bus, :pending)}}
+  end
+
+  @impl true
+  def handle_call({:bus_val_status, bus}, _from, %State{bus_val_status: status} = state) do
+    {:reply, status[bus], state}
+  end
+
+  @impl true
+  def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
+    Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, %{state | load_dir_status: :pending}}
   end
 
@@ -158,7 +180,7 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_info({:udp, socket, ip, fromport, packet}, %State{socket: socket, handler: {mod, fun}} = state) do
+  def handle_info({:udp, socket, ip, fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status, handler: {mod, fun}} = state) do
     try do
       {f, l} = OSC.decode(packet)
       case f do
@@ -166,6 +188,9 @@ defmodule ScEm do
           {:noreply, %{state | status: form_status(l)}}
         "/done" ->
           {:noreply, %{state | load_dir_status: :done}}
+        "/c_set" ->
+          [bus, val] = l
+          {:noreply, %{state | bus_val_status: Map.put(bus_val_status, bus, val)}}
         _ ->
           apply mod, fun, [%Response{ip: format_ip(ip), fromport: fromport, packet: String.trim(packet)}]
           {:noreply, state}

@@ -50,9 +50,10 @@ defmodule Modsynth do
   def play(fname) do
     ScClient.group_free(1)
     MidiInClient.stop_midi()
-    init()
+    {node_map, connections} = init()
     |> read_file(fname)
     |> build_modules
+    {set_up_controls(node_map, connections), connections}
   end
 
   def look(fname) do
@@ -63,7 +64,7 @@ defmodule Modsynth do
     MidiIn.start(0,0)
     ScClient.group_free(1)
     ScClient.load_synths(Application.get_env(:sc_em, :remote_synth_dir))
-    Process.sleep(2000)  # should be a better way to do this!
+    # Process.sleep(2000)  # should be a better way to do this!
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
   end
 
@@ -129,11 +130,14 @@ defmodule Modsynth do
     node_map = reorder_nodes(connections, Map.values(nodes))
     |> Enum.map(fn node -> %{node | sc_id: build_module(node)} end)
     |> map_nodes_by_node_id()
-    #
-    # now, we can actually do the connections with the updated versions
-    #
-    connections
+
+    full_connections = connections
     |> Enum.map(fn connection -> connect_nodes(node_map, connection) end)
+    {node_map, full_connections}
+  end
+
+  def set_up_controls(node_map, full_connections) do
+    full_connections
     |> Enum.filter(fn connection -> is_external_control(node_map[connection.from_node_param.node_id].name)  end)
     |> Enum.map(fn connection -> handle_midi_connection(node_map, connection) end)
     |> Enum.map(fn connection ->
