@@ -22,7 +22,7 @@ defmodule ScClient do
   end
 
   def load_synths(dir) do
-    GenServer.call(ScEm, {:load_dir, OSC.encode("/d_load", [dir])})
+    GenServer.call(ScEm, {:load_dir, OSC.encode("/d_loadDir", [dir])})
     query_status()
   end
 

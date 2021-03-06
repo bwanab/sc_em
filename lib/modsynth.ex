@@ -93,7 +93,7 @@ defmodule Modsynth do
                                                   control: specs.control}} end)
           |> Enum.into(%{})
         connections = parse_connections(nodes, ms["connections"])
-        {nodes, connections}
+        {nodes, connections, {ms["frame"]["width"], ms["frame"]["height"]}}
     end
   end
 
@@ -126,7 +126,7 @@ defmodule Modsynth do
     end
   end
 
-  def build_modules({nodes, connections}) do
+  def build_modules({nodes, connections,_}) do
     node_map = reorder_nodes(connections, Map.values(nodes))
     |> Enum.map(fn node -> %{node | sc_id: build_module(node)} end)
     |> map_nodes_by_node_id()
