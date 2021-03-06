@@ -7,7 +7,6 @@ defmodule ScEm.State do
 
   defstruct port: nil,
     ip: {nil,nil,nil,nil} ,
-    handler: {nil, nil},
     socket: nil,
     next_id: 1001,
     status: %{},
@@ -20,7 +19,6 @@ defmodule ScEm.State do
     # amp_module_id: 0
   @type t :: %__MODULE__{port: integer,
                          ip: tuple,
-                         handler: tuple,
                          socket: reference,
                          next_id: integer,
                          status: map,
@@ -34,17 +32,6 @@ defmodule ScEm.State do
   }
 end
 
-defmodule ScEm.Response do
-  @doc ~S"""
-  Struct for UDP response packet
-  ip :: String.t
-  fromport :: integer
-  packet :: String.t
-  """
-  defstruct ip: nil, fromport: nil, packet: nil
-  @type t :: %__MODULE__{ip: String.t, fromport: integer, packet: String.t}
-end
-
 defmodule ScEm do
   @doc """
 
@@ -56,7 +43,6 @@ defmodule ScEm do
   require OSC
   require Logger
   alias ScEm.State
-  alias ScEm.Response
 
   @impl true
   def start(_type, _args) do
@@ -69,9 +55,8 @@ defmodule ScEm do
   end
 
   def start_link(_dork) do
-    {mod, fun} = Application.get_env :sc_em, :udp_handler, {__MODULE__, :default_handler}
     {ip, port} = {Application.get_env(:sc_em, :ip, {127,0,0,1}), Application.get_env(:sc_em, :port, 57110)}
-    GenServer.start_link(__MODULE__, [%State{handler: {mod,fun}, ip: ip, port: port}], name: __MODULE__)
+    GenServer.start_link(__MODULE__, [%State{ip: ip, port: port}], name: __MODULE__)
   end
 
   @impl true
@@ -180,7 +165,7 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_info({:udp, socket, ip, fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status, handler: {mod, fun}} = state) do
+  def handle_info({:udp, socket, _ip, _fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status} = state) do
     try do
       {f, l} = OSC.decode(packet)
       case f do
@@ -192,7 +177,8 @@ defmodule ScEm do
           [bus, val] = l
           {:noreply, %{state | bus_val_status: Map.put(bus_val_status, bus, val)}}
         _ ->
-          apply mod, fun, [%Response{ip: format_ip(ip), fromport: fromport, packet: String.trim(packet)}]
+          {f, l} = OSC.decode(String.trim(packet))
+          Logger.notice("address: #{f} data = #{inspect(l)}")
           {:noreply, state}
       end
     rescue
@@ -215,12 +201,6 @@ defmodule ScEm do
       :nom_sample_rate => nom_sample_rate,
       :act_sample_rate => act_sample_rate
     }
-  end
-
-  def default_handler(%Response{} = response) do
-    packet = response.packet
-    {f, l} = OSC.decode(packet)
-    Logger.notice("address: #{f} data = #{inspect(l)}")
   end
 
   #ip is passed as a tuple one int each octet {127,0,0,1}
