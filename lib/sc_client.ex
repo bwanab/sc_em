@@ -8,22 +8,30 @@ defmodule ScClient do
 
   def status() do
     GenServer.call(ScEm, :status)
+    query_status_status()
+  end
+
+  def query_status_status() do
+    case GenServer.call(ScEm, :status_status) do
+      :pending -> query_status_status()
+      val -> val
+    end
   end
 
   def load_synths() do
     load_synths("synthdefs/void.scsyndef")
   end
 
-  def query_status() do
+  def query_dir_status() do
     case GenServer.call(ScEm, :load_dir_status) do
       :done -> :ok
-      :pending -> query_status()
+      :pending -> query_dir_status()
     end
   end
 
   def load_synths(dir) do
     GenServer.call(ScEm, {:load_dir, OSC.encode("/d_loadDir", [dir])})
-    query_status()
+    query_dir_status()
   end
 
   def make_sound(synth) do

@@ -34,9 +34,6 @@ end
 
 defmodule ScEm do
   @doc """
-
-  bugs: # status as it stands has a delay between when the request is made from SC and when SC returns the response. Makes it hard to get the value.
-
   """
   use Application
   use GenServer
@@ -67,10 +64,6 @@ defmodule ScEm do
                                         ])
     Logger.notice("listening on port #{port}")
 
-    # uncomment to get status going
-    schedule_status()
-
-
     {:ok, %{state | socket: socket}}
   end
 
@@ -82,7 +75,7 @@ defmodule ScEm do
 
   @impl true
   def handle_call({:send, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
-    Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    #Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, state}
   end
@@ -90,7 +83,7 @@ defmodule ScEm do
   @impl true
   def handle_call({:get_bus_val, packet, bus}, _from,
     %State{socket: socket, ip: ip, port: port, bus_val_status: bus_val_status} = state) do
-    Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    # Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, %{state | bus_val_status: Map.put(bus_val_status, bus, :pending)}}
   end
@@ -102,7 +95,7 @@ defmodule ScEm do
 
   @impl true
   def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
-    Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    # Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, %{state | load_dir_status: :pending}}
   end
@@ -141,7 +134,13 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_call(:status, _from, state) do
+  def handle_call(:status, _from, %State{socket: socket, ip: ip, port: port} = state) do
+    :gen_udp.send(socket, ip, port, OSC.encode("/status", []))
+    {:reply, :ok, %{state | status: :pending}}
+  end
+
+  @impl true
+  def handle_call(:status_status, _from, state) do
     %State{status: status} = state
     {:reply, status, state}
   end
@@ -157,12 +156,6 @@ defmodule ScEm do
     {:stop, :normal, status}
   end
 
-  @impl true
-  def handle_info(:timed_status, %State{socket: socket, ip: ip, port: port} = state) do
-    :gen_udp.send(socket, ip, port, OSC.encode("/status", []))
-    schedule_status()
-    {:noreply, state}
-  end
 
   @impl true
   def handle_info({:udp, socket, _ip, _fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status} = state) do
@@ -184,10 +177,6 @@ defmodule ScEm do
     rescue
       MatchError -> {:noreply, state}
     end
-  end
-
-  defp schedule_status do
-    Process.send_after(self(), :timed_status, 5000)
   end
 
   def form_status([_,n_ugens,n_synths,n_groups,n_syndefs,avg_cpu,peak_cpu,nom_sample_rate,act_sample_rate]) do

@@ -21,11 +21,11 @@ defmodule ReadSynthDef do
   end
 
   def synth_def_val(f, index) do
-    Logger.debug("index = #{index}")
+    #Logger.debug("index = #{index}")
     {name, n1} = pstring(f, index)
-    Logger.debug("name = #{name} n1 = #{n1}")
+    #Logger.debug("name = #{name} n1 = #{n1}")
     {n_constants, n2} = int32(f, n1)
-    Logger.debug("n_constants = #{n_constants}")
+    #Logger.debug("n_constants = #{n_constants}")
     {const_vals, n3} = get_array(n_constants, f, n2, &float32/2)
     {n_parameters, n4} = int32(f, n3)
     {parameter_vals, n5} = get_array(n_parameters, f, n4, &float32/2)

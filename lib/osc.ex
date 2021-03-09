@@ -19,7 +19,7 @@ defmodule OSC do
     res = find(s, <<0>>)
     length = String.length(res)
     new_index = ceil((length+1) / 4.0) * 4
-    Logger.debug("new_index = #{new_index}")
+    #Logger.debug("new_index = #{new_index}")
     {res, String.slice(s, new_index..-1)}
   end
 
@@ -33,11 +33,11 @@ defmodule OSC do
   def read_int(s) do
     length = String.length(s)
     if length < 4 do
-      Logger.debug("Error: too few bytes for int #{s} #{length}")
+      #Logger.debug("Error: too few bytes for int #{s} #{length}")
       {0, <<>>}
     else
       bin = oslice4(s)
-      Logger.debug("bin = #{inspect(bin)}")
+      #Logger.debug("bin = #{inspect(bin)}")
       <<res :: big-integer-32>> = bin
       {res, String.slice(s, 4..-1)}
     end
@@ -50,12 +50,12 @@ defmodule OSC do
   def read_double(s) do
     length = String.length(s)
     if length < 8 do
-      Logger.debug("Error: too few bytes for double #{s} #{length}")
+      #Logger.debug("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
       # bin = String.slice(s, 0..7)
       bin = oslice8(s)
-      Logger.debug("double bin = #{inspect(bin)}")
+      #Logger.debug("double bin = #{inspect(bin)}")
       <<res :: float>> = bin
       {res, String.slice(s, 8..-1)}
     end
@@ -73,7 +73,7 @@ defmodule OSC do
     else
       # bin = String.slice(s, 0..3)
       bin = oslice4(s)
-      Logger.debug("float bin = #{inspect(bin)}")
+      #Logger.debug("float bin = #{inspect(bin)}")
       <<res :: float-size(32)>> = bin
       {res, String.slice(s, 4..-1)}
     end
@@ -84,7 +84,7 @@ defmodule OSC do
   end
 
   defp read_vals(tags, data, res) do
-    Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
+    #Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
     [h|l] = tags
     {val, r_data} =
       case h do
