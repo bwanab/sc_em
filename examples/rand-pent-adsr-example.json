@@ -9,6 +9,12 @@
 "to_node":{"id":5,"name":"saw-osc","param_name":"freq"}},
 {
 "from_node":{"id":5,"name":"saw-osc","param_name":"sig"},
+"to_node":{"id":3,"name":"amp","param_name":"in"}},
+{
+"from_node":{"id":2,"name":"cc-in","param_name":"val"},
+"to_node":{"id":3,"name":"amp","param_name":"gain"}},
+{
+"from_node":{"id":3,"name":"amp","param_name":"out"},
 "to_node":{"id":15,"name":"adsr-env","param_name":"in"}},
 {
 "from_node":{"id":11,"name":"const","param_name":"val"},
@@ -29,14 +35,16 @@
 
 "master_vol":0.3,
 "nodes":
-[{"control":null,"id":1,"name":"note-freq","val":null,"x":636.0,"y":152.0},
+    [{"control":null,"id":1,"name":"note-freq","val":null,"x":636.0,"y":152.0},
+     {"control":"gain","id":2,"name":"cc-in","val":0.3,"x":636.0,"y":152.0},
+     {"control":null,"id":3,"name":"amp","val":null,"x":636.0,"y":152.0},
 {"control":null,"id":5,"name":"saw-osc","val":null,"x":644.0,"y":261.0},
 {"control":"note","id":7,"name":"cc-cont-in","val":null,"x":42.0,"y":36.0},
  {"control":null,"id":9,"name":"const","val":0.2,"x":2.0,"y":246.0},
 {"control":null,"id":10,"name":"audio-out","val":null,"x":873.0,"y":250.0},
 {"control":null,"id":11,"name":"const","val":1,"x":26.0,"y":69.0},
 {"control":null,"id":12,"name":"const","val":0.1,"x":24.0,"y":121.0},
- {"control":null,"id":13,"name":"const","val":0.3,"x":468.0,"y":488.0},
+ {"control":null,"id":13,"name":"const","val":0.5,"x":468.0,"y":488.0},
 {"control":null,"id":14,"name":"const","val":0.3,"x":486.0,"y":327.0},
  {"control":null,"id":15,"name":"adsr-env","val":null,"x":675.0,"y":342.0}
 ]}
