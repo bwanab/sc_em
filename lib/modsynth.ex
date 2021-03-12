@@ -47,12 +47,12 @@ defmodule Modsynth do
   @doc """
   play an instrument definition file. There are several in the examples directory.
   """
-  def play(fname) do
+  def play(fname, gate_register \\ nil) do
     ScClient.group_free(1)
     MidiInClient.stop_midi()
     {node_map, connections} = init()
     |> read_file(fname)
-    |> build_modules
+    |> build_modules(gate_register)
     {set_up_controls(node_map, connections), connections}
   end
 
@@ -126,9 +126,9 @@ defmodule Modsynth do
     end
   end
 
-  def build_modules({nodes, connections,_}) do
+  def build_modules({nodes, connections,_}, gate_register) do
     node_map = reorder_nodes(connections, Map.values(nodes))
-    |> Enum.map(fn node -> %{node | sc_id: build_module(node)} end)
+    |> Enum.map(fn node -> %{node | sc_id: build_module(node, gate_register)} end)
     |> map_nodes_by_node_id()
 
     full_connections = connections
@@ -259,10 +259,16 @@ defmodule Modsynth do
     end
   end
 
-  def build_module(node) do
-    %Node{name: synth_name, parameters: synth_params} = node
+  def build_module(%Node{name: synth_name, parameters: synth_params}, gate_register) do
     id = ScClient.make_module(synth_name, synth_params)
-    # Logger.info("build_module: #{synth_name} id #{id}")
+    if Enum.find(synth_params, &(List.first(&1) == "gate")) do
+      Logger.info("register gated node: #{synth_name} id: #{id}")
+      if gate_register do
+        gate_register.(id)
+      else
+        MidiInClient.register_gate(id)
+      end
+    end
     id
   end
 
