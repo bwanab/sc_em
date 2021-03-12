@@ -11,10 +11,11 @@ use Mix.Config
 # You can configure for your application as:
 #
 config :sc_em,
-  port: 57110,
-  ip: {192,168,4,39},
-  remote_synth_dir: "/home/bill/Dropbox/music/supercollider/synthdefs/modsynth",
-  local_synth_dir: "/Users/williamallen/Dropbox/music/supercollider/synthdefs/modsynth"
+  #port: 57110,
+  port: String.to_integer(System.fetch_env!("SC_PORT")),
+  ip: String.split(System.fetch_env!("SC_IP"), ".") |> Enum.map(&(String.to_integer(&1))) |> List.to_tuple,
+  remote_synth_dir: System.fetch_env!("MODSYNTH_REMOTE_DIR"),
+  local_synth_dir: System.fetch_env!("MODSYNTH_LOCAL_DIR")
 
 #
 # And access this configuration in your application as:
@@ -24,7 +25,7 @@ config :sc_em,
 # Or configure a 3rd-party app:
 #
 config :logger,
-  level: :info,
+  level: :debug,
   format: "[$level] $messge $metadata\n",
   metadata: [:error_code, :file, :line]
 
