@@ -47,7 +47,7 @@ defmodule Modsynth do
   @doc """
   play an instrument definition file. There are several in the examples directory.
   """
-  def play(fname, gate_register \\ nil) do
+  def play(fname, gate_register \\ &MidiInClient.register_gate/1) do
     ScClient.group_free(1)
     MidiInClient.stop_midi()
     {node_map, connections} = init()
@@ -263,11 +263,7 @@ defmodule Modsynth do
     id = ScClient.make_module(synth_name, synth_params)
     if Enum.find(synth_params, &(List.first(&1) == "gate")) do
       Logger.info("register gated node: #{synth_name} id: #{id}")
-      if gate_register do
-        gate_register.(id)
-      else
-        MidiInClient.register_gate(id)
-      end
+      gate_register.(id)
     end
     id
   end
