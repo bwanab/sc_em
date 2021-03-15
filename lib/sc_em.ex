@@ -59,10 +59,10 @@ defmodule ScEm do
   @impl true
   def init([%State{port: port} = state]) do
     require Logger
-    {:ok, socket} = :gen_udp.open(port, [:binary, :inet,
-                                         {:active, true},
-                                        ])
-    Logger.notice("listening on port #{port}")
+    {:ok, socket} = :gen_udp.open(0, [:binary, :inet,
+                                      {:active, true},
+                                     ])
+    Logger.notice("listening on socket #{inspect(socket)}")
 
     {:ok, %{state | socket: socket}}
   end
@@ -75,7 +75,7 @@ defmodule ScEm do
 
   @impl true
   def handle_call({:send, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
-    #Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    # Logger.info("sending = #{packet} to ip #{inspect(ip)} port #{port} from #{inspect(socket)}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, state}
   end
@@ -95,7 +95,7 @@ defmodule ScEm do
 
   @impl true
   def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
-    # Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    # Logger.debug("sending = #{packet} to ip #{inspect(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, %{state | load_dir_status: :pending}}
   end
@@ -170,7 +170,6 @@ defmodule ScEm do
           [bus, val] = l
           {:noreply, %{state | bus_val_status: Map.put(bus_val_status, bus, val)}}
         _ ->
-          {f, l} = OSC.decode(String.trim(packet))
           Logger.notice("address: #{f} data = #{inspect(l)}")
           {:noreply, state}
       end
@@ -192,8 +191,4 @@ defmodule ScEm do
     }
   end
 
-  #ip is passed as a tuple one int each octet {127,0,0,1}
-  defp format_ip ({a, b, c, d}) do
-    "#{a}.#{b}.#{c}.#{d}"
-  end
 end
