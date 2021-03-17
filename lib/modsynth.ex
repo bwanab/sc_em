@@ -53,7 +53,7 @@ defmodule Modsynth do
     {node_map, connections} = init()
     |> read_file(fname)
     |> build_modules(gate_register)
-    {set_up_controls(node_map, connections), connections}
+    {set_up_controls(node_map, connections), node_map, connections}
   end
 
   def look(fname) do
@@ -145,6 +145,15 @@ defmodule Modsynth do
       {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0), connection.to_node_param.param_name, from_node.control}
     end)
   end
+
+  # def set_control({node, id}, name, val) do
+  #   ScClient.set_control(id, name, val)
+  #   if name == "gate" do
+  #     delete_module(id)
+  #     id = build_module(node, gate_register)
+  #     node.sc_id = id # obviously this is where it breaks down. need to put that node back into the connections
+  #   end
+  # end
 
   def handle_midi_connection(nodes, connection) do
     %Connection{

@@ -57,7 +57,7 @@ defmodule ScEm do
   end
 
   @impl true
-  def init([%State{port: port} = state]) do
+  def init([state]) do
     require Logger
     {:ok, socket} = :gen_udp.open(0, [:binary, :inet,
                                       {:active, true},
