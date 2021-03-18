@@ -1,7 +1,7 @@
 (
-~dir = "/home/bill/Dropbox/music/supercollider/synthdefs/modsynth/";
+~dir = "/Users/williamallen/Dropbox/music/supercollider/synthdefs/modsynth/";
 
-SynthDef("audio-out", {arg b1 = 55, b2 = 56;
+SynthDef("audio-out", {arg b1 = 0, b2 = 0;
 	Out.ar(0, In.ar([b1, b2]));
 }).writeDefFile(~dir);
 
@@ -36,7 +36,7 @@ SynthDef("a-mixer-4", {arg out = 65, in1 = 55, in2 = 56, in3 = 57, in4 = 58;
 	Out.ar(out, In.ar(in1) + In.ar(in2) + In.ar(in3) + In.ar(in4));
 }).writeDefFile(~dir);
 
-SynthDef("const", {arg in = 69, val = 65;
+SynthDef("const", {arg in = 0, val = 0;
 	Out.kr(val, in);
 }).writeDefFile(~dir);
 
@@ -49,7 +49,7 @@ SynthDef("midi-in-note", {arg note = 69, out = 65;
 	Out.kr(out, note);
 }).writeDefFile(~dir);
 
-SynthDef("cc-in", {arg in = 55, val = 65;
+SynthDef("cc-in", {arg in = 0, val = 0;
 	Out.kr(val, in);
 }).writeDefFile(~dir);
 
@@ -57,7 +57,7 @@ SynthDef("note-freq", {arg note = 55, freq = 65;
 	Out.kr(freq, midicps(In.kr(note)));
 }).writeDefFile(~dir);
 
-SynthDef("amp", {arg in = 55, out = 65, gain = 0.1;
+SynthDef("amp", {arg in = 0, out = 0, gain = 0.0;
 	Out.ar(out, In.kr(gain) * In.ar(in));
 }).writeDefFile(~dir);
 
@@ -73,6 +73,27 @@ SynthDef("sin-vco", {arg freq = 55, out = 65;
 	Out.kr(out, SinOsc.kr(In.kr(freq)));
 }).writeDefFile(~dir);
 
+// SynthDef("flute", {arg freq = 55, sig = 65;
+// 	var fr = In.kr(freq);
+// 	var n = 12;
+// 	var cutoff_freq1 = 300;
+// 	var wave = Mix.fill(n,{|i|
+// 		var mult;
+// 		var div = 0.5;
+// 		case
+// 		{i == 1} {div = 1}
+// 		{and(i == 3, fr >= cutoff_freq1)} {div = 0.5}
+// 		{and(i == 3, fr < cutoff_freq1)} {div = 0.2}
+// 		{and(i == 4, fr >= cutoff_freq1)} {div = 0.1}
+// 		{and(i == 4, fr < cutoff_freq1)} {div = 0.4}
+// 		{i > 4} {div = 0.02};
+//
+// 		mult= ((-1)**i)*(div/((i+1)));
+// 		SinOsc.ar(fr*(i+1))*mult
+// 	});
+// 	Out.ar(sig, Mix.ar(wave/n));
+// }).writeDefFile(~dir);
+
 SynthDef("rand-in", {arg out = 65, lo = 0, hi = 0, trig = 0;
 	var low = In.kr(lo);
 	var high = In.kr(hi);
@@ -86,7 +107,7 @@ SynthDef("square-osc", {arg freq = 55, sig = 56, width = 0.5;
 }).writeDefFile(~dir);
 
 SynthDef("lp-filt", {arg in = 55, out = 65, cutoff = 11;
-	Out.ar(out, LPF.ar(In.ar(in), In.kr(cutoff) * 3));
+	Out.ar(out, LPF.ar(In.ar(in), In.kr(cutoff)));
 }).writeDefFile(~dir);
 
 SynthDef("hp-filt", {arg in = 55, out = 65, cutoff = 300;
@@ -117,7 +138,7 @@ SynthDef("val-add", {arg in = 55, out = 65, val = 0;
 	Out.kr(out, In.kr(in) + In.kr(val));
 }).writeDefFile(~dir);
 
-SynthDef("adsr-env", {arg in = 55, out = 65, attack = 0.1, decay = 0.2, sustain = 0.5, release = 1, gate = 1;
+SynthDef("adsr-env", {arg in = 55, out = 65, attack = 0.1, decay = 0.2, sustain = 0.1, release = 1, gate = 1;
 	Out.ar(out, In.ar(in) * Env.adsr(attack, decay, sustain, release).kr(2, gate));
 }).writeDefFile(~dir);
 
@@ -138,18 +159,33 @@ SynthDef("echo", {arg in = 55, out = 65, delay_time = 1, decay_time = 1;
 )
 
 (
-~gaintoaudio = Bus.audio();
+~gaintoecho = Bus.audio();
+~echotoaudio = Bus.audio();
 ~ctonote = Bus.control();
 ~ctogain = Bus.control();
 ~notetosaw = Bus.control();
-~sawtogain = Bus.audio();
+~sawtoadsr = Bus.audio();≥
+~adsrtogain = Bus.audio();
+
+
+~gain = Synth("cc-in", [\in, 0.2, \val, ~ctogain]);
+~note = Synth("cc-in", [\in, 50, \val, ~ctonote]);
+Synth("audio-out", [\b1, ~echotoaudio, \b2, ~echotoaudio]);
+Synth("freeverb", [\in, ~gaintoecho, \out, ~echotoaudio]);
+Synth("amp", [\in, ~adsrtogain, \gain, ~ctogain, \out, ~gaintoecho]);
+~adsr = Synth("adsr-env", [\in, ~sawtoadsr, \out, ~adsrtogain]);
+Synth("saw-osc", [\freq, ~notetosaw, \sig, ~sawtoadsr]);
+Synth("note-freq", [\note, ~ctonote, \freq, ~notetosaw]);
 )
 
-~gain = Synth("const", [\val, 0.3, \val, ~ctogain]);
-~note = Synth("const", [\val, 50, \ob, ~ctonote]);
-Synth("note-freq", [\note, ~ctonote, \ob, ~notetosaw]);
-Synth("saw-osc", [\ib, ~notetosaw, \ob, ~sawtogain]);
-Synth("amp", [\ib, ~sawtogain, \gain, ~ctogain, \ob, ~gaintoaudio]);
-Synth("audio-out", [\ib1, ~gaintoaudio, \ib2, ~gaintoaudio]);
-~note.set("val", 40)
-~gain.set("val", 0.4)
+~adsr = Synth("adsr-env", [\in, ~sawtoadsr, \out, ~adsrtogain]);
+
+~note.set("in", 53)
+~gain.set("in", 0.4)
+~adsr.set("gate", 0)
+
+~echotoaudio.plot;
+~sawtoadsr.plot;
+~adsrtogain.plot;
+
+Synth("saw-osc", [\freq, 110]);
