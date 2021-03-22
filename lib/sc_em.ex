@@ -14,7 +14,8 @@ defmodule ScEm.State do
     next_audio_bus: 15,
     bus_map: %{},
     load_dir_status: :pending,
-    bus_val_status: %{}
+    bus_val_status: %{},
+    control_val_status: %{}
     # midi_module_id: 0,
     # amp_module_id: 0
   @type t :: %__MODULE__{port: integer,
@@ -26,7 +27,8 @@ defmodule ScEm.State do
                          next_audio_bus: integer,
                          bus_map: map,
                          load_dir_status: atom,
-                         bus_val_status: map
+                         bus_val_status: map,
+                         control_val_status: map
                          # midi_module_id: integer,
                          # amp_module_id: integer
   }
@@ -94,6 +96,19 @@ defmodule ScEm do
   end
 
   @impl true
+  def handle_call({:get_control_val, packet, id}, _from,
+    %State{socket: socket, ip: ip, port: port, control_val_status: control_val_status} = state) do
+    # Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
+    response = :gen_udp.send(socket, ip, port, packet)
+    {:reply, response, %{state | control_val_status: Map.put(control_val_status, id, :pending)}}
+  end
+
+  @impl true
+  def handle_call({:control_val_status, id}, _from, %State{control_val_status: status} = state) do
+    {:reply, status[id], state}
+  end
+
+  @impl true
   def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
     # Logger.debug("sending = #{packet} to ip #{inspect(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
@@ -158,7 +173,7 @@ defmodule ScEm do
 
 
   @impl true
-  def handle_info({:udp, socket, _ip, _fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status} = state) do
+  def handle_info({:udp, socket, _ip, _fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status, control_val_status: control_val_status} = state) do
     try do
       {f, l} = OSC.decode(packet)
       case f do
@@ -169,6 +184,9 @@ defmodule ScEm do
         "/c_set" ->
           [bus, val] = l
           {:noreply, %{state | bus_val_status: Map.put(bus_val_status, bus, val)}}
+        "/n_set" ->
+          [id, _control, val] = l
+          {:noreply, %{state | control_val_status: Map.put(control_val_status, id, val)}}
         _ ->
           Logger.notice("address: #{f} data = #{inspect(l)}")
           {:noreply, state}

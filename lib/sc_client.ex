@@ -84,7 +84,15 @@ defmodule ScClient do
   end
 
   def get_control_val(id, control) do
-    sendMsg({"/s_get", [id, control]})
+    GenServer.call(ScEm, {:get_control_val, OSC.encode("/s_get", [id, control]), id})
+    query_control_val(id)
+  end
+
+  def query_control_val(id) do
+    case GenServer.call(ScEm, {:control_val_status, id}) do
+      :pending -> query_control_val(id)
+      val -> val
+    end
   end
 
   def stop_sound(id) do
