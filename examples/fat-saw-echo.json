@@ -68,6 +68,6 @@
  {"control":"gain","id":18,"name":"cc-in","val":0.3,"x":42.0,"y":36.0},
  {"control":null,"id":19,"name":"echo","val":null,"x":795.0,"y":149.0},
  {"control":null,"id":20,"name":"echo","val":null,"x":795.0,"y":149.0},
-{"control":null,"id":22,"name":"cc-in","val":0.1,"x":615.0,"y":257.0},
-{"control":null,"id":24,"name":"cc-in","val":5,"x":615.0,"y":257.0}
+{"control":null,"id":22,"name":"cc-in","val":0.2,"x":615.0,"y":257.0},
+{"control":null,"id":24,"name":"cc-in","val":2,"x":615.0,"y":257.0}
 ]}

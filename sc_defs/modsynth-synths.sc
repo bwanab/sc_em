@@ -152,7 +152,7 @@ SynthDef("freeverb", {arg in = 55, out = 65, wet_dry = 0.5,  room_size = 0.3, da
 
 SynthDef("echo", {arg in = 55, out = 65, delay_time = 1, decay_time = 1;
 	var sig = In.ar(in);
-	Out.ar(out, CombL.ar(sig, 3, In.kr(delay_time), In.kr(decay_time)));
+	Out.ar(out, (sig + CombL.ar(sig, 3, In.kr(delay_time), In.kr(decay_time))) / 2);
 }).writeDefFile(~dir);
 
 
