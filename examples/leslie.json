@@ -14,7 +14,16 @@
 "from_node":{"id":3,"name":"const","param_name":"val"},
 "to_node":{"id":4,"name":"sin-vco","param_name":"freq"}},
 {
+"from_node":{"id":12,"name":"cc-in","param_name":"val"},
+"to_node":{"id":11,"name":"c-scale","param_name":"out_lo"}},
+{
+"from_node":{"id":13,"name":"cc-in","param_name":"val"},
+"to_node":{"id":11,"name":"c-scale","param_name":"out_hi"}},
+{
 "from_node":{"id":4,"name":"sin-vco","param_name":"out"},
+"to_node":{"id":11,"name":"c-scale","param_name":"in"}},
+{
+"from_node":{"id":11,"name":"c-scale","param_name":"out"},
 "to_node":{"id":9,"name":"c-splitter","param_name":"in"}},
 {
 "from_node":{"id":5,"name":"a-splitter","param_name":"ob1"},
@@ -37,6 +46,9 @@
 "nodes":
     [
         {"control":"note","id":10,"name":"cc-in","val":null,"x":0.0,"y":0.0},
+        {"control":null,"id":11,"name":"c-scale","val":null,"x":0.0,"y":0.0},
+        {"control":null,"id":12,"name":"cc-in","val":-0.9,"x":0.0,"y":0.0},
+        {"control":null,"id":13,"name":"cc-in","val":0.9,"x":0.0,"y":0.0},
      {"control":null,"id":1,"name":"note-freq","val":null,"x":0.0,"y":0.0},
 {"control":null,"id":2,"name":"square-osc","val":null,"x":196.0,"y":54.0},
 {"control":null,"id":3,"name":"const","val":2,"x":11.0,"y":267.0},
