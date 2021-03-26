@@ -65,7 +65,7 @@
 {"control":null,"id":10,"name":"amp","val":null,"x":396.0,"y":137.0},
 {"control":"gain","id":11,"name":"slider-ctl","val":0.5,"x":579.0,"y":32.0},
 {"control":null,"id":12,"name":"bp-filt","val":null,"x":227.0,"y":180.0},
- {"control":null,"id":13,"name":"const","val":3,"x":8.0,"y":326.0},
+ {"control":null,"id":13,"name":"const","val":0.5,"x":8.0,"y":326.0},
  {"control":null,"id":15,"name":"const","val":100,"x":8.0,"y":326.0},
- {"control":null,"id":16,"name":"const","val":900,"x":8.0,"y":326.0},
+ {"control":null,"id":16,"name":"const","val":1500,"x":8.0,"y":326.0},
 {"control":null,"id":17,"name":"c-scale","val":null,"x":8.0,"y":326.0}]}
