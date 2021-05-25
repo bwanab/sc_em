@@ -110,4 +110,8 @@ defmodule ScClient do
   def sendMsg({cmd, args}) do
     GenServer.call(ScEm, {:send, OSC.encode(cmd, args)})
   end
+
+  def count_connections(node, connections) do
+
+  end
 end

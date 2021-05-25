@@ -1,4 +1,5 @@
 defmodule Modsynth.Node do
+  @derive Jason.Encoder
   defstruct name: "",
     parameters: [],
     bus_type: :audio,
@@ -17,6 +18,7 @@ defmodule Modsynth.Node do
 end
 
 defmodule Modsynth.Node_Param do
+  @derive Jason.Encoder
   defstruct node_id: 0,
     param_name: ""
   @type t :: %__MODULE__{node_id: integer,
@@ -25,6 +27,7 @@ defmodule Modsynth.Node_Param do
 end
 
 defmodule Modsynth.Connection do
+  @derive Jason.Encoder
   defstruct from_node_param: %Modsynth.Node_Param{},
     to_node_param: %Modsynth.Node_Param{},
     bus_type: :audio,
