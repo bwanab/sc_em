@@ -196,6 +196,7 @@ defmodule ScEm do
     end
   end
 
+  @spec form_status([number]) :: map
   def form_status([_,n_ugens,n_synths,n_groups,n_syndefs,avg_cpu,peak_cpu,nom_sample_rate,act_sample_rate]) do
     %{
       :n_ugenss => n_ugens,
