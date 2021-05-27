@@ -52,6 +52,7 @@ defmodule ScClient do
   can be a bus number (in which case it'll probably be overwritten) or
   a constant, that might be used as is or might be overwritten.
   """
+  @spec make_module(String.t, [any()]) :: Integer
   def make_module(synth, controls) do
     id = GenServer.call(ScEm, :next_id)
     sendMsg({"/s_new", [synth, id, 0, 1] ++ List.flatten(controls)})

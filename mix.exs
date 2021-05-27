@@ -24,6 +24,8 @@ defmodule ScEm.MixProject do
   defp deps do
     [
       {:jason, "~> 1.2"},
+      {:libgraph, "~> 0.7"},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:music_prims, path: "../music_prims"},
       {:midi_in, path: "../midi_in"}
     ]

@@ -50,12 +50,14 @@ defmodule Modsynth do
   @doc """
   play an instrument definition file. There are several in the examples directory.
   """
+  @spec play(String.t, fun()) :: {[{String.t, Integer, String.t, String.t, Boolean}], %{required(Integer) => Node}, [Connection]}
   def play(fname, gate_register \\ &MidiInClient.register_gate/1) do
     ScClient.group_free(1)
     MidiInClient.stop_midi()
-    {node_map, connections} = init()
-    |> read_file(fname)
-    |> build_modules(gate_register)
+    {node_map, connections} =
+      init()
+      |> read_file(fname)
+      |> build_modules(gate_register)
     {set_up_controls(node_map, connections), node_map, connections}
   end
 
@@ -63,6 +65,7 @@ defmodule Modsynth do
     init() |> read_file(fname)
   end
 
+  @spec init() :: %{required(String.t) => {[[]], Atom}}
   def init() do
     MidiIn.start(0,0)
     ScClient.group_free(1)
@@ -79,6 +82,7 @@ defmodule Modsynth do
 
   returns a list of the external controls other than midi in or audio in
   """
+  @spec read_file(%{required(String.t) => {[[]], Atom}}, String.t) :: {%{required(Integer) => Node}, [Connection], {Float, Float}}
   def read_file(synths, fname) do
     case File.read(fname) do
       {:error, reason} -> {:error, reason}
@@ -114,6 +118,7 @@ defmodule Modsynth do
 
   This function does the proper ordering.
   """
+  @spec reorder_nodes([Connection], [Node]) :: [Node]
   def reorder_nodes(connections, nodes) when is_list(nodes) do
     audio_out = Enum.find(nodes, fn node -> node.name == "audio-out" end).node_id
     order = [audio_out] ++ List.flatten(reorder_nodes(connections, audio_out))
@@ -122,6 +127,7 @@ defmodule Modsynth do
     Enum.map(order, fn id -> node_map[id] end)
   end
 
+  @spec reorder_nodes([Connection], Integer) :: [Node]
   def reorder_nodes(connections, node_id) do
     nodes = for c when c.to_node_param.node_id == node_id <- connections do c.from_node_param.node_id end
     if length(nodes) > 0 do
@@ -129,6 +135,8 @@ defmodule Modsynth do
     end
   end
 
+  @spec build_modules({%{required(Integer) => Node}, [Connection], {Float, Float}}, fun())
+  :: {%{required(Integer) => Node}, [Connection]}
   def build_modules({nodes, connections,_}, gate_register) do
     node_map = reorder_nodes(connections, Map.values(nodes))
     |> Enum.map(fn node -> %{node | sc_id: build_module(node, gate_register)} end)
@@ -139,6 +147,7 @@ defmodule Modsynth do
     {node_map, full_connections}
   end
 
+  @spec set_up_controls(%{required(Integer) => Node}, [Connection]) :: [{String.t, Integer, String.t, String.t, Boolean}]
   def set_up_controls(node_map, full_connections) do
     full_connections
     |> Enum.filter(fn connection -> is_external_control(node_map[connection.from_node_param.node_id].name)  end)
@@ -214,12 +223,14 @@ defmodule Modsynth do
   returns a list of synth specifications as a map indexed by the module name name => {parameters, out_bus_type}}
   e.g. "saw-osc" => {[["ib", 55.0], ["ob", 65.0]], :audio}
   """
+  @spec get_synth_vals(String.t) :: %{required(String.t) => {[[]], Atom}}
   def get_synth_vals(dir) do
     File.ls!(dir)
     |> Enum.map(fn fname -> get_one_synth_vals(dir <> "/" <> fname) end)
     |> Enum.into(%{})
   end
 
+  @spec get_one_synth_vals(String.t) :: {String.t, {[any()], :audio | :control}}
   def get_one_synth_vals(fname) do
     synth = ReadSynthDef.read_file(fname) |> Map.get(:synth_defs) |> List.first
     synth_name = synth.name
@@ -271,6 +282,7 @@ defmodule Modsynth do
     end
   end
 
+  @spec build_module(%Node{}, fun()) :: Integer
   def build_module(%Node{name: synth_name, parameters: synth_params}, gate_register) do
     id = ScClient.make_module(synth_name, synth_params)
     if Enum.find(synth_params, &(List.first(&1) == "gate")) do
@@ -292,18 +304,22 @@ defmodule Modsynth do
     read_file(synths, file)
   end
 
-  def tpm() do
-    {:ok, input} = PortMidi.open(:input, "mio")
-    PortMidi.listen(input, self())
-    t_rec()
-  end
+  # def tpm() do
+  #   case PortMidi.open(:input, "mio") do
+  #     {:ok, input} ->
+  #       PortMidi.listen(input, self())
+  #       t_rec()
+  #     {:error, reason} ->
+  #       Logger.error(reason)
+  #   end
+  # end
 
-  def t_rec() do
-    receive do
-      # {_input, [{{status, note, _vel}, _timestamp}]} -> Logger.info("#{Integer.to_string(status)} #{note}")
-      {_input, messages} -> Logger.info("#{inspect(messages)}")
-    end
-    t_rec()
-  end
+  # def t_rec() do
+  #   receive do
+  #     # {_input, [{{status, note, _vel}, _timestamp}]} -> Logger.info("#{Integer.to_string(status)} #{note}")
+  #     {_input, messages} -> Logger.info("#{inspect(messages)}")
+  #   end
+  #   t_rec()
+  # end
 
 end
