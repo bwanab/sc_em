@@ -10,17 +10,20 @@ defmodule ReadMidiFile do
   http://www.music.mcgill.ca/~ich/classes/mumt306/StandardMIDIfileformat.html#BM3_1
   """
 
+  @spec read_file(String.t) :: map
   def read_file(name) do
     {:ok, f} = File.open(name, [:charlist], fn file ->
       IO.read(file, :all) end )
     midifile(f)
   end
 
+  @spec midifile(binary) :: map
   def midifile(d) do
     {header, n} = read_header(d)
     %{header | :midi_tracks => read_tracks(d, n, header[:n_tracks])}
   end
 
+  @spec read_header(binary) :: {map, integer}
   def read_header(d) do
     ftype = List.to_string(Enum.slice(d, 0, 4))
     {head_size, n1} = int32(d, 4)
@@ -38,6 +41,7 @@ defmodule ReadMidiFile do
     }, n4}
   end
 
+  @spec read_tracks(binary, integer, integer) :: list
   def read_tracks(_d, _n, num) when num == 0 do [] end
   def read_tracks(d, n, num) do
     {track, n1} = read_track(d, n)
@@ -45,6 +49,7 @@ defmodule ReadMidiFile do
     [track] ++ read_tracks(d, n1, num-1)
   end
 
+  @spec read_track(binary, integer) :: {map, integer}
   def read_track(d, n) do
     track_head = List.to_string(Enum.slice(d, n, 4))
     {track_size, n1} = int32(d, n+4)
@@ -59,6 +64,7 @@ defmodule ReadMidiFile do
       }, n2}
   end
 
+  @spec read_messages(binary, integer, integer, integer) :: list
   def read_messages(d, n, last_m_type, n_offset) do
     {delta, n1} = variable_length(d, n)
     {status, nx} = int8(d, n1)
@@ -119,10 +125,12 @@ defmodule ReadMidiFile do
   end
 
 
+  @spec variable_length(binary, integer) :: {integer, integer}
   def variable_length(d, n) do
     variable_length(d, n, 0)
   end
 
+  @spec variable_length(binary, integer, integer) :: {integer, integer}
   def variable_length(d, n, acc) do
     {b1, n1} = int8(d, n)
     if b1 < 128 do
@@ -132,6 +140,7 @@ defmodule ReadMidiFile do
     end
   end
 
+  @spec sysex_message(number, binary, integer) :: {%MidiMessage{}, integer}
   def sysex_message(delta, d, n) do
     {length, n1} = variable_length(d, n)
     {%MidiMessage{
@@ -139,6 +148,7 @@ defmodule ReadMidiFile do
         val: %{:delta => delta, :sysex => Enum.slice(d, n1, length-2)}}, n1+length}
   end
 
+  @spec meta_message(number, binary, integer) :: {%MidiMessage{}, integer}
   def meta_message(delta, d, n) do
     {meta_type, n1} = int8(d, n)
     {length, n2} = variable_length(d, n1)
@@ -190,6 +200,7 @@ defmodule ReadMidiFile do
     end
   end
 
+  @spec get_string_val(:text_event | :copyright_notice | :track_name | :instrument_name | :lyrics_text | :marker | :sequencer_specific_event, number, binary, integer, integer) :: {%MidiMessage{}, integer}
   def get_string_val(event, delta, d, n, length) do
     val = if length == 0 do "" else List.to_string(Enum.slice(d, n, length)) end
     {%MidiMessage{
@@ -197,6 +208,7 @@ defmodule ReadMidiFile do
         val: %{:delta => delta, :val => val}}, n + length}
   end
 
+  @spec smpte_offset(number, binary, integer) :: {%MidiMessage{}, integer}
   def smpte_offset(delta, d, n) do
     {hr, n1} = int8(d, n)
     {mn, n2} = int8(d, n1)
@@ -215,6 +227,8 @@ defmodule ReadMidiFile do
   end
 
 
+
+  @spec time_sig_meta(number, binary, integer) :: {%MidiMessage{}, integer}
   def time_sig_meta(delta, d, n) do
     {bpm, n1} = int8(d, n)
     {beat, n2} = int8(d, n1)
@@ -230,6 +244,7 @@ defmodule ReadMidiFile do
      n4}
   end
 
+  @spec key_sig_meta(number, binary, integer) :: {%MidiMessage{}, integer}
   def key_sig_meta(delta, d, n) do
     {n_sharps_flats, n1} = int8_signed(d, n)
     {mode, n2} = int8_signed(d, n1)
@@ -241,6 +256,7 @@ defmodule ReadMidiFile do
      n2}
   end
 
+  @spec note(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def note(channel, delta, d, n) do
     {note, n1} = int8(d, n)
     {vel, n2} = int8(d, n1)
@@ -255,6 +271,7 @@ defmodule ReadMidiFile do
     end
   end
 
+  @spec noteoff(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def noteoff(channel, delta, d, n) do
     {note, n1} = int8(d, n)
     {vel, n2} = int8(d, n1)
@@ -263,6 +280,7 @@ defmodule ReadMidiFile do
         val: %{:channel => channel, :delta => delta, :note => note, :vel => vel}}, n2}
   end
 
+  @spec polyphonic_pressure(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def polyphonic_pressure(channel, delta, d, n) do
     {note, n1} = int8(d, n)
     {val, n2} = int8(d, n1)
@@ -271,6 +289,7 @@ defmodule ReadMidiFile do
         val: %{:channel => channel, :delta => delta, :note => note, :val => val}}, n2}
   end
 
+  @spec control_change(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def control_change(channel, delta, d, n) do
     {cc, n1} = int8(d, n)
     {val, n2} = int8(d, n1)
@@ -279,6 +298,7 @@ defmodule ReadMidiFile do
         val: %{:channel => channel, :delta => delta, :cc => cc, :val => val}}, n2}
   end
 
+  @spec pitch_wheel(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def pitch_wheel(channel, delta, d, n) do
     {lsb, n1} = int8(d, n)
     {msb, n2} = int8(d, n1)
@@ -287,6 +307,7 @@ defmodule ReadMidiFile do
         val: %{:channel => channel, :delta => delta, :lsb => lsb, :msb => msb}}, n2}
   end
 
+  @spec aftertouch(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def aftertouch(channel, delta, d, n) do
     {pressure, n1} = int8(d, n)
     {%MidiMessage{
@@ -294,6 +315,7 @@ defmodule ReadMidiFile do
         val: %{:channel => channel, :delta => delta, :pressure => pressure}}, n1}
   end
 
+  @spec program_change(integer, number, binary, integer) :: {%MidiMessage{}, integer}
   def program_change(channel, delta, d, n) do
     {program, n1} = int8(d, n)
     {%MidiMessage{

@@ -50,7 +50,7 @@ defmodule Modsynth do
   @doc """
   play an instrument definition file. There are several in the examples directory.
   """
-  @spec play(String.t, fun()) :: {[{String.t, Integer, String.t, String.t, Boolean}], %{required(Integer) => Node}, [Connection]}
+  @spec play(String.t, fun()) :: {[{String.t, integer, String.t, String.t, Boolean}], %{required(integer) => Node}, [Connection]}
   def play(fname, gate_register \\ &MidiInClient.register_gate/1) do
     ScClient.group_free(1)
     MidiInClient.stop_midi()
@@ -82,7 +82,7 @@ defmodule Modsynth do
 
   returns a list of the external controls other than midi in or audio in
   """
-  @spec read_file(%{required(String.t) => {[[]], Atom}}, String.t) :: {%{required(Integer) => Node}, [Connection], {Float, Float}}
+  @spec read_file(%{required(String.t) => {[[]], Atom}}, String.t) :: {%{required(integer) => Node}, [Connection], {float, float}}
   def read_file(synths, fname) do
     case File.read(fname) do
       {:error, reason} -> {:error, reason}
@@ -104,7 +104,7 @@ defmodule Modsynth do
     end
   end
 
-  @spec map_nodes_by_node_id([Node]) :: %{required(Integer) => Node}
+  @spec map_nodes_by_node_id([Node]) :: %{required(integer) => Node}
   def map_nodes_by_node_id(nodes) do
     Enum.map(nodes, fn node ->
       %{node_id: node_id} = node
@@ -128,7 +128,7 @@ defmodule Modsynth do
     Enum.map(order, fn id -> node_map[id] end)
   end
 
-  @spec reorder_nodes([Connection], Integer) :: [Node]
+  @spec reorder_nodes([Connection], integer) :: [Node]
   def reorder_nodes(connections, node_id) do
     nodes = for c when c.to_node_param.node_id == node_id <- connections do c.from_node_param.node_id end
     if length(nodes) > 0 do
@@ -136,8 +136,8 @@ defmodule Modsynth do
     end
   end
 
-  @spec build_modules({%{required(Integer) => Node}, [Connection], {Float, Float}}, fun())
-  :: {%{required(Integer) => Node}, [Connection]}
+  @spec build_modules({%{required(integer) => Node}, [Connection], {float, float}}, fun())
+  :: {%{required(integer) => Node}, [Connection]}
   def build_modules({nodes, connections,_}, gate_register) do
     node_map = reorder_nodes(connections, Map.values(nodes))
     |> Enum.map(fn node -> %{node | sc_id: build_module(node, gate_register)} end)
@@ -148,7 +148,7 @@ defmodule Modsynth do
     {node_map, full_connections}
   end
 
-  @spec set_up_controls(%{required(Integer) => Node}, [Connection]) :: [{String.t, Integer, String.t, String.t, Boolean}]
+  @spec set_up_controls(%{required(integer) => Node}, [Connection]) :: [{String.t, integer, String.t, String.t, Boolean}]
   def set_up_controls(node_map, full_connections) do
     full_connections
     |> Enum.filter(fn connection -> is_external_control(node_map[connection.from_node_param.node_id].name)  end)
@@ -168,7 +168,7 @@ defmodule Modsynth do
   #   end
   # end
 
-  @spec handle_midi_connection(%{required(Integer) => Node}, %Connection{}) :: %Connection{}
+  @spec handle_midi_connection(%{required(integer) => Node}, %Connection{}) :: %Connection{}
   def handle_midi_connection(nodes, connection) do
     %Connection{
         from_node_param: %Node_Param{
@@ -193,7 +193,7 @@ defmodule Modsynth do
     connection
   end
 
-  @spec parse_connections(%{required(Integer) => Node}, [Connection]) :: [Connection]
+  @spec parse_connections(%{required(integer) => Node}, [Connection]) :: [Connection]
   def parse_connections(nodes, connections) do
     Enum.map(connections,
       fn %{"from_node" => from, "to_node" => to} ->
@@ -247,7 +247,7 @@ defmodule Modsynth do
     {synth_name, {synth_parameters, synth_out_type}}
   end
 
-  @spec get_bus(:audio | :control, String.t) :: Integer
+  @spec get_bus(:audio | :control, String.t) :: integer
   def get_bus(ct, name)  when ct == :audio do
     ScClient.get_audio_bus(name)
   end
@@ -256,7 +256,7 @@ defmodule Modsynth do
     ScClient.get_control_bus(name)
   end
 
-  @spec connect_nodes(%{required(Integer) => Node}, %Connection{}) :: %Connection{}
+  @spec connect_nodes(%{required(integer) => Node}, %Connection{}) :: %Connection{}
   def connect_nodes(nodes, connection) do
     %Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
     from_node = nodes[from.node_id]
@@ -289,7 +289,7 @@ defmodule Modsynth do
     end
   end
 
-  @spec build_module(%Node{}, fun()) :: Integer
+  @spec build_module(%Node{}, fun()) :: integer
   def build_module(%Node{name: synth_name, parameters: synth_params}, gate_register) do
     id = ScClient.make_module(synth_name, synth_params)
     if Enum.find(synth_params, &(List.first(&1) == "gate")) do
@@ -323,7 +323,7 @@ defmodule Modsynth do
 
   # def t_rec() do
   #   receive do
-  #     # {_input, [{{status, note, _vel}, _timestamp}]} -> Logger.info("#{Integer.to_string(status)} #{note}")
+  #     # {_input, [{{status, note, _vel}, _timestamp}]} -> Logger.info("#{integer.to_string(status)} #{note}")
   #     {_input, messages} -> Logger.info("#{inspect(messages)}")
   #   end
   #   t_rec()

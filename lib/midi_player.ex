@@ -2,6 +2,7 @@ defmodule MidiPlayer do
   import ScClient
   require Logger
 
+  @spec play(String.t) :: :ok
   def play(name) do
     load_synths()
     Process.sleep(2)
@@ -20,6 +21,7 @@ defmodule MidiPlayer do
   reads the midi file, then writes the bin file into the same directory
   from which it will read the next time.
   """
+  @spec read_file(String.t) :: map
   def read_file(name) do
     bin_name = String.replace_suffix(name, ".mid", ".json")
     if File.exists?(bin_name) do
@@ -34,6 +36,7 @@ defmodule MidiPlayer do
     end
   end
 
+  @spec play_type0(map) :: :ok
   def play_type0(midi) do
     track = midi.midi_tracks |> Enum.at(0)
     messages = track.midi_messages
@@ -43,6 +46,7 @@ defmodule MidiPlayer do
   @doc """
   In type 1 files, the first track contains the timing data for all the tracks.
   """
+  @spec play_type1(map) :: :ok
   def play_type1(midi) do
     [track1 | tracks] = midi.midi_tracks
     state = message_worker(track1.midi_messages, initial_state(midi))
@@ -51,10 +55,12 @@ defmodule MidiPlayer do
       process_messages(state)
   end
 
+  @spec play_type2(map) :: :ok
   def play_type2(_midi) do
     throw("Don't know how to play type 2")
   end
 
+  @spec initial_state(map) :: map
   def initial_state(midi) do
     %{:tickdiv => 0.003,
       :tpqn => midi.ticks_per_quarter_note,
@@ -62,6 +68,7 @@ defmodule MidiPlayer do
       :synth => Map.new(0..16, fn x -> {x, "miditest1"} end)}
   end
 
+  @spec process_messages(list, map) :: :ok
   def process_messages(list_of_message_lists, state) do
     stream = Task.async_stream(list_of_message_lists,
       fn ml -> message_worker(ml,  state) end,
@@ -69,11 +76,13 @@ defmodule MidiPlayer do
     Stream.run(stream)
   end
 
+  @spec eot() :: [%MidiMessage{:type => :end_of_track, :val => :anything}]
   def eot() do
     [%MidiMessage{:type => :end_of_track, :val => :anything}]
   end
 
 
+  @spec message_worker([{:program_change | :tempo | :noteon | :noteoff | :cc_event | :end_of_track, map}], map) :: any
   def message_worker([%{type: type, val: _val} | _rest], state) when type == :end_of_track do state end
   def message_worker([%{type: type, val: val} | rest], state) do
     delta = val.delta
@@ -115,6 +124,7 @@ defmodule MidiPlayer do
     message_worker(rest, s)
    end
 
+  @spec wait(number, map) :: :ok
   def wait(delta, state) do
     if delta > 0 do
       ms_to_sleep = round(delta * state.tickdiv * 1000)
