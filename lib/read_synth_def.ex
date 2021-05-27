@@ -2,12 +2,14 @@ defmodule ReadSynthDef do
   import ConversionPrims
   require Logger
 
+  @spec read_file(String.t) :: map
   def read_file(name) do
     {:ok, f} = File.open(name, [:charlist], fn file ->
       IO.read(file, :all) end )
     synth_definition(f)
   end
 
+  @spec synth_definition(binary) :: map
   def synth_definition(f) do
     ftype = List.to_string(Enum.slice(f, 0, 4))
     {fversion, n1} = int32(f, 4)
@@ -20,6 +22,7 @@ defmodule ReadSynthDef do
     }
   end
 
+  @spec synth_def_val(binary, integer) :: {map, integer}
   def synth_def_val(f, index) do
     #Logger.debug("index = #{index}")
     {name, n1} = pstring(f, index)
@@ -51,6 +54,7 @@ defmodule ReadSynthDef do
   end
 
 
+  @spec ugen_val(binary, integer) :: {map, integer}
   def ugen_val(f, index) do
     {ugen_name, n1} = pstring(f, index)
     {calc_rate, n2} = int8(f, n1)
@@ -72,6 +76,7 @@ defmodule ReadSynthDef do
   end
 
 
+  @spec input_val(binary, integer) :: {map, integer}
   def input_val(f, index) do
     {ugen_index, n1} = int32(f, index)
     {other_index, n2} = int32(f, n1)
@@ -79,12 +84,14 @@ defmodule ReadSynthDef do
        :other_index => other_index}, n2}
   end
 
+  @spec parameter_name_val(binary, integer) :: {{binary, integer}, integer}
   def parameter_name_val(f, index) do
     {val, n1} = pstring(f, index)
     {val_index, n2} = int32(f, n1)
     {{val, val_index}, n2}
   end
 
+  @spec variant_val(binary, integer) :: {{binary, integer}, integer}
   def variant_val(f, index) do
     {name, n1} = pstring(f, index)
     {parameter, n2} = int32(f, n1)
@@ -95,6 +102,7 @@ defmodule ReadSynthDef do
   ## Generic array getter
   ##
 
+  @spec get_array_help(integer, binary, integer, fun) :: list
   def get_array_help(n, _data, index, _fun) when n == 0 do [index] end
 
   def get_array_help(n, data, index, fun) do
@@ -103,6 +111,7 @@ defmodule ReadSynthDef do
   end
 
 
+  @spec get_array(integer, binary, integer, fun) :: {list, integer}
   def get_array(n, data, index, fun) do
     vals_and_index_from_array(get_array_help(n, data, index, fun))
   end
