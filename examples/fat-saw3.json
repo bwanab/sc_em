@@ -37,7 +37,7 @@
 "from_node":{"id":17,"name":"amp","param_name":"out"},
 "to_node":{"id":7,"name":"audio-out","param_name":"b2"}},
 {
-"from_node":{"id":18,"name":"cc-in","param_name":"val"},
+"from_node":{"id":13,"name":"cc-in","param_name":"val"},
 "to_node":{"id":17,"name":"amp","param_name":"gain"}}],
 "frame":{"height":600.0,"width":1007.0},
 
@@ -55,5 +55,4 @@
 {"control":"note","id":14,"name":"cc-cont-in","val":null,"x":42.0,"y":36.0},
  {"control":null,"id":15,"name":"note-freq","val":null,"x":350.0,"y":136.0},
 {"control":null,"id":16,"name":"note-freq","val":null,"x":200.0,"y":36.0},
-{"control":null,"id":17,"name":"amp","val":null,"x":795.0,"y":149.0},
-{"control":"gain","id":18,"name":"cc-in","val":0.3,"x":42.0,"y":136.0}]}
+{"control":null,"id":17,"name":"amp","val":null,"x":795.0,"y":149.0}]}

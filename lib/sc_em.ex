@@ -109,10 +109,14 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port} = state) do
+  def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port, load_dir_status: load_dir_status} = state) do
     # Logger.debug("sending = #{packet} to ip #{inspect(ip)} port #{port}")
-    response = :gen_udp.send(socket, ip, port, packet)
-    {:reply, response, %{state | load_dir_status: :pending}}
+    if load_dir_status == :done do
+      {:reply, :ok, state}
+    else
+      response = :gen_udp.send(socket, ip, port, packet)
+      {:reply, response, %{state | load_dir_status: :pending}}
+    end
   end
 
   @impl true
