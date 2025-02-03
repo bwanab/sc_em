@@ -1,6 +1,6 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
-use Mix.Config
+import Config
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
@@ -24,10 +24,10 @@ config :sc_em,
 #
 # Or configure a 3rd-party app:
 #
-config :logger,
-  level: :debug,
-  format: "[$level] $messge $metadata\n",
-  metadata: [:error_code, :file, :line]
+# config :logger,
+#  level: :debug,
+#  format: "[$level] $messge $metadata\n",
+#  metadata: [:error_code, :file, :line]
 
 #
 

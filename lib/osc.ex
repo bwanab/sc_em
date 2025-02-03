@@ -1,6 +1,6 @@
 defmodule OSC do
   require Logger
-  use Bitwise
+  # import Bitwise
 
   @spec find0(binary, binary, [<<_::8>>]) :: [<<_::8>>]
   defp find0(cl, c, r) do
@@ -164,6 +164,7 @@ defmodule OSC do
 
   @spec encode(any, [any]) :: binary
   def encode(addr, data) do
+    Logger.debug("Encode addr = #{inspect(addr)} data = #{inspect(data)}")
     write_string(addr) <> write_vals(data)
   end
 

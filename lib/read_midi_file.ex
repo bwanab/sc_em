@@ -248,7 +248,7 @@ defmodule ReadMidiFile do
   def key_sig_meta(delta, d, n) do
     {n_sharps_flats, n1} = int8_signed(d, n)
     {mode, n2} = int8_signed(d, n1)
-    key = MusicPrims.key(if mode == 0 do :major else :minor end, n_sharps_flats)
+    key = MusicPrims.key(if mode == 0 do :major else :minor end, n_sharps_flats, :flats)
     {%MidiMessage{
         type: :key_sig,
         val: %{:key => key,

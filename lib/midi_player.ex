@@ -4,7 +4,7 @@ defmodule MidiPlayer do
 
   @spec play(String.t) :: :ok
   def play(name) do
-    load_synths()
+    load_synths(Application.get_env(:sc_em, :local_synth_dir))
     Process.sleep(2)
     midi = read_file(name)
     case midi.midi_format do
@@ -102,7 +102,7 @@ defmodule MidiPlayer do
             if MapSet.member?(channel_set, val.channel) do
               id = midi_sound(state.synth[val.channel], val.note, val.vel / 256)
               if state.notes[val.note] != 0 do
-                Logger.warn("Note #{val.note} on without a prior note off")
+                Logger.warning("Note #{val.note} on without a prior note off")
               end
               %{state.notes | val.note => id}
             end

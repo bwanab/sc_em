@@ -110,7 +110,7 @@ defmodule ScEm do
 
   @impl true
   def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port, load_dir_status: load_dir_status} = state) do
-    # Logger.debug("sending = #{packet} to ip #{inspect(ip)} port #{port}")
+    Logger.debug("sending = #{packet} to ip #{inspect(ip)} port #{port} load_dir_status #{load_dir_status}")
     if load_dir_status == :done do
       {:reply, :ok, state}
     else

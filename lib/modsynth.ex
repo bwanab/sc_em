@@ -52,7 +52,7 @@ defmodule Modsynth do
   """
   @spec play(String.t, fun()) :: {[{String.t, integer, String.t, String.t, Boolean}], %{required(integer) => Node}, [Connection]}
   def play(fname, gate_register \\ &MidiInClient.register_gate/1) do
-    ScClient.group_free(1)
+    #ScClient.group_free(1)
     MidiInClient.stop_midi()
     {node_map, connections} =
       init()
@@ -67,8 +67,12 @@ defmodule Modsynth do
 
   @spec init() :: %{required(String.t) => {[[]], Atom}}
   def init() do
+    if Logger.level() == :debug do
+      stacktrace = Process.info(self(), :current_stacktrace)
+      IO.inspect(stacktrace)
+    end
     MidiIn.start(0,0)
-    ScClient.group_free(1)
+    # ScClient.group_free(1)
     ScClient.load_synths(Application.get_env(:sc_em, :remote_synth_dir))
     # Process.sleep(2000)  # should be a better way to do this!
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))

@@ -1,5 +1,5 @@
 (
-~dir = "/Users/williamallen/Dropbox/music/supercollider/synthdefs/modsynth/";
+~dir = "/Users/bill/Documents/music/supercollider/synthdefs/modsynth/";
 
 SynthDef("audio-out", {arg b1 = 0, b2 = 0;
 	Out.ar(0, In.ar([b1, b2]));

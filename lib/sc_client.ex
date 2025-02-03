@@ -93,6 +93,11 @@ defmodule ScClient do
   @spec set_control(integer, String.t, number) :: :ok
   def set_control(id, control, val) do
     # Logger.info("set control id #{id} control #{control} val #{val}")
+    if (Logger.level() == :debug) and (control == "sig") do
+      stacktrace = Process.info(self(), :current_stacktrace)
+      IO.inspect(stacktrace)
+    end
+
     sendMsg({"/n_set", [id, control, val]})
   end
 
@@ -130,7 +135,7 @@ defmodule ScClient do
     GenServer.call(ScEm, {:send, OSC.encode(cmd, args)})
   end
 
-  def count_connections(node, connections) do
-
-  end
+  # def count_connections(node, connections) do
+  #
+  # end
 end
