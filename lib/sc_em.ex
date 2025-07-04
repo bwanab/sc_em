@@ -1,37 +1,38 @@
 defmodule Modsynth.Bus do
   defstruct name: "", type: :control, id: 0
-  @type t :: %__MODULE__{name: String.t, type: atom, id: integer}
+  @type t :: %__MODULE__{name: String.t(), type: atom, id: integer}
 end
 
 defmodule ScEm.State do
-
   defstruct port: nil,
-    ip: {nil,nil,nil,nil} ,
-    socket: nil,
-    next_id: 1001,
-    status: %{},
-    next_control_bus: 50,
-    next_audio_bus: 15,
-    bus_map: %{},
-    load_dir_status: :pending,
-    bus_val_status: %{},
-    control_val_status: %{}
-    # midi_module_id: 0,
-    # amp_module_id: 0
-  @type t :: %__MODULE__{port: integer,
-                         ip: tuple,
-                         socket: reference,
-                         next_id: integer,
-                         status: map,
-                         next_control_bus: integer,
-                         next_audio_bus: integer,
-                         bus_map: map,
-                         load_dir_status: atom,
-                         bus_val_status: map,
-                         control_val_status: map
-                         # midi_module_id: integer,
-                         # amp_module_id: integer
-  }
+            ip: {nil, nil, nil, nil},
+            socket: nil,
+            next_id: 1001,
+            status: %{},
+            next_control_bus: 50,
+            next_audio_bus: 15,
+            bus_map: %{},
+            load_dir_status: :pending,
+            bus_val_status: %{},
+            control_val_status: %{}
+
+  # midi_module_id: 0,
+  # amp_module_id: 0
+  @type t :: %__MODULE__{
+          port: integer,
+          ip: tuple,
+          socket: reference,
+          next_id: integer,
+          status: map,
+          next_control_bus: integer,
+          next_audio_bus: integer,
+          bus_map: map,
+          load_dir_status: atom,
+          bus_val_status: map,
+          control_val_status: map
+          # midi_module_id: integer,
+          # amp_module_id: integer
+        }
 end
 
 defmodule ScEm do
@@ -54,16 +55,17 @@ defmodule ScEm do
   end
 
   def start_link(_dork) do
-    {ip, port} = {Application.get_env(:sc_em, :ip, {127,0,0,1}), Application.get_env(:sc_em, :port, 57110)}
+    {ip, port} =
+      {Application.get_env(:sc_em, :ip, {127, 0, 0, 1}),
+       Application.get_env(:sc_em, :port, 57110)}
+
     GenServer.start_link(__MODULE__, [%State{ip: ip, port: port}], name: __MODULE__)
   end
 
   @impl true
   def init([state]) do
     require Logger
-    {:ok, socket} = :gen_udp.open(0, [:binary, :inet,
-                                      {:active, true},
-                                     ])
+    {:ok, socket} = :gen_udp.open(0, [:binary, :inet, {:active, true}])
     Logger.notice("listening on socket #{inspect(socket)}")
 
     {:ok, %{state | socket: socket}}
@@ -83,8 +85,11 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_call({:get_bus_val, packet, bus}, _from,
-    %State{socket: socket, ip: ip, port: port, bus_val_status: bus_val_status} = state) do
+  def handle_call(
+        {:get_bus_val, packet, bus},
+        _from,
+        %State{socket: socket, ip: ip, port: port, bus_val_status: bus_val_status} = state
+      ) do
     # Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, %{state | bus_val_status: Map.put(bus_val_status, bus, :pending)}}
@@ -96,8 +101,11 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_call({:get_control_val, packet, id}, _from,
-    %State{socket: socket, ip: ip, port: port, control_val_status: control_val_status} = state) do
+  def handle_call(
+        {:get_control_val, packet, id},
+        _from,
+        %State{socket: socket, ip: ip, port: port, control_val_status: control_val_status} = state
+      ) do
     # Logger.debug("sending = #{packet} to ip #{format_ip(ip)} port #{port}")
     response = :gen_udp.send(socket, ip, port, packet)
     {:reply, response, %{state | control_val_status: Map.put(control_val_status, id, :pending)}}
@@ -109,8 +117,15 @@ defmodule ScEm do
   end
 
   @impl true
-  def handle_call({:load_dir, packet}, _from, %State{socket: socket, ip: ip, port: port, load_dir_status: load_dir_status} = state) do
-    Logger.debug("sending = #{packet} to ip #{inspect(ip)} port #{port} load_dir_status #{load_dir_status}")
+  def handle_call(
+        {:load_dir, packet},
+        _from,
+        %State{socket: socket, ip: ip, port: port, load_dir_status: load_dir_status} = state
+      ) do
+    Logger.debug(
+      "sending = #{packet} to ip #{inspect(ip)} port #{port} load_dir_status #{load_dir_status}"
+    )
+
     if load_dir_status == :done do
       {:reply, :ok, state}
     else
@@ -129,21 +144,23 @@ defmodule ScEm do
   ones and reassigning.
   """
   @impl true
-  def handle_call({:next_control_bus, name}, _from, %State{next_control_bus: next_control_bus} = state) do
+  def handle_call(
+        {:next_control_bus, name},
+        _from,
+        %State{next_control_bus: next_control_bus} = state
+      ) do
     bus = %Modsynth.Bus{name: name, type: :control, id: next_control_bus}
+
     {:reply, next_control_bus,
-     %{state |
-       next_control_bus: next_control_bus + 1,
-       bus_map: Map.put(state.bus_map, name, bus)}}
+     %{state | next_control_bus: next_control_bus + 1, bus_map: Map.put(state.bus_map, name, bus)}}
   end
 
   @impl true
   def handle_call({:next_audio_bus, name}, _from, %State{next_audio_bus: next_audio_bus} = state) do
     bus = %Modsynth.Bus{name: name, type: :audio, id: next_audio_bus}
+
     {:reply, next_audio_bus,
-     %{state |
-       next_audio_bus: next_audio_bus + 1,
-       bus_map: Map.put(state.bus_map, name, bus)}}
+     %{state | next_audio_bus: next_audio_bus + 1, bus_map: Map.put(state.bus_map, name, bus)}}
   end
 
   @impl true
@@ -175,22 +192,33 @@ defmodule ScEm do
     {:stop, :normal, status}
   end
 
-
   @impl true
-  def handle_info({:udp, socket, _ip, _fromport, packet}, %State{socket: socket, bus_val_status: bus_val_status, control_val_status: control_val_status} = state) do
+  def handle_info(
+        {:udp, socket, _ip, _fromport, packet},
+        %State{
+          socket: socket,
+          bus_val_status: bus_val_status,
+          control_val_status: control_val_status
+        } = state
+      ) do
     try do
       {f, l} = OSC.decode(packet)
+
       case f do
         "/status.reply" ->
           {:noreply, %{state | status: form_status(l)}}
+
         "/done" ->
           {:noreply, %{state | load_dir_status: :done}}
+
         "/c_set" ->
           [bus, val] = l
           {:noreply, %{state | bus_val_status: Map.put(bus_val_status, bus, val)}}
+
         "/n_set" ->
           [id, _control, val] = l
           {:noreply, %{state | control_val_status: Map.put(control_val_status, id, val)}}
+
         _ ->
           Logger.notice("address: #{f} data = #{inspect(l)}")
           {:noreply, state}
@@ -201,7 +229,17 @@ defmodule ScEm do
   end
 
   @spec form_status([number]) :: map
-  def form_status([_,n_ugens,n_synths,n_groups,n_syndefs,avg_cpu,peak_cpu,nom_sample_rate,act_sample_rate]) do
+  def form_status([
+        _,
+        n_ugens,
+        n_synths,
+        n_groups,
+        n_syndefs,
+        avg_cpu,
+        peak_cpu,
+        nom_sample_rate,
+        act_sample_rate
+      ]) do
     %{
       :n_ugenss => n_ugens,
       :n_synths => n_synths,
@@ -213,5 +251,4 @@ defmodule ScEm do
       :act_sample_rate => act_sample_rate
     }
   end
-
 end

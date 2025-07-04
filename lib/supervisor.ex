@@ -11,5 +11,4 @@ defmodule ScEm.Supervisor do
 
     Supervisor.init(children, strategy: :one_for_one)
   end
-
 end

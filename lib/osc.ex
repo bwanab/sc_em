@@ -5,6 +5,7 @@ defmodule OSC do
   @spec find0(binary, binary, [<<_::8>>]) :: [<<_::8>>]
   defp find0(cl, c, r) do
     <<f::binary-size(1), l::binary>> = cl
+
     if f == c do
       r
     else
@@ -21,29 +22,36 @@ defmodule OSC do
   def read_string(s) do
     res = find(s, <<0>>)
     length = String.length(res)
-    new_index = ceil((length+1) / 4.0) * 4
-    #Logger.debug("new_index = #{new_index}")
+    new_index = ceil((length + 1) / 4.0) * 4
+    # Logger.debug("new_index = #{new_index}")
     {res, String.slice(s, new_index..-1)}
   end
 
   @spec write_string(binary) :: binary
   def write_string(s) do
     length = String.length(s)
-    new_index = ceil((length+1) / 4.0) * 4
-    pad = (new_index - length) - 1
-    s <> List.to_string(for _n <- 0..pad do "\0" end)
+    new_index = ceil((length + 1) / 4.0) * 4
+    pad = new_index - length - 1
+
+    s <>
+      List.to_string(
+        for _n <- 0..pad do
+          "\0"
+        end
+      )
   end
 
   @spec read_int(binary) :: {integer, binary}
   def read_int(s) do
     length = String.length(s)
+
     if length < 4 do
-      #Logger.debug("Error: too few bytes for int #{s} #{length}")
+      # Logger.debug("Error: too few bytes for int #{s} #{length}")
       {0, <<>>}
     else
       bin = oslice4(s)
-      #Logger.debug("bin = #{inspect(bin)}")
-      <<res :: big-integer-32>> = bin
+      # Logger.debug("bin = #{inspect(bin)}")
+      <<res::big-integer-32>> = bin
       {res, String.slice(s, 4..-1)}
     end
   end
@@ -53,51 +61,53 @@ defmodule OSC do
     <<i::big-integer-32>>
   end
 
-
   @spec read_double(binary) :: {float, binary}
   def read_double(s) do
     length = String.length(s)
+
     if length < 8 do
-      #Logger.debug("Error: too few bytes for double #{s} #{length}")
+      # Logger.debug("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
       # bin = String.slice(s, 0..7)
       bin = oslice8(s)
-      #Logger.debug("double bin = #{inspect(bin)}")
-      <<res :: float>> = bin
+      # Logger.debug("double bin = #{inspect(bin)}")
+      <<res::float>> = bin
       {res, String.slice(s, 8..-1)}
     end
   end
 
   @spec write_double(float) :: binary
   def write_double(d) do
-    <<d :: float>>
+    <<d::float>>
   end
 
   @spec read_float(binary) :: {float, binary}
   def read_float(s) do
     length = String.length(s)
+
     if length < 4 do
       Logger.info("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
       # bin = String.slice(s, 0..3)
       bin = oslice4(s)
-      #Logger.debug("float bin = #{inspect(bin)}")
-      <<res :: float-size(32)>> = bin
+      # Logger.debug("float bin = #{inspect(bin)}")
+      <<res::float-size(32)>> = bin
       {res, String.slice(s, 4..-1)}
     end
   end
 
   @spec write_float(float) :: binary
   def write_float(f) do
-    <<f :: float-size(32)>>
+    <<f::float-size(32)>>
   end
 
   @spec read_vals([char], binary, list) :: list
   defp read_vals(tags, data, res) do
-    #Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
-    [h|l] = tags
+    # Logger.debug("tags = #{tags} data = #{data} res = #{inspect(res)}")
+    [h | l] = tags
+
     {val, r_data} =
       case h do
         ?s -> read_string(data)
@@ -106,10 +116,11 @@ defmodule OSC do
         ?d -> read_double(data)
         _ -> read_string(data)
       end
+
     if length(l) > 0 do
-      read_vals(l, r_data, [val|res])
+      read_vals(l, r_data, [val | res])
     else
-      Enum.reverse([val|res])
+      Enum.reverse([val | res])
     end
   end
 
@@ -145,6 +156,7 @@ defmodule OSC do
   def write_vals(data, tags, res) do
     [h | l] = data
     {ntags, nres} = write_val(h, tags, res)
+
     if length(l) > 0 do
       write_vals(l, ntags, nres)
     else
@@ -158,9 +170,8 @@ defmodule OSC do
   end
 
   def write_vals(data) do
-    write_vals(data, [','], [])
+    write_vals(data, [~c","], [])
   end
-
 
   @spec encode(any, [any]) :: binary
   def encode(addr, data) do

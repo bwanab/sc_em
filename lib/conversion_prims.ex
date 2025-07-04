@@ -6,42 +6,42 @@ defmodule ConversionPrims do
   @spec int32(binary, integer) :: {integer, integer}
   def int32(s, i) do
     [a, b, c, d] = Enum.slice(s, i, 4)
-    <<res :: signed-big-integer-32>> = <<a, b, c, d>>
+    <<res::signed-big-integer-32>> = <<a, b, c, d>>
     {res, i + 4}
   end
 
   @spec int24(binary, integer) :: {integer, integer}
   def int24(s, i) do
     [a, b, c] = Enum.slice(s, i, 3)
-    <<res :: signed-big-integer-24>> = <<a, b, c>>
+    <<res::signed-big-integer-24>> = <<a, b, c>>
     {res, i + 3}
   end
 
   @spec int16(binary, integer) :: {integer, integer}
   def int16(s, i) do
     [a, b] = Enum.slice(s, i, 2)
-    <<res :: signed-big-integer-16>> = <<a, b>>
+    <<res::signed-big-integer-16>> = <<a, b>>
     {res, i + 2}
   end
 
   @spec int8(binary, integer) :: {integer, integer}
   def int8(s, i) do
     [a] = Enum.slice(s, i, 1)
-    <<res :: big-integer-8>> = <<a>>
+    <<res::big-integer-8>> = <<a>>
     {res, i + 1}
   end
 
   @spec int8_signed(binary, integer) :: {integer, integer}
   def int8_signed(s, i) do
     [a] = Enum.slice(s, i, 1)
-    <<res :: signed-big-integer-8>> = <<a>>
+    <<res::signed-big-integer-8>> = <<a>>
     {res, i + 1}
   end
 
   @spec float32(binary, integer) :: {float, integer}
   def float32(s, i) do
     [a, b, c, d] = Enum.slice(s, i, 4)
-    <<res :: float-size(32)>> = <<a, b, c, d>>
+    <<res::float-size(32)>> = <<a, b, c, d>>
     {res, i + 4}
   end
 
@@ -61,7 +61,12 @@ defmodule ConversionPrims do
   """
   @spec stol(binary, integer) :: [binary]
   def stol(<<fst, rest::binary>>, base \\ 16) do
-    [Integer.to_string(fst, base)] ++ if String.length(rest) > 0 do stol(rest, base) else [] end
+    [Integer.to_string(fst, base)] ++
+      if String.length(rest) > 0 do
+        stol(rest, base)
+      else
+        []
+      end
   end
 
   @doc """

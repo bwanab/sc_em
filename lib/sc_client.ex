@@ -1,5 +1,6 @@
 defmodule ScClient do
   require Logger
+
   @doc """
   things that work:
   encoded_message = OSC.encode("/quit", [24, 0])
@@ -33,7 +34,7 @@ defmodule ScClient do
     end
   end
 
-  @spec load_synths(String.t) :: :ok
+  @spec load_synths(String.t()) :: :ok
   def load_synths(dir) do
     GenServer.call(ScEm, {:load_dir, OSC.encode("/d_loadDir", [dir])})
     query_dir_status()
@@ -59,14 +60,14 @@ defmodule ScClient do
   can be a bus number (in which case it'll probably be overwritten) or
   a constant, that might be used as is or might be overwritten.
   """
-  @spec make_module(String.t, [any()]) :: integer
+  @spec make_module(String.t(), [any()]) :: integer
   def make_module(synth, controls) do
     id = GenServer.call(ScEm, :next_id)
     sendMsg({"/s_new", [synth, id, 0, 1] ++ List.flatten(controls)})
     id
   end
 
-  @spec get_audio_bus(String.t) :: integer
+  @spec get_audio_bus(String.t()) :: integer
   def get_audio_bus(name) do
     GenServer.call(ScEm, {:next_audio_bus, name})
   end
@@ -85,15 +86,15 @@ defmodule ScClient do
     end
   end
 
-  @spec get_control_bus(String.t) :: integer
+  @spec get_control_bus(String.t()) :: integer
   def get_control_bus(name) do
     GenServer.call(ScEm, {:next_control_bus, name})
   end
 
-  @spec set_control(integer, String.t, number) :: :ok
+  @spec set_control(integer, String.t(), number) :: :ok
   def set_control(id, control, val) do
     # Logger.info("set control id #{id} control #{control} val #{val}")
-    if (Logger.level() == :debug) and (control == "sig") do
+    if Logger.level() == :debug and control == "sig" do
       stacktrace = Process.info(self(), :current_stacktrace)
       IO.inspect(stacktrace)
     end
@@ -101,7 +102,7 @@ defmodule ScClient do
     sendMsg({"/n_set", [id, control, val]})
   end
 
-  @spec get_control_val(integer, String.t) :: number
+  @spec get_control_val(integer, String.t()) :: number
   def get_control_val(id, control) do
     GenServer.call(ScEm, {:get_control_val, OSC.encode("/s_get", [id, control]), id})
     query_control_val(id)

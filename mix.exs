@@ -5,7 +5,7 @@ defmodule ScEm.MixProject do
     [
       app: :sc_em,
       version: "0.1.0",
-      elixir: "~> 1.15",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -14,8 +14,6 @@ defmodule ScEm.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      applications: [:portmidi, :jason, :music_prims, :midi_in],
-      extra_applications: [:logger],
       mod: {ScEm, []}
     ]
   end

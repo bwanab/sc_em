@@ -2,10 +2,13 @@ defmodule ReadSynthDef do
   import ConversionPrims
   require Logger
 
-  @spec read_file(String.t) :: map
+  @spec read_file(String.t()) :: map
   def read_file(name) do
-    {:ok, f} = File.open(name, [:charlist], fn file ->
-      IO.read(file, :all) end )
+    {:ok, f} =
+      File.open(name, [:charlist], fn file ->
+        IO.read(file, :eof)
+      end)
+
     synth_definition(f)
   end
 
@@ -15,20 +18,16 @@ defmodule ReadSynthDef do
     {fversion, n1} = int32(f, 4)
     {ndefs, n2} = int16(f, n1)
     {synth_defs, _} = get_array(ndefs, f, n2, &synth_def_val/2)
-    %{:ftype => ftype,
-      :fversion => fversion,
-      :ndefs => ndefs,
-      :synth_defs => synth_defs
-    }
+    %{:ftype => ftype, :fversion => fversion, :ndefs => ndefs, :synth_defs => synth_defs}
   end
 
   @spec synth_def_val(binary, integer) :: {map, integer}
   def synth_def_val(f, index) do
-    #Logger.debug("index = #{index}")
+    # Logger.debug("index = #{index}")
     {name, n1} = pstring(f, index)
-    #Logger.debug("name = #{name} n1 = #{n1}")
+    # Logger.debug("name = #{name} n1 = #{n1}")
     {n_constants, n2} = int32(f, n1)
-    #Logger.debug("n_constants = #{n_constants}")
+    # Logger.debug("n_constants = #{n_constants}")
     {const_vals, n3} = get_array(n_constants, f, n2, &float32/2)
     {n_parameters, n4} = int32(f, n3)
     {parameter_vals, n5} = get_array(n_parameters, f, n4, &float32/2)
@@ -40,7 +39,8 @@ defmodule ReadSynthDef do
     {variants, _} = get_array(n_variants, f, n10, &variant_val/2)
 
     # the last val is the index.
-    {%{:name => name,
+    {%{
+       :name => name,
        :n_constants => n_constants,
        :const_vals => const_vals,
        :n_parameters => n_parameters,
@@ -50,9 +50,8 @@ defmodule ReadSynthDef do
        :ugens => ugens,
        :n_variants => n_variants,
        :variants => variants
-      }, n3}
+     }, n3}
   end
-
 
   @spec ugen_val(binary, integer) :: {map, integer}
   def ugen_val(f, index) do
@@ -63,6 +62,7 @@ defmodule ReadSynthDef do
     {special_index, n5} = int16(f, n4)
     {inputs, n6} = get_array(n_inputs, f, n5, &input_val/2)
     {outputs, n7} = get_array(n_outputs, f, n6, &int8/2)
+
     {
       %{
         :ugen_name => ugen_name,
@@ -72,16 +72,16 @@ defmodule ReadSynthDef do
         :special_index => special_index,
         :inputs => inputs,
         :outputs => outputs
-     }, n7}
+      },
+      n7
+    }
   end
-
 
   @spec input_val(binary, integer) :: {map, integer}
   def input_val(f, index) do
     {ugen_index, n1} = int32(f, index)
     {other_index, n2} = int32(f, n1)
-    {%{:ugen_index => ugen_index,
-       :other_index => other_index}, n2}
+    {%{:ugen_index => ugen_index, :other_index => other_index}, n2}
   end
 
   @spec parameter_name_val(binary, integer) :: {{binary, integer}, integer}
@@ -103,13 +103,14 @@ defmodule ReadSynthDef do
   ##
 
   @spec get_array_help(integer, binary, integer, fun) :: list
-  def get_array_help(n, _data, index, _fun) when n == 0 do [index] end
+  def get_array_help(n, _data, index, _fun) when n == 0 do
+    [index]
+  end
 
   def get_array_help(n, data, index, fun) do
     {vals, new_index} = fun.(data, index)
-    [vals] ++ get_array_help(n-1, data, new_index, fun)
+    [vals] ++ get_array_help(n - 1, data, new_index, fun)
   end
-
 
   @spec get_array(integer, binary, integer, fun) :: {list, integer}
   def get_array(n, data, index, fun) do
@@ -119,5 +120,4 @@ defmodule ReadSynthDef do
   def vals_and_index_from_array(a) do
     {Enum.take(a, length(a) - 1), List.last(a)}
   end
-
 end
