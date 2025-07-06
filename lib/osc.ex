@@ -24,7 +24,7 @@ defmodule OSC do
     length = String.length(res)
     new_index = ceil((length + 1) / 4.0) * 4
     # Logger.debug("new_index = #{new_index}")
-    {res, String.slice(s, new_index..-1)}
+    {res, binary_slice(s, new_index, String.length(s))}
   end
 
   @spec write_string(binary) :: binary
@@ -52,7 +52,7 @@ defmodule OSC do
       bin = oslice4(s)
       # Logger.debug("bin = #{inspect(bin)}")
       <<res::big-integer-32>> = bin
-      {res, String.slice(s, 4..-1)}
+      {res, String.slice(s, 4..-1//1)}
     end
   end
 
@@ -73,7 +73,7 @@ defmodule OSC do
       bin = oslice8(s)
       # Logger.debug("double bin = #{inspect(bin)}")
       <<res::float>> = bin
-      {res, String.slice(s, 8..-1)}
+      {res, String.slice(s, 8..-1//1)}
     end
   end
 
@@ -94,7 +94,7 @@ defmodule OSC do
       bin = oslice4(s)
       # Logger.debug("float bin = #{inspect(bin)}")
       <<res::float-size(32)>> = bin
-      {res, String.slice(s, 4..-1)}
+      {res, String.slice(s, 4..-1//1)}
     end
   end
 
@@ -128,7 +128,7 @@ defmodule OSC do
   def decode(s) do
     {addr, rest} = read_string(s)
     {tags, data} = read_string(rest)
-    {addr, read_vals(String.to_charlist(String.slice(tags, 1..-1)), data, [])}
+    {addr, read_vals(String.to_charlist(String.slice(tags, 1..-1//1)), data, [])}
   end
 
   # @spec write_val(binary | number, binary, [binary]) :: {list, list}

@@ -53,11 +53,11 @@ defmodule Modsynth do
   @doc """
   play an instrument definition file. There are several in the examples directory.
   """
-  @spec play(String.t(), fun()) ::
+  @spec play(String.t(), String.t(), fun()) ::
           {[{String.t(), integer, String.t(), String.t(), Boolean}], %{required(integer) => Node},
            [Connection]}
-  def play(fname, gate_register \\ &MidiInClient.register_gate/1) do
-    # ScClient.group_free(1)
+  def play(fname, device \\ "AE-30", gate_register \\ &MidiInClient.register_gate/1) do
+    ScClient.group_free(1)
     MidiInClient.stop_midi()
 
     {node_map, connections} =
@@ -65,7 +65,7 @@ defmodule Modsynth do
       |> read_file(fname)
       |> build_modules(gate_register)
 
-    {set_up_controls(node_map, connections), node_map, connections}
+    {set_up_controls(node_map, connections, device), node_map, connections}
   end
 
   def look(fname) do
@@ -80,9 +80,8 @@ defmodule Modsynth do
     end
 
     MidiIn.start(0, 0)
-    # ScClient.group_free(1)
+    ScClient.group_free(1)
     ScClient.load_synths(Application.get_env(:sc_em, :remote_synth_dir))
-    # Process.sleep(2000)  # should be a better way to do this!
     get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
   end
 
@@ -203,15 +202,15 @@ defmodule Modsynth do
     {node_map, full_connections}
   end
 
-  @spec set_up_controls(%{required(integer) => Node}, [Connection]) :: [
+  @spec set_up_controls(%{required(integer) => Node}, [Connection], String.t()) :: [
           {String.t(), integer, String.t(), String.t(), Boolean}
         ]
-  def set_up_controls(node_map, full_connections) do
+  def set_up_controls(node_map, full_connections, device) do
     full_connections
     |> Enum.filter(fn connection ->
       is_external_control(node_map[connection.from_node_param.node_id].name)
     end)
-    |> Enum.map(fn connection -> handle_midi_connection(node_map, connection) end)
+    |> Enum.map(fn connection -> handle_midi_connection(node_map, connection, device) end)
     |> Enum.map(fn connection ->
       from_node = node_map[connection.from_node_param.node_id]
 
@@ -229,8 +228,8 @@ defmodule Modsynth do
   #   end
   # end
 
-  @spec handle_midi_connection(%{required(integer) => Node}, %Connection{}) :: %Connection{}
-  def handle_midi_connection(nodes, connection) do
+  @spec handle_midi_connection(%{required(integer) => Node}, %Connection{}, String.t()) :: %Connection{}
+  def handle_midi_connection(nodes, connection, device) do
     %Connection{
       from_node_param: %Node_Param{
         node_id: node_id
@@ -243,7 +242,7 @@ defmodule Modsynth do
       node.control == :note ->
         # Logger.info("handle_midi_connection: #{node.sc_id}")
         param_name = node.parameters |> List.first() |> List.first()
-        MidiInClient.start_midi(node.sc_id, param_name, &ScClient.set_control/3)
+        MidiInClient.start_midi(node.sc_id, param_name, &ScClient.set_control/3, device)
 
       node.control == :gain ->
         MidiInClient.register_cc(2, node.sc_id, "in")

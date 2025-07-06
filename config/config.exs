@@ -24,10 +24,10 @@ config :sc_em,
 #
 # Or configure a 3rd-party app:
 #
-# config :logger,
-#  level: :debug,
-#  format: "[$level] $messge $metadata\n",
-#  metadata: [:error_code, :file, :line]
+config :logger, :default_handler,
+  level: :info,
+  format: "[$level] $messge $metadata\n",
+  metadata: [:file, :line]
 
 #
 

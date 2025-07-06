@@ -1,4 +1,4 @@
-defmodule MidiPlayer do
+defmodule MidiPlayer_old do
   import ScClient
   require Logger
 
@@ -169,7 +169,7 @@ defmodule MidiPlayer do
   ###################################
 
   def test_type1() do
-    m1 = MidiPlayer.read_file("/Users/williamallen/Dropbox/music/midi/atrain.mid")
+    m1 = MidiPlayer_old.read_file("/Users/williamallen/Dropbox/music/midi/atrain.mid")
     state = message_worker(Enum.at(m1.midi_tracks, 0).midi_messages, initial_state(m1))
     piano = Enum.take(Enum.at(m1.midi_tracks, 1).midi_messages, 500) ++ eot()
     bass = Enum.take(Enum.at(m1.midi_tracks, 2).midi_messages, 300) ++ eot()
