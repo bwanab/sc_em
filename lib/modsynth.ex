@@ -99,7 +99,7 @@ defmodule Modsynth do
   returns a list of the external controls other than midi in or audio in
   """
   @spec read_file(%{required(String.t()) => {[[]], Atom}}, String.t()) ::
-          {%{required(integer) => Node}, [Connection], {float, float}}
+          {%{required(integer) => Node}, [Connection], {float, float}} | {:error, String.t()}
   def read_file(synths, fname) do
     case File.read(fname) do
       {:error, reason} ->
