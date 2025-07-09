@@ -6,7 +6,9 @@ defmodule Modsynth.Node do
             node_id: 0,
             val: nil,
             control: false,
-            sc_id: 1001
+            sc_id: 1001,
+            x: 0,
+            y: 0
 
   @type t :: %__MODULE__{
           name: String.t(),
@@ -15,7 +17,9 @@ defmodule Modsynth.Node do
           node_id: integer,
           val: float,
           control: atom,
-          sc_id: integer
+          sc_id: integer,
+          x: integer,
+          y: integer
         }
 end
 
@@ -109,19 +113,10 @@ defmodule Modsynth do
         {:ok, ms} = Jason.decode(d)
 
         node_specs =
-          Enum.map(
-            ms["nodes"],
-            fn x ->
-              {x["id"],
-               Enum.map(
-                 x,
-                 fn {k, v} ->
-                   {String.to_atom(k),
-                    if k == "control" do
-                      atom_or_nil(v)
-                    else
-                      v
-                    end}
+          Enum.map(ms["nodes"], fn x ->
+               {x["id"],
+               Enum.map(x, fn {k, v} ->
+                   {String.to_atom(k), (if k == "control", do: atom_or_nil(v), else: v)}
                  end
                )
                |> Enum.into(%{})}
@@ -129,13 +124,14 @@ defmodule Modsynth do
           )
           |> Enum.into(%{})
 
+
         nodes =
           Enum.map(
             Map.keys(node_specs),
             fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end
           )
           |> Enum.map(fn {k, node, specs} ->
-            {k, %{node | node_id: k, val: specs.val, control: specs.control}}
+            {k, %{node | node_id: k, val: specs.val, control: specs.control, x: specs.x, y: specs.y}}
           end)
           |> Enum.into(%{})
 
@@ -399,22 +395,4 @@ defmodule Modsynth do
     synths = init()
     read_file(synths, file)
   end
-
-  # def tpm() do
-  #   case PortMidi.open(:input, "mio") do
-  #     {:ok, input} ->
-  #       PortMidi.listen(input, self())
-  #       t_rec()
-  #     {:error, reason} ->
-  #       Logger.error(reason)
-  #   end
-  # end
-
-  # def t_rec() do
-  #   receive do
-  #     # {_input, [{{status, note, _vel}, _timestamp}]} -> Logger.info("#{integer.to_string(status)} #{note}")
-  #     {_input, messages} -> Logger.info("#{inspect(messages)}")
-  #   end
-  #   t_rec()
-  # end
 end

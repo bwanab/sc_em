@@ -9,6 +9,6 @@
 "frame":null,
 "master_vol":0.3,
 "nodes":
-[{"control":null,"id":1,"name":"midi-in","val":null,"x":0.0,"y":0.0},
-{"control":null,"id":2,"name":"saw-osc","val":null,"x":74.0,"y":80.0},
-{"control":null,"id":3,"name":"audio-out","val":null,"x":252.0,"y":181.0}]}
+[{"control":null,"id":1,"name":"midi-in","val":null,"x":100.0,"y":0.0},
+{"control":null,"id":2,"name":"saw-osc","val":null,"x":300.0,"y":80.0},
+{"control":null,"id":3,"name":"audio-out","val":null,"x":500.0,"y":181.0}]}
