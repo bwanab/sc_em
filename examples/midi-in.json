@@ -1,17 +1,59 @@
 {
-"connections":
-[{
-"from_node":{"id":2,"name":"saw-osc","param_name":"sig"},
-"to_node":{"id":3,"name":"audio-out","param_name":"b1"}},
-{
-"from_node":{"id":4,"name":"midi-in2","param_name":"freq"},
-"to_node":{"id":2,"name":"saw-osc","param_name":"freq"}}],
-"frame":{"height":600.0,"width":600.0},
-
-"master_vol":0.3,
-"nodes":
-[
-{"control":null,"id":2,"name":"saw-osc","val":null,"x":300.0,"y":117.0},
-{"control":null,"id":3,"name":"audio-out","val":null,"x":500.0,"y":124.0},
-{"control":null,"id":4,"name":"midi-in2","val":null,"x":100.0,"y":115.0}
-]}
+  "connections": [
+    {
+      "from_node": {
+        "id": 2,
+        "name": "saw-osc",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 4,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 2,
+        "name": "saw-osc",
+        "param_name": "freq"
+      }
+    }
+  ],
+  "frame": {
+    "height": 600.0,
+    "width": 600.0
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": null,
+      "id": 2,
+      "name": "saw-osc",
+      "val": null,
+      "x": 300.0,
+      "y": 117.0
+    },
+    {
+      "control": null,
+      "id": 3,
+      "name": "audio-out",
+      "val": null,
+      "x": 500.0,
+      "y": 124.0
+    },
+    {
+      "control": null,
+      "id": 4,
+      "name": "midi-in",
+      "val": null,
+      "x": 100.0,
+      "y": 115.0
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+Implement out_ prefix naming scheme for output parameters
+
+- Rename all output parameters in modsynth-synths.sc to use out_ prefix
+- Update 36 example JSON files with new parameter names
+- Clean up legacy node names (cc-cont-in -> cc-in, slider-ctl -> const, etc.)
+- Establish clear input/output parameter distinction
+
+Parameter mappings:
+- out -> out_audio (audio signals)
+- sig -> out_audio (oscillator outputs)  
+- val -> out_val (control values)
+- freq -> out_freq (frequency outputs)
+- ob1/ob2 -> out_1/out_2 (splitter outputs)
+
+SynthDefs updated (28 total):
+- audio-in, c-splitter, a-splitter, a-mixer-2, a-mixer-4
+- const, midi-in, midi-in-note, cc-in, note-freq
+- amp, saw-osc, s_sin-osc, sin-vco, rand-in, square-osc
+- lp-filt, hp-filt, bp-filt, moog-filt, c-scale
+- mult, pct-add, val-add, adsr-env, perc-env
+- freeverb, echo
+
+Example files updated (36 total):
+- All JSON files in examples/ directory
+- Node name cleanup: cc-cont-in, cc-disc-in, midi-in2, piano-in, slider-ctl
+- Parameter name updates in all connections
+
+Fixes logical I/O problem and eliminates parameter ambiguity.
+Works with corresponding GUI changes in modsynth_gui_phx.
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>

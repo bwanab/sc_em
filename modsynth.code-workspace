@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../midi_in"
+		},
+		{
+			"path": "../music_build"
+		},
+		{
+			"path": "../modsynth_gui2"
+		},
+		{
+			"path": "../modsynth_gui_phx"
+		}
+	],
+	"settings": {}
+}

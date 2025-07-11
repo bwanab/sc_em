@@ -1,39 +1,179 @@
 {
-"connections":
-[{
-"from_node":{"id":2,"name":"saw-osc","param_name":"sig"},
-"to_node":{"id":5,"name":"amp","param_name":"in"}},
-{
-"from_node":{"id":4,"name":"midi-in2","param_name":"freq"},
-"to_node":{"id":10,"name":"note-freq","param_name":"note"}},
-{
-"from_node":{"id":5,"name":"amp","param_name":"out"},
-"to_node":{"id":7,"name":"moog-filt","param_name":"in"}},
-{
-"from_node":{"id":6,"name":"cc-cont-in","param_name":"val"},
-"to_node":{"id":5,"name":"amp","param_name":"gain"}},
-{
-"from_node":{"id":7,"name":"moog-filt","param_name":"out"},
-"to_node":{"id":3,"name":"audio-out","param_name":"b2"}},
-{
-"from_node":{"id":8,"name":"cc-cont-in","param_name":"val"},
-"to_node":{"id":7,"name":"moog-filt","param_name":"cutoff"}},
-{
-"from_node":{"id":9,"name":"cc-disc-in","param_name":"val"},
-"to_node":{"id":7,"name":"moog-filt","param_name":"lpf_res"}},
-{
-"from_node":{"id":10,"name":"note-freq","param_name":"freq"},
-"to_node":{"id":2,"name":"saw-osc","param_name":"freq"}}],
-"frame":{"height":600.0,"width":600.0},
-
-"master_vol":0.3,
-"nodes":
-[{"control":null,"id":2,"name":"saw-osc","val":null,"x":208.0,"y":120.0},
-{"control":null,"id":3,"name":"audio-out","val":null,"x":414.0,"y":271.0},
-{"control":null,"id":4,"name":"midi-in2","val":null,"x":10.0,"y":34.0},
-{"control":null,"id":5,"name":"amp","val":null,"x":176.0,"y":246.0},
-{"control":null,"id":6,"name":"cc-cont-in","val":2,"x":41.0,"y":279.0},
-{"control":null,"id":7,"name":"moog-filt","val":null,"x":185.0,"y":387.0},
-{"control":null,"id":8,"name":"cc-cont-in","val":7,"x":18.0,"y":356.0},
-{"control":null,"id":9,"name":"cc-disc-in","val":5104,"x":23.0,"y":413.0},
-{"control":null,"id":10,"name":"note-freq","val":null,"x":17.0,"y":124.0}]}
+  "connections": [
+    {
+      "from_node": {
+        "id": 2,
+        "name": "saw-osc",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 4,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 10,
+        "name": "note-freq",
+        "param_name": "note"
+      }
+    },
+    {
+      "from_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "moog-filt",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 6,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 7,
+        "name": "moog-filt",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 8,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "moog-filt",
+        "param_name": "cutoff"
+      }
+    },
+    {
+      "from_node": {
+        "id": 9,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "moog-filt",
+        "param_name": "lpf_res"
+      }
+    },
+    {
+      "from_node": {
+        "id": 10,
+        "name": "note-freq",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 2,
+        "name": "saw-osc",
+        "param_name": "freq"
+      }
+    }
+  ],
+  "frame": {
+    "height": 600.0,
+    "width": 600.0
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": null,
+      "id": 2,
+      "name": "saw-osc",
+      "val": null,
+      "x": 208.0,
+      "y": 120.0
+    },
+    {
+      "control": null,
+      "id": 3,
+      "name": "audio-out",
+      "val": null,
+      "x": 414.0,
+      "y": 271.0
+    },
+    {
+      "control": null,
+      "id": 4,
+      "name": "midi-in",
+      "val": null,
+      "x": 10.0,
+      "y": 34.0
+    },
+    {
+      "control": null,
+      "id": 5,
+      "name": "amp",
+      "val": null,
+      "x": 176.0,
+      "y": 246.0
+    },
+    {
+      "control": null,
+      "id": 6,
+      "name": "cc-in",
+      "val": 2,
+      "x": 41.0,
+      "y": 279.0
+    },
+    {
+      "control": null,
+      "id": 7,
+      "name": "moog-filt",
+      "val": null,
+      "x": 185.0,
+      "y": 387.0
+    },
+    {
+      "control": null,
+      "id": 8,
+      "name": "cc-in",
+      "val": 7,
+      "x": 18.0,
+      "y": 356.0
+    },
+    {
+      "control": null,
+      "id": 9,
+      "name": "cc-in",
+      "val": 5104,
+      "x": 23.0,
+      "y": 413.0
+    },
+    {
+      "control": null,
+      "id": 10,
+      "name": "note-freq",
+      "val": null,
+      "x": 17.0,
+      "y": 124.0
+    }
+  ]
+}

@@ -1,71 +1,323 @@
 {
-"connections":
-[{
-"from_node":{"id":1,"name":"cc-in","param_name":"val"},
-"to_node":{"id":2,"name":"c-splitter","param_name":"in"}},
-{
-"from_node":{"id":2,"name":"c-splitter","param_name":"ob2"},
-"to_node":{"id":8,"name":"val-add","param_name":"in"}},
-{
-"from_node":{"id":2,"name":"c-splitter","param_name":"ob1"},
-"to_node":{"id":11,"name":"note-freq","param_name":"note"}},
-{
-"from_node":{"id":3,"name":"square-osc","param_name":"sig"},
-"to_node":{"id":19,"name":"amp","param_name":"in"}},
-{
-"from_node":{"id":5,"name":"const","param_name":"val"},
-"to_node":{"id":3,"name":"square-osc","param_name":"width"}},
-{
-"from_node":{"id":6,"name":"square-osc","param_name":"sig"},
-"to_node":{"id":14,"name":"amp","param_name":"in"}},
-{
-"from_node":{"id":7,"name":"const","param_name":"val"},
-"to_node":{"id":6,"name":"square-osc","param_name":"width"}},
-{
-"from_node":{"id":8,"name":"val-add","param_name":"out"},
-"to_node":{"id":12,"name":"note-freq","param_name":"note"}},
-{
-"from_node":{"id":9,"name":"const","param_name":"val"},
-"to_node":{"id":8,"name":"val-add","param_name":"val"}},
-{
-"from_node":{"id":11,"name":"note-freq","param_name":"freq"},
-"to_node":{"id":3,"name":"square-osc","param_name":"freq"}},
-{
-"from_node":{"id":12,"name":"note-freq","param_name":"freq"},
-"to_node":{"id":6,"name":"square-osc","param_name":"freq"}},
-{
-"from_node":{"id":14,"name":"amp","param_name":"out"},
-"to_node":{"id":10,"name":"audio-out","param_name":"b2"}},
-{
-"from_node":{"id":19,"name":"amp","param_name":"out"},
-"to_node":{"id":10,"name":"audio-out","param_name":"b1"}},
-{
-"from_node":{"id":15,"name":"const","param_name":"val"},
-"to_node":{"id":20,"name":"c-splitter","param_name":"in"}},
-{
-"from_node":{"id":20,"name":"c-splitter","param_name":"ob1"},
-"to_node":{"id":14,"name":"amp","param_name":"gain"}},
-{
-"from_node":{"id":20,"name":"c-splitter","param_name":"ob2"},
-"to_node":{"id":19,"name":"amp","param_name":"gain"}}
-],
-"frame":{"height":720.0,"width":1241.0},
-
-"master_vol":0.3,
-"nodes":
-[{"control":"note","id":1,"name":"cc-in","val":null,"x":0.0,"y":0.0},
-{"control":null,"id":2,"name":"c-splitter","val":null,"x":66.0,"y":83.0},
-{"control":null,"id":20,"name":"c-splitter","val":null,"x":66.0,"y":83.0},
-{"control":null,"id":3,"name":"square-osc","val":null,"x":366.0,"y":29.0},
-{"control":null,"id":5,"name":"const","val":0.5,"x":232.0,"y":131.0},
-{"control":null,"id":6,"name":"square-osc","val":null,"x":365.0,"y":215.0},
-{"control":null,"id":7,"name":"const","val":0.5,"x":241.0,"y":417.0},
-{"control":null,"id":8,"name":"val-add","val":null,"x":164.0,"y":211.0},
-{"control":null,"id":9,"name":"const","val":0.12,"x":37.0,"y":307.0},
-{"control":null,"id":10,"name":"audio-out","val":null,"x":1054.0,"y":86.0},
-{"control":null,"id":11,"name":"note-freq","val":null,"x":203.0,"y":13.0},
-{"control":null,"id":12,"name":"note-freq","val":null,"x":194.0,"y":321.0},
-{"control":null,"id":14,"name":"amp","val":null,"x":568.0,"y":248.0},
-{"control":null,"id":19,"name":"amp","val":null,"x":568.0,"y":248.0},
-{"control":"gain","id":15,"name":"const","val":0.5,"x":451.0,"y":374.0}
-]}
+  "connections": [
+    {
+      "from_node": {
+        "id": 1,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 2,
+        "name": "c-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 2,
+        "name": "c-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 8,
+        "name": "val-add",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 2,
+        "name": "c-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 11,
+        "name": "note-freq",
+        "param_name": "note"
+      }
+    },
+    {
+      "from_node": {
+        "id": 3,
+        "name": "square-osc",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 19,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 5,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "square-osc",
+        "param_name": "width"
+      }
+    },
+    {
+      "from_node": {
+        "id": 6,
+        "name": "square-osc",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 14,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 7,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 6,
+        "name": "square-osc",
+        "param_name": "width"
+      }
+    },
+    {
+      "from_node": {
+        "id": 8,
+        "name": "val-add",
+        "param_name": "out_control"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "note-freq",
+        "param_name": "note"
+      }
+    },
+    {
+      "from_node": {
+        "id": 9,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 8,
+        "name": "val-add",
+        "param_name": "val"
+      }
+    },
+    {
+      "from_node": {
+        "id": 11,
+        "name": "note-freq",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "square-osc",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "note-freq",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 6,
+        "name": "square-osc",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 14,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 10,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 19,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 10,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 15,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 20,
+        "name": "c-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 20,
+        "name": "c-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 14,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 20,
+        "name": "c-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 19,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    }
+  ],
+  "frame": {
+    "height": 720.0,
+    "width": 1241.0
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": "note",
+      "id": 1,
+      "name": "cc-in",
+      "val": null,
+      "x": 0.0,
+      "y": 0.0
+    },
+    {
+      "control": null,
+      "id": 2,
+      "name": "c-splitter",
+      "val": null,
+      "x": 66.0,
+      "y": 83.0
+    },
+    {
+      "control": null,
+      "id": 20,
+      "name": "c-splitter",
+      "val": null,
+      "x": 66.0,
+      "y": 83.0
+    },
+    {
+      "control": null,
+      "id": 3,
+      "name": "square-osc",
+      "val": null,
+      "x": 366.0,
+      "y": 29.0
+    },
+    {
+      "control": null,
+      "id": 5,
+      "name": "const",
+      "val": 0.5,
+      "x": 232.0,
+      "y": 131.0
+    },
+    {
+      "control": null,
+      "id": 6,
+      "name": "square-osc",
+      "val": null,
+      "x": 365.0,
+      "y": 215.0
+    },
+    {
+      "control": null,
+      "id": 7,
+      "name": "const",
+      "val": 0.5,
+      "x": 241.0,
+      "y": 417.0
+    },
+    {
+      "control": null,
+      "id": 8,
+      "name": "val-add",
+      "val": null,
+      "x": 164.0,
+      "y": 211.0
+    },
+    {
+      "control": null,
+      "id": 9,
+      "name": "const",
+      "val": 0.12,
+      "x": 37.0,
+      "y": 307.0
+    },
+    {
+      "control": null,
+      "id": 10,
+      "name": "audio-out",
+      "val": null,
+      "x": 1054.0,
+      "y": 86.0
+    },
+    {
+      "control": null,
+      "id": 11,
+      "name": "note-freq",
+      "val": null,
+      "x": 203.0,
+      "y": 13.0
+    },
+    {
+      "control": null,
+      "id": 12,
+      "name": "note-freq",
+      "val": null,
+      "x": 194.0,
+      "y": 321.0
+    },
+    {
+      "control": null,
+      "id": 14,
+      "name": "amp",
+      "val": null,
+      "x": 568.0,
+      "y": 248.0
+    },
+    {
+      "control": null,
+      "id": 19,
+      "name": "amp",
+      "val": null,
+      "x": 568.0,
+      "y": 248.0
+    },
+    {
+      "control": "gain",
+      "id": 15,
+      "name": "const",
+      "val": 0.5,
+      "x": 451.0,
+      "y": 374.0
+    }
+  ]
+}
