@@ -57,10 +57,12 @@ defmodule Modsynth do
   @doc """
   play an instrument definition file. There are several in the examples directory.
   """
-  @spec play(String.t(), String.t(), fun()) ::
+  @spec play(String.t() | {%{required(integer) => Node}, [Connection], {float, float}}, String.t(), fun()) ::
           {[{String.t(), integer, String.t(), String.t(), Boolean}], %{required(integer) => Node},
            [Connection]}
-  def play(fname, device \\ "AE-30", gate_register \\ &MidiInClient.register_gate/1) do
+  def play(f, device \\ "AE-30", gate_register \\ &MidiInClient.register_gate/1)
+
+  def play(fname, device, gate_register) when is_binary(fname) do
     ScClient.group_free(1)
     MidiInClient.stop_midi()
 
@@ -69,6 +71,11 @@ defmodule Modsynth do
       |> read_file(fname)
       |> build_modules(gate_register)
 
+    {set_up_controls(node_map, connections, device), node_map, connections}
+  end
+
+  def play(synth_data, device, gate_register) do
+    {node_map, connections} = build_modules(synth_data, gate_register)
     {set_up_controls(node_map, connections, device), node_map, connections}
   end
 
@@ -111,33 +118,36 @@ defmodule Modsynth do
 
       {:ok, d} ->
         {:ok, ms} = Jason.decode(d)
-
-        node_specs =
-          Enum.map(ms["nodes"], fn x ->
-               {x["id"],
-               Enum.map(x, fn {k, v} ->
-                   {String.to_atom(k), (if k == "control", do: atom_or_nil(v), else: v)}
-                 end
-               )
-               |> Enum.into(%{})}
-            end
-          )
-          |> Enum.into(%{})
-
-
-        nodes =
-          Enum.map(
-            Map.keys(node_specs),
-            fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end
-          )
-          |> Enum.map(fn {k, node, specs} ->
-            {k, %{node | node_id: k, val: specs.val, control: specs.control, x: specs.x, y: specs.y}}
-          end)
-          |> Enum.into(%{})
-
-        connections = parse_connections(nodes, ms["connections"])
-        {nodes, connections, {ms["frame"]["width"], ms["frame"]["height"]}}
+        specs_to_data(synths, ms)
     end
+  end
+
+  def specs_to_data(synths, ms) do
+      node_specs =
+        Enum.map(ms["nodes"], fn x ->
+              {x["id"],
+              Enum.map(x, fn {k, v} ->
+                  {String.to_atom(k), (if k == "control", do: atom_or_nil(v), else: v)}
+                end
+              )
+              |> Enum.into(%{})}
+          end
+        )
+        |> Enum.into(%{})
+
+
+      nodes =
+        Enum.map(
+          Map.keys(node_specs),
+          fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end
+        )
+        |> Enum.map(fn {k, node, specs} ->
+          {k, %{node | node_id: k, val: specs.val, control: specs.control, x: specs.x, y: specs.y}}
+        end)
+        |> Enum.into(%{})
+
+      connections = parse_connections(nodes, ms["connections"])
+      {nodes, connections, {ms["frame"]["width"], ms["frame"]["height"]}}
   end
 
   @spec map_nodes_by_node_id([Node]) :: %{required(integer) => Node}
