@@ -48,18 +48,40 @@ defmodule Modsynth.Connection do
         }
 end
 
+defmodule Modsynth.InputControl do
+  defstruct connection_name: "",
+            node_id: 0,
+            sc_id: 0,
+            control_name: "",
+            input_name: "",
+            midi_control: nil
+
+   @type t :: %__MODULE__{
+            connection_name: String.t(),
+            sc_id: integer(),
+            node_id: integer(),
+            control_name: String.t(),
+            input_name: String.t(),
+            midi_control: atom() | nil
+   }
+end
+
 defmodule Modsynth do
   require Logger
+  alias Modsynth.InputControl
   alias Modsynth.Node
   alias Modsynth.Node_Param
   alias Modsynth.Connection
 
   @doc """
   play an instrument definition file. There are several in the examples directory.
+
+  Returns 1. A list of input controls
+          2. A map of node_number -> node
+          3. A list of connections.
   """
   @spec play(String.t() | {%{required(integer) => Node}, [Connection], {float, float}}, String.t(), fun()) ::
-          {[{String.t(), integer, String.t(), String.t(), Boolean}], %{required(integer) => Node},
-           [Connection]}
+          {[InputControl], %{required(integer) => Node}, [Connection]}
   def play(f, device \\ "AE-30", gate_register \\ &MidiInClient.register_gate/1)
 
   def play(fname, device, gate_register) when is_binary(fname) do
@@ -75,10 +97,15 @@ defmodule Modsynth do
   end
 
   def play(synth_data, device, gate_register) do
+    ScClient.group_free(1)
+    MidiInClient.stop_midi()
+
     {node_map, connections} = build_modules(synth_data, gate_register)
     {set_up_controls(node_map, connections, device), node_map, connections}
   end
 
+  @spec look(binary()) ::
+          {%{optional(integer()) => Modsynth.Node}, [Modsynth.Connection], {float(), float()}}
   def look(fname) do
     init() |> read_file(fname)
   end
@@ -208,9 +235,7 @@ defmodule Modsynth do
     {node_map, full_connections}
   end
 
-  @spec set_up_controls(%{required(integer) => Node}, [Connection], String.t()) :: [
-          {String.t(), integer, String.t(), String.t(), Boolean}
-        ]
+  @spec set_up_controls(%{required(integer) => Node}, [Connection], String.t()) :: [InputControl]
   def set_up_controls(node_map, full_connections, device) do
     full_connections
     |> Enum.filter(fn connection ->
@@ -220,8 +245,12 @@ defmodule Modsynth do
     |> Enum.map(fn connection ->
       from_node = node_map[connection.from_node_param.node_id]
 
-      {connection.desc, from_node.sc_id, Enum.at(from_node.parameters, 0),
-       connection.to_node_param.param_name, from_node.control}
+      %InputControl{connection_name: connection.desc,
+                    node_id: from_node.node_id,
+                    sc_id: from_node.sc_id,
+                    control_name: List.first(List.first(from_node.parameters)),
+                    input_name: connection.to_node_param.param_name,
+                    midi_control: from_node.control}
     end)
   end
 
@@ -349,6 +378,7 @@ defmodule Modsynth do
   @spec connect_nodes(%{required(integer) => Node}, %Connection{}) :: %Connection{}
   def connect_nodes(nodes, connection) do
     %Connection{from_node_param: from, to_node_param: to, desc: desc} = connection
+    # IO.inspect(connection)
     from_node = nodes[from.node_id]
     to_node = nodes[to.node_id]
     bus = get_bus(from_node.bus_type, desc)
@@ -392,6 +422,27 @@ defmodule Modsynth do
     end
 
     id
+  end
+
+  def get_all_connection_values(connections) do
+    Enum.map(connections, fn %{bus_id: bus_id, desc: desc} ->
+      {bus_id, desc, ScClient.get_bus_val(bus_id)}
+    end)
+  end
+
+  def get_all_control_values(node_map) do
+    Enum.map(node_map, fn {_num, %Modsynth.Node{name: name, parameters: parameters, sc_id: sc_id}} ->
+      {name,
+      Enum.map(parameters, fn [parameter_name, _] ->
+        {parameter_name, ScClient.get_control_val(sc_id, parameter_name)}
+      end)}
+    end)
+  end
+
+  def get_all_input_controls(controls) do
+    Enum.map(controls, fn %InputControl{connection_name: name, sc_id: sc_id, control_name: control_name} ->
+      {name, sc_id, control_name, ScClient.get_control_val(sc_id, control_name)}
+    end)
   end
 
   @doc """

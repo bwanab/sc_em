@@ -106,6 +106,21 @@ SynthDef("square-osc", {arg freq = 55, out_audio = 56, width = 0.5;
 	Out.ar(out_audio, Pulse.ar(In.kr(freq),  * w));
 }).writeDefFile(~dir);
 
+
+SynthDef("blip-tone", {
+	arg freq=40, nharm=12, detune=0.2, out_audio1=65, out_audio2=66;
+	var sig;
+	sig = Blip.ar(
+		In.kr(freq) * LFNoise1.kr(0.2!16).bipolar(In.kr(detune)).midiratio,
+		In.kr(nharm)
+	);
+	sig = sig * LFNoise1.kr(0.5!16).exprange(0.1,1);
+	sig = Splay.ar(sig);
+	//sig = Mix.ar(sig);
+	Out.ar([out_audio1, out_audio2], sig);
+}).writeDefFile(~dir);
+)
+
 SynthDef("lp-filt", {arg in = 55, out_audio = 65, cutoff = 11;
 	Out.ar(out_audio, LPF.ar(In.ar(in), In.kr(cutoff)));
 }).writeDefFile(~dir);

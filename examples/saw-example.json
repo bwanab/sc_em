@@ -29,7 +29,7 @@
   "master_vol": 0.3,
   "nodes": [
     {
-      "control": null,
+      "control": "note",
       "id": 1,
       "name": "midi-in",
       "val": null,
