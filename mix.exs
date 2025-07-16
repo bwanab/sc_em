@@ -25,7 +25,9 @@ defmodule ScEm.MixProject do
       {:libgraph, "~> 0.7"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:music_build, github: "bwanab/music_build"},
-      {:midi_in, path: "../midi_in"}
+      #{:music_build, path: "../music_build"},
+      #{:midi_in, path: "../midi_in"}
+      {:midi_in, github: "bwanab/midi_in"}
     ]
   end
 end
