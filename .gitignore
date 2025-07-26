@@ -22,9 +22,6 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 sc_em-*.tar
 
-*.lock
-
-
 # Temporary files for e.g. tests
 /tmp
 /.formatter.exs
