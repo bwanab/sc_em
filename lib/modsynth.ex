@@ -119,8 +119,21 @@ defmodule Modsynth do
 
     MidiIn.start(0, 0)
     ScClient.group_free(1)
-    ScClient.load_synths(Application.get_env(:sc_em, :remote_synth_dir))
-    get_synth_vals(Application.get_env(:sc_em, :local_synth_dir))
+    ScClient.load_synths(Path.join(__DIR__, "../synthdefs/"))
+    synth_vals = get_synth_vals(Path.join(__DIR__, "../synthdefs/"))
+    path = Path.expand(Application.get_env(:sc_em, :local_synth_dir))
+    local_synth_vals = if File.exists?(path) do
+      {:ok, local_synths} = File.ls(path)
+      if length(local_synths) > 0 do
+        ScClient.load_synths(path)
+        get_synth_vals(path)
+      else
+        %{}
+      end
+    else
+      %{}
+    end
+    Map.merge(synth_vals, local_synth_vals)
   end
 
   def atom_or_nil(s) when is_nil(s) do

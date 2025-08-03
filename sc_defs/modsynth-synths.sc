@@ -1,5 +1,5 @@
 (
-~dir = "~/.modsynth/synthdefs/".standardizePath;
+~dir = "~/src/sc_em/synthdefs/".standardizePath;
 
 SynthDef("audio-out", {arg b1 = 0, b2 = 0;
 	Out.ar(0, In.ar([b1, b2]));
@@ -145,7 +145,7 @@ SynthDef("mult", {arg in = 55, out_audio = 65, gain = 1;
 }).writeDefFile(~dir);
 
 SynthDef("pct-add", {arg in = 55, out_control = 65, gain = 1;
-	Out.kr(out_control, In.kr(in) * In.kr(gain));
+	Out.kr(out_control, In.kr(in) + (In.kr(in) * In.kr(gain)));
 }).writeDefFile(~dir);
 
 SynthDef("val-add", {arg in = 55, out_control = 65, val = 0;
