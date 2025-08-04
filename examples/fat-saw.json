@@ -2,7 +2,79 @@
   "connections": [
     {
       "from_node": {
-        "id": 1,
+        "id": 18,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 8,
+        "name": "moog-filt",
+        "param_name": "lpf_res"
+      }
+    },
+    {
+      "from_node": {
+        "id": 17,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 16,
+        "name": "c-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 15,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 4,
+        "name": "saw-osc",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 15,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 16,
+        "name": "c-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 15,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 16,
+        "name": "c-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 14,
         "name": "midi-in",
         "param_name": "out_freq"
       },
@@ -46,18 +118,6 @@
         "id": 8,
         "name": "moog-filt",
         "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
-        "id": 4,
-        "name": "saw-osc",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 7,
-        "name": "audio-out",
-        "param_name": "b2"
       }
     },
     {
@@ -110,18 +170,6 @@
     },
     {
       "from_node": {
-        "id": 11,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 8,
-        "name": "moog-filt",
-        "param_name": "lpf_res"
-      }
-    },
-    {
-      "from_node": {
         "id": 12,
         "name": "amp",
         "param_name": "out_audio"
@@ -131,81 +179,107 @@
         "name": "audio-out",
         "param_name": "b1"
       }
-    },
-    {
-      "from_node": {
-        "id": 13,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 12,
-        "name": "amp",
-        "param_name": "gain"
-      }
     }
   ],
   "frame": {
-    "height": 600.0,
-    "width": 1007.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
+      "control": "",
+      "id": 18,
+      "max_val": 4.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 3,
+      "x": 549,
+      "y": 190
+    },
+    {
+      "control": "gain",
+      "id": 17,
+      "max_val": 3.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 0.18,
+      "x": 426,
+      "y": 339
+    },
+    {
       "control": null,
-      "id": 1,
+      "id": 16,
+      "name": "c-splitter",
+      "val": null,
+      "x": 640,
+      "y": 330
+    },
+    {
+      "control": null,
+      "id": 15,
+      "name": "amp",
+      "val": null,
+      "x": 827,
+      "y": 480
+    },
+    {
+      "control": "note",
+      "id": 14,
       "name": "midi-in",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": 20,
+      "y": 54
     },
     {
       "control": null,
       "id": 2,
       "name": "c-splitter",
       "val": null,
-      "x": 102.0,
-      "y": 20.0
+      "x": 103,
+      "y": 206
     },
     {
       "control": null,
       "id": 3,
       "name": "saw-osc",
       "val": null,
-      "x": 357.0,
-      "y": 35.0
+      "x": 278,
+      "y": 27
     },
     {
       "control": null,
       "id": 4,
       "name": "saw-osc",
       "val": null,
-      "x": 353.0,
-      "y": 349.0
+      "x": 542,
+      "y": 550
     },
     {
       "control": null,
       "id": 5,
       "name": "pct-add",
       "val": null,
-      "x": 207.0,
-      "y": 127.0
+      "x": 321,
+      "y": 458
     },
     {
       "control": null,
       "id": 6,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 51,
-      "x": 23.0,
-      "y": 165.0
+      "val": 1.02,
+      "x": 109,
+      "y": 634
     },
     {
       "control": null,
       "id": 7,
       "name": "audio-out",
       "val": null,
-      "x": 865.0,
-      "y": 278.0
+      "x": 987,
+      "y": 302
     },
     {
       "control": null,
@@ -218,18 +292,12 @@
     {
       "control": null,
       "id": 10,
+      "max_val": 2.0e3,
+      "min_val": 0.0,
       "name": "const",
-      "val": null,
-      "x": 440.0,
-      "y": 99.0
-    },
-    {
-      "control": null,
-      "id": 11,
-      "name": "const",
-      "val": 1,
-      "x": 600.0,
-      "y": 179.0
+      "val": 1040,
+      "x": 379,
+      "y": 148
     },
     {
       "control": null,
@@ -238,14 +306,6 @@
       "val": null,
       "x": 795.0,
       "y": 149.0
-    },
-    {
-      "control": null,
-      "id": 13,
-      "name": "const",
-      "val": 50,
-      "x": 615.0,
-      "y": 257.0
     }
   ]
 }

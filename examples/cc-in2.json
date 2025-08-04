@@ -2,6 +2,42 @@
   "connections": [
     {
       "from_node": {
+        "id": 12,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 2,
+        "name": "saw-osc",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 11,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 10,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 8,
+        "name": "a-splitter",
+        "param_name": "pos"
+      }
+    },
+    {
+      "from_node": {
         "id": 2,
         "name": "saw-osc",
         "param_name": "out_audio"
@@ -22,30 +58,6 @@
         "id": 8,
         "name": "a-splitter",
         "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
-        "id": 6,
-        "name": "cc-in",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 5,
-        "name": "amp",
-        "param_name": "gain"
-      }
-    },
-    {
-      "from_node": {
-        "id": 7,
-        "name": "midi-in",
-        "param_name": "out_freq"
-      },
-      "to_node": {
-        "id": 2,
-        "name": "saw-osc",
-        "param_name": "freq"
       }
     },
     {
@@ -86,66 +98,80 @@
     }
   ],
   "frame": {
-    "height": 600.0,
-    "width": 600.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
+    {
+      "control": "note",
+      "id": 12,
+      "name": "midi-in",
+      "val": null,
+      "x": 25,
+      "y": 28
+    },
+    {
+      "control": "gain",
+      "id": 11,
+      "max_val": 3.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 0.3,
+      "x": 23,
+      "y": 245
+    },
+    {
+      "control": "",
+      "id": 10,
+      "max_val": 1.0,
+      "min_val": -1.0,
+      "name": "const",
+      "val": 0,
+      "x": 187,
+      "y": 363
+    },
     {
       "control": null,
       "id": 2,
       "name": "saw-osc",
       "val": null,
-      "x": 159.0,
-      "y": 117.0
+      "x": 201,
+      "y": 117
     },
     {
       "control": null,
       "id": 3,
       "name": "audio-out",
       "val": null,
-      "x": 351.0,
-      "y": 258.0
+      "x": 666,
+      "y": 236
     },
     {
       "control": null,
       "id": 5,
       "name": "amp",
       "val": null,
-      "x": 157.0,
-      "y": 244.0
-    },
-    {
-      "control": null,
-      "id": 6,
-      "name": "cc-in",
-      "val": null,
-      "x": 41.0,
-      "y": 279.0
-    },
-    {
-      "control": null,
-      "id": 7,
-      "name": "midi-in",
-      "val": null,
-      "x": 42.0,
-      "y": 36.0
+      "x": 233,
+      "y": 244
     },
     {
       "control": null,
       "id": 8,
       "name": "a-splitter",
       "val": null,
-      "x": 41.0,
-      "y": 279.0
+      "x": 468,
+      "y": 231
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 0.2,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.1,
-      "x": 41.0,
-      "y": 279.0
+      "x": 317,
+      "y": 469
     }
   ]
 }

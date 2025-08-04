@@ -1,0 +1,119 @@
+{
+  "connections": [
+    {
+      "from_node": {
+        "id": 14,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 16,
+        "name": "note-freq",
+        "param_name": "note"
+      }
+    },
+    {
+      "from_node": {
+        "id": 13,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 3,
+        "name": "saw-osc",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 16,
+        "name": "note-freq",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "saw-osc",
+        "param_name": "freq"
+      }
+    }
+  ],
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": null,
+      "id": 3,
+      "name": "saw-osc",
+      "val": null,
+      "x": 649,
+      "y": 50
+    },
+    {
+      "control": null,
+      "id": 7,
+      "name": "audio-out",
+      "val": null,
+      "x": 1160,
+      "y": 178
+    },
+    {
+      "control": null,
+      "id": 12,
+      "name": "amp",
+      "val": null,
+      "x": 1005,
+      "y": 86
+    },
+    {
+      "control": "gain",
+      "id": 13,
+      "name": "cc-in",
+      "val": 0.3,
+      "x": 582,
+      "y": 170
+    },
+    {
+      "control": "note",
+      "id": 14,
+      "name": "cc-in",
+      "val": null,
+      "x": 0,
+      "y": 177
+    },
+    {
+      "control": null,
+      "id": 16,
+      "name": "note-freq",
+      "val": null,
+      "x": 343,
+      "y": 68
+    }
+  ]
+}

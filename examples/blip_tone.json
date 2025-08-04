@@ -1,0 +1,413 @@
+{
+  "connections": [
+    {
+      "from_node": {
+        "id": 36,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 26,
+        "name": "blip-tone",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 35,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 33,
+        "name": "moog-filt",
+        "param_name": "lpf_res"
+      }
+    },
+    {
+      "from_node": {
+        "id": 34,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 33,
+        "name": "moog-filt",
+        "param_name": "cutoff"
+      }
+    },
+    {
+      "from_node": {
+        "id": 33,
+        "name": "moog-filt",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 31,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 26,
+        "name": "blip-tone",
+        "param_name": "out_audio1"
+      },
+      "to_node": {
+        "id": 33,
+        "name": "moog-filt",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 32,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 30,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 31,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 31,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 3,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 26,
+        "name": "blip-tone",
+        "param_name": "out_audio2"
+      },
+      "to_node": {
+        "id": 1,
+        "name": "bp-filt",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 29,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 26,
+        "name": "blip-tone",
+        "param_name": "detune"
+      }
+    },
+    {
+      "from_node": {
+        "id": 27,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 26,
+        "name": "blip-tone",
+        "param_name": "nharm"
+      }
+    },
+    {
+      "from_node": {
+        "id": 11,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 1,
+        "name": "bp-filt",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 1,
+        "name": "bp-filt",
+        "param_name": "q"
+      }
+    },
+    {
+      "from_node": {
+        "id": 1,
+        "name": "bp-filt",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 4,
+        "name": "freeverb",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 21,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 4,
+        "name": "freeverb",
+        "param_name": "room_size"
+      }
+    },
+    {
+      "from_node": {
+        "id": 23,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 4,
+        "name": "freeverb",
+        "param_name": "dampening"
+      }
+    },
+    {
+      "from_node": {
+        "id": 25,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 4,
+        "name": "freeverb",
+        "param_name": "wet_dry"
+      }
+    },
+    {
+      "from_node": {
+        "id": 4,
+        "name": "freeverb",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 5,
+        "name": "amp",
+        "param_name": "in"
+      }
+    }
+  ],
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": "note",
+      "id": 36,
+      "name": "midi-in",
+      "val": null,
+      "x": 39,
+      "y": 93
+    },
+    {
+      "control": "",
+      "id": 35,
+      "max_val": 4.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 3.16,
+      "x": 451,
+      "y": 325
+    },
+    {
+      "control": "",
+      "id": 34,
+      "max_val": 2.0e3,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 820,
+      "x": 448,
+      "y": 208
+    },
+    {
+      "control": null,
+      "id": 33,
+      "name": "moog-filt",
+      "val": null,
+      "x": 665,
+      "y": 115
+    },
+    {
+      "control": "",
+      "id": 32,
+      "max_val": 2.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 1.3599999999999999,
+      "x": 926,
+      "y": 606
+    },
+    {
+      "control": null,
+      "id": 31,
+      "name": "amp",
+      "val": null,
+      "x": 947,
+      "y": 120
+    },
+    {
+      "control": "gain",
+      "id": 30,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 11.43,
+      "x": 780,
+      "y": 252
+    },
+    {
+      "control": "",
+      "id": 29,
+      "max_val": 0.2,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 0.1,
+      "x": 0,
+      "y": 472
+    },
+    {
+      "control": null,
+      "id": 27,
+      "max_val": 20.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 10.0,
+      "x": 22,
+      "y": 344
+    },
+    {
+      "control": null,
+      "id": 26,
+      "name": "blip-tone",
+      "val": null,
+      "x": 294,
+      "y": 93
+    },
+    {
+      "control": null,
+      "id": 1,
+      "name": "bp-filt",
+      "val": null,
+      "x": 431,
+      "y": 451
+    },
+    {
+      "control": null,
+      "id": 3,
+      "name": "audio-out",
+      "val": null,
+      "x": 1171,
+      "y": 264
+    },
+    {
+      "control": null,
+      "id": 4,
+      "name": "freeverb",
+      "val": null,
+      "x": 770,
+      "y": 449
+    },
+    {
+      "control": null,
+      "id": 5,
+      "name": "amp",
+      "val": null,
+      "x": 943,
+      "y": 358
+    },
+    {
+      "control": null,
+      "id": 11,
+      "max_val": 500.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 220.22,
+      "x": 235,
+      "y": 491
+    },
+    {
+      "control": null,
+      "id": 12,
+      "max_val": 2.0e3,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 40,
+      "x": 228,
+      "y": 618
+    },
+    {
+      "control": null,
+      "id": 21,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 2.5400000000000045,
+      "x": 425,
+      "y": 701
+    },
+    {
+      "control": null,
+      "id": 23,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 127.0,
+      "x": 627,
+      "y": 687
+    },
+    {
+      "control": null,
+      "id": 25,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 2.54,
+      "x": 501,
+      "y": 575
+    }
+  ]
+}

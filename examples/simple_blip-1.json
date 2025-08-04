@@ -1,0 +1,209 @@
+{
+  "connections": [
+    {
+      "from_node": {
+        "id": 28,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 29,
+        "name": "c-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 29,
+        "name": "c-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 28,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 13,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 29,
+        "name": "c-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "out_audio2"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "out_audio1"
+      },
+      "to_node": {
+        "id": 28,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 27,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 26,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "detune"
+      }
+    },
+    {
+      "from_node": {
+        "id": 25,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "nharm"
+      }
+    }
+  ],
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": null,
+      "id": 29,
+      "name": "c-splitter",
+      "val": null,
+      "x": 757,
+      "y": 411
+    },
+    {
+      "control": null,
+      "id": 28,
+      "name": "amp",
+      "val": null,
+      "x": 945,
+      "y": 141
+    },
+    {
+      "control": "note",
+      "id": 27,
+      "name": "midi-in",
+      "val": null,
+      "x": 59,
+      "y": 170
+    },
+    {
+      "control": null,
+      "id": 26,
+      "max_val": 10.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 0.7000000000000002,
+      "x": 194,
+      "y": 386
+    },
+    {
+      "control": null,
+      "id": 25,
+      "max_val": 10.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 8,
+      "x": 195,
+      "y": 275
+    },
+    {
+      "control": null,
+      "id": 17,
+      "name": "blip-tone",
+      "val": null,
+      "x": 376,
+      "y": 214
+    },
+    {
+      "control": null,
+      "id": 7,
+      "name": "audio-out",
+      "val": null,
+      "x": 1230,
+      "y": 242
+    },
+    {
+      "control": null,
+      "id": 12,
+      "name": "amp",
+      "val": null,
+      "x": 951,
+      "y": 336
+    },
+    {
+      "control": "gain",
+      "id": 13,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 0.3,
+      "x": 574,
+      "y": 442
+    }
+  ]
+}

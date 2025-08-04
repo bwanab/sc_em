@@ -6,7 +6,7 @@ SynthDef("audio-out", {arg b1 = 0, b2 = 0;
 }).writeDefFile(~dir);
 
 SynthDef("audio-in", {arg out_audio = 55;
-	Out.ar(out_audio, In.ar(0));
+	Out.ar(out_audio, SoundIn.ar(0));
 }).writeDefFile(~dir);
 
 SynthDef("c-splitter", {arg out_1 = 65, out_2 = 66, in = 55;
@@ -145,7 +145,8 @@ SynthDef("mult", {arg in = 55, out_audio = 65, gain = 1;
 }).writeDefFile(~dir);
 
 SynthDef("pct-add", {arg in = 55, out_control = 65, gain = 1;
-	Out.kr(out_control, In.kr(in) + (In.kr(in) * In.kr(gain)));
+	var in_sig = In.kr(in);
+	Out.kr(out_control, in_sig + (in_sig * In.kr(gain) / 100));
 }).writeDefFile(~dir);
 
 SynthDef("val-add", {arg in = 55, out_control = 65, val = 0;
@@ -157,7 +158,7 @@ SynthDef("adsr-env", {arg in = 55, out_audio = 65, attack = 0.1, decay = 0.2, su
 }).writeDefFile(~dir);
 
 SynthDef("perc-env", {arg in = 55, out_audio = 65, attack = 0.1,  release = 1, gate = 1;
-	Out.ar(out_audio, In.ar(in) * Env.perc(attack, release).kr(2, gate));
+	Out.ar(out_audio, In.ar(in) * Env.perc(In.kr(attack), In.kr(release)).kr(2, gate));
 }).writeDefFile(~dir);
 
 SynthDef("freeverb", {arg in = 55, out_audio = 65, wet_dry = 0.5,  room_size = 0.3, dampening = 0.3;

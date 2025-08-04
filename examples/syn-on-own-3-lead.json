@@ -2,14 +2,14 @@
   "connections": [
     {
       "from_node": {
-        "id": 1,
+        "id": 21,
         "name": "midi-in",
         "param_name": "out_freq"
       },
       "to_node": {
-        "id": 21,
-        "name": "note-freq",
-        "param_name": "note"
+        "id": 20,
+        "name": "saw-osc",
+        "param_name": "freq"
       }
     },
     {
@@ -155,33 +155,21 @@
         "name": "lp-filt",
         "param_name": "in"
       }
-    },
-    {
-      "from_node": {
-        "id": 21,
-        "name": "note-freq",
-        "param_name": "out_freq"
-      },
-      "to_node": {
-        "id": 20,
-        "name": "saw-osc",
-        "param_name": "freq"
-      }
     }
   ],
   "frame": {
-    "height": 761.0,
-    "width": 1151.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
-      "control": null,
-      "id": 1,
+      "control": "note",
+      "id": 21,
       "name": "midi-in",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": 2,
+      "y": 27
     },
     {
       "control": null,
@@ -196,96 +184,100 @@
       "id": 4,
       "name": "a-splitter",
       "val": null,
-      "x": 882.0,
-      "y": 425.0
+      "x": 1014,
+      "y": 419
     },
     {
       "control": null,
       "id": 5,
       "name": "audio-out",
       "val": null,
-      "x": 931.0,
-      "y": 592.0
+      "x": 1261,
+      "y": 508
     },
     {
       "control": null,
       "id": 8,
+      "max_val": 3.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 200,
-      "x": 614.0,
-      "y": 569.0
+      "val": 1.0,
+      "x": 614,
+      "y": 569
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 1.0,
+      "min_val": -1.0,
       "name": "const",
-      "val": 50,
-      "x": 610.0,
-      "y": 495.0
+      "val": 0.0,
+      "x": 739,
+      "y": 484
     },
     {
       "control": null,
       "id": 14,
       "name": "perc-env",
       "val": null,
-      "x": 540.0,
-      "y": 98.0
+      "x": 652,
+      "y": 98
     },
     {
       "control": null,
       "id": 15,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 3,
-      "x": 363.0,
-      "y": 156.0
+      "val": 0.01,
+      "x": 347,
+      "y": 179
     },
     {
       "control": null,
       "id": 16,
+      "max_val": 5.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 80,
-      "x": 362.0,
-      "y": 223.0
+      "val": 2.0,
+      "x": 351,
+      "y": 295
     },
     {
       "control": null,
       "id": 17,
+      "max_val": 2.0e3,
+      "min_val": 0.0,
       "name": "const",
-      "val": 100,
-      "x": 14.0,
-      "y": 253.0
+      "val": 500.0,
+      "x": 14,
+      "y": 253
     },
     {
       "control": null,
       "id": 18,
       "name": "amp",
       "val": null,
-      "x": 734.0,
-      "y": 275.0
+      "x": 823,
+      "y": 262
     },
     {
       "control": null,
       "id": 19,
+      "max_val": 3.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 80,
-      "x": 549.0,
-      "y": 305.0
+      "val": 0.5,
+      "x": 654,
+      "y": 355
     },
     {
       "control": null,
       "id": 20,
       "name": "saw-osc",
       "val": null,
-      "x": 125.0,
-      "y": 38.0
-    },
-    {
-      "control": null,
-      "id": 21,
-      "name": "note-freq",
-      "val": null,
-      "x": 11.0,
-      "y": 100.0
+      "x": 173,
+      "y": 39
     }
   ]
 }

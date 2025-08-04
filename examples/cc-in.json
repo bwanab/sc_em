@@ -50,8 +50,8 @@
     }
   ],
   "frame": {
-    "height": 600.0,
-    "width": 600.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
@@ -60,35 +60,37 @@
       "id": 2,
       "name": "saw-osc",
       "val": null,
-      "x": 159.0,
-      "y": 117.0
+      "x": 187,
+      "y": 168
     },
     {
       "control": null,
       "id": 3,
       "name": "audio-out",
       "val": null,
-      "x": 351.0,
-      "y": 258.0
+      "x": 578,
+      "y": 204
     },
     {
       "control": null,
       "id": 5,
       "name": "amp",
       "val": null,
-      "x": 157.0,
-      "y": 244.0
+      "x": 408,
+      "y": 207
     },
     {
       "control": null,
       "id": 6,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 2,
-      "x": 41.0,
-      "y": 279.0
+      "x": 72,
+      "y": 320
     },
     {
-      "control": null,
+      "control": "note",
       "id": 7,
       "name": "midi-in",
       "val": null,

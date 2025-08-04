@@ -146,16 +146,18 @@
     }
   ],
   "frame": {
-    "height": 761.0,
-    "width": 1151.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
       "control": "note",
       "id": 1,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
-      "val": null,
+      "val": 64.0,
       "x": 0.0,
       "y": 0.0
     },
@@ -164,8 +166,8 @@
       "id": 3,
       "name": "lp-filt",
       "val": null,
-      "x": 347.0,
-      "y": 63.0
+      "x": 555,
+      "y": 110
     },
     {
       "control": null,
@@ -180,64 +182,56 @@
       "id": 5,
       "name": "audio-out",
       "val": null,
-      "x": 931.0,
-      "y": 592.0
+      "x": 1239,
+      "y": 469
     },
     {
       "control": null,
       "id": 8,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 1,
-      "x": 614.0,
-      "y": 569.0
+      "x": 748,
+      "y": 619
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 0.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 0,
-      "x": 610.0,
-      "y": 495.0
+      "x": 669,
+      "y": 450
     },
     {
       "control": null,
       "id": 12,
       "name": "square-osc",
       "val": null,
-      "x": 187.0,
-      "y": 29.0
+      "x": 378,
+      "y": 36
     },
     {
       "control": null,
       "id": 13,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.5,
-      "x": -2.0,
-      "y": 116.0
-    },
-    {
-      "control": null,
-      "id": 15,
-      "name": "const",
-      "val": 0.1,
-      "x": 363.0,
-      "y": 156.0
-    },
-    {
-      "control": null,
-      "id": 16,
-      "name": "const",
-      "val": 1,
-      "x": 362.0,
-      "y": 223.0
+      "x": 115,
+      "y": 162
     },
     {
       "control": null,
       "id": 17,
+      "max_val": 600.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 300,
-      "x": 14.0,
-      "y": 253.0
+      "val": 510,
+      "x": 364,
+      "y": 271
     },
     {
       "control": null,
@@ -250,6 +244,8 @@
     {
       "control": "gain",
       "id": 19,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.5,
       "x": 549.0,
@@ -260,8 +256,8 @@
       "id": 20,
       "name": "note-freq",
       "val": null,
-      "x": 1.0,
-      "y": 54.0
+      "x": 197,
+      "y": 31
     }
   ]
 }

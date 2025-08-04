@@ -1,0 +1,18 @@
+{
+  "connections": [],
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": null,
+      "id": 3,
+      "name": "audio-out",
+      "val": null,
+      "x": 370,
+      "y": 193
+    }
+  ]
+}

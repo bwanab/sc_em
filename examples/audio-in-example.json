@@ -7,14 +7,14 @@
         "param_name": "out_audio"
       },
       "to_node": {
-        "id": 2,
+        "id": 6,
         "name": "echo",
         "param_name": "in"
       }
     },
     {
       "from_node": {
-        "id": 1,
+        "id": 7,
         "name": "audio-in",
         "param_name": "out_audio"
       },
@@ -38,7 +38,7 @@
     },
     {
       "from_node": {
-        "id": 2,
+        "id": 6,
         "name": "echo",
         "param_name": "out_audio"
       },
@@ -55,7 +55,7 @@
         "param_name": "out_val"
       },
       "to_node": {
-        "id": 2,
+        "id": 6,
         "name": "echo",
         "param_name": "delay_time"
       }
@@ -67,13 +67,16 @@
         "param_name": "out_val"
       },
       "to_node": {
-        "id": 2,
+        "id": 6,
         "name": "echo",
         "param_name": "decay_time"
       }
     }
   ],
-  "frame": null,
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
   "master_vol": 0.3,
   "nodes": [
     {
@@ -81,56 +84,62 @@
       "id": 1,
       "name": "amp",
       "val": null,
-      "x": 152.0,
-      "y": 0.0
+      "x": 403,
+      "y": 17
     },
     {
       "control": null,
-      "id": 1,
+      "id": 7,
       "name": "audio-in",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": 36,
+      "y": 29
     },
     {
       "control": null,
       "id": 2,
+      "max_val": 3.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 1000,
-      "x": 2.0,
-      "y": 84.0
+      "val": 0.5,
+      "x": 212,
+      "y": 131
     },
     {
       "control": null,
-      "id": 2,
+      "id": 6,
       "name": "echo",
       "val": null,
-      "x": 321.0,
-      "y": 61.0
+      "x": 693,
+      "y": 123
     },
     {
       "control": null,
       "id": 3,
       "name": "audio-out",
       "val": null,
-      "x": 536.0,
-      "y": 88.0
+      "x": 952,
+      "y": 164
     },
     {
       "control": null,
       "id": 4,
+      "max_val": 5.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 10,
-      "x": 160.0,
-      "y": 114.0
+      "val": 0.5999999999999996,
+      "x": 409,
+      "y": 182
     },
     {
       "control": null,
       "id": 5,
+      "max_val": 10.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 50,
-      "x": 160.0,
-      "y": 176.0
+      "val": 1.0,
+      "x": 426,
+      "y": 306
     }
   ]
 }

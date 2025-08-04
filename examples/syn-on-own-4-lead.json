@@ -2,14 +2,14 @@
   "connections": [
     {
       "from_node": {
-        "id": 1,
-        "name": "midi-in",
-        "param_name": "out_freq"
+        "id": 6,
+        "name": "square-osc",
+        "param_name": "out_audio"
       },
       "to_node": {
-        "id": 2,
-        "name": "c-splitter",
-        "param_name": "in"
+        "id": 13,
+        "name": "a-mixer-2",
+        "param_name": "in2"
       }
     },
     {
@@ -19,9 +19,33 @@
         "param_name": "out_2"
       },
       "to_node": {
-        "id": 8,
-        "name": "val-add",
+        "id": 27,
+        "name": "pct-add",
         "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 27,
+        "name": "pct-add",
+        "param_name": "out_control"
+      },
+      "to_node": {
+        "id": 6,
+        "name": "square-osc",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 9,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 27,
+        "name": "pct-add",
+        "param_name": "gain"
       }
     },
     {
@@ -31,9 +55,21 @@
         "param_name": "out_1"
       },
       "to_node": {
-        "id": 11,
-        "name": "note-freq",
-        "param_name": "note"
+        "id": 3,
+        "name": "square-osc",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 26,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 2,
+        "name": "c-splitter",
+        "param_name": "in"
       }
     },
     {
@@ -62,18 +98,6 @@
     },
     {
       "from_node": {
-        "id": 6,
-        "name": "square-osc",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 14,
-        "name": "amp",
-        "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
         "id": 7,
         "name": "const",
         "param_name": "out_val"
@@ -86,54 +110,6 @@
     },
     {
       "from_node": {
-        "id": 8,
-        "name": "val-add",
-        "param_name": "out_control"
-      },
-      "to_node": {
-        "id": 12,
-        "name": "note-freq",
-        "param_name": "note"
-      }
-    },
-    {
-      "from_node": {
-        "id": 9,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 8,
-        "name": "val-add",
-        "param_name": "val"
-      }
-    },
-    {
-      "from_node": {
-        "id": 11,
-        "name": "note-freq",
-        "param_name": "out_freq"
-      },
-      "to_node": {
-        "id": 3,
-        "name": "square-osc",
-        "param_name": "freq"
-      }
-    },
-    {
-      "from_node": {
-        "id": 12,
-        "name": "note-freq",
-        "param_name": "out_freq"
-      },
-      "to_node": {
-        "id": 6,
-        "name": "square-osc",
-        "param_name": "freq"
-      }
-    },
-    {
-      "from_node": {
         "id": 13,
         "name": "a-mixer-2",
         "param_name": "out_audio"
@@ -142,30 +118,6 @@
         "id": 22,
         "name": "lp-filt",
         "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
-        "id": 14,
-        "name": "amp",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 13,
-        "name": "a-mixer-2",
-        "param_name": "in2"
-      }
-    },
-    {
-      "from_node": {
-        "id": 15,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 14,
-        "name": "amp",
-        "param_name": "gain"
       }
     },
     {
@@ -302,18 +254,26 @@
     }
   ],
   "frame": {
-    "height": 831.0,
-    "width": 1433.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
       "control": null,
-      "id": 1,
+      "id": 27,
+      "name": "pct-add",
+      "val": null,
+      "x": 266,
+      "y": 281
+    },
+    {
+      "control": "note",
+      "id": 26,
       "name": "midi-in",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": -19,
+      "y": 6
     },
     {
       "control": null,
@@ -334,8 +294,10 @@
     {
       "control": null,
       "id": 5,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 1,
+      "val": 0.5,
       "x": 232.0,
       "y": 131.0
     },
@@ -350,24 +312,20 @@
     {
       "control": null,
       "id": 7,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 1,
-      "x": 87.0,
-      "y": 493.0
-    },
-    {
-      "control": null,
-      "id": 8,
-      "name": "val-add",
-      "val": null,
-      "x": 221.0,
-      "y": 257.0
+      "val": 0.5,
+      "x": 82,
+      "y": 561
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 62.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 31,
+      "val": 50.0,
       "x": 50.0,
       "y": 281.0
     },
@@ -381,43 +339,11 @@
     },
     {
       "control": null,
-      "id": 11,
-      "name": "note-freq",
-      "val": null,
-      "x": 203.0,
-      "y": 13.0
-    },
-    {
-      "control": null,
-      "id": 12,
-      "name": "note-freq",
-      "val": null,
-      "x": 89.0,
-      "y": 421.0
-    },
-    {
-      "control": null,
       "id": 13,
       "name": "a-mixer-2",
       "val": null,
       "x": 613.0,
       "y": 48.0
-    },
-    {
-      "control": null,
-      "id": 14,
-      "name": "amp",
-      "val": null,
-      "x": 555.0,
-      "y": 476.0
-    },
-    {
-      "control": null,
-      "id": 15,
-      "name": "const",
-      "val": 5,
-      "x": 387.0,
-      "y": 620.0
     },
     {
       "control": null,
@@ -430,18 +356,22 @@
     {
       "control": null,
       "id": 17,
+      "max_val": 1.0,
+      "min_val": -1.0,
       "name": "const",
-      "val": 50,
-      "x": 837.0,
-      "y": 484.0
+      "val": 0.0,
+      "x": 828,
+      "y": 489
     },
     {
       "control": null,
       "id": 18,
+      "max_val": 3.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 100,
-      "x": 831.0,
-      "y": 582.0
+      "val": 1.0,
+      "x": 831,
+      "y": 582
     },
     {
       "control": null,
@@ -454,18 +384,22 @@
     {
       "control": null,
       "id": 20,
+      "max_val": 4.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 2,
-      "x": 815.0,
-      "y": 234.0
+      "val": 0.01,
+      "x": 814,
+      "y": 188
     },
     {
       "control": null,
       "id": 21,
+      "max_val": 5.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 209,
-      "x": 816.0,
-      "y": 289.0
+      "val": 1.0,
+      "x": 816,
+      "y": 289
     },
     {
       "control": null,
@@ -478,10 +412,12 @@
     {
       "control": null,
       "id": 23,
+      "max_val": 3.0e3,
+      "min_val": 0.0,
       "name": "const",
-      "val": 80,
-      "x": 652.0,
-      "y": 156.0
+      "val": 500.0,
+      "x": 652,
+      "y": 156
     },
     {
       "control": null,
@@ -494,10 +430,12 @@
     {
       "control": null,
       "id": 25,
+      "max_val": 3.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 80,
-      "x": 825.0,
-      "y": 401.0
+      "val": 0.5,
+      "x": 820,
+      "y": 388
     }
   ]
 }

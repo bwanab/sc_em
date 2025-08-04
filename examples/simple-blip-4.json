@@ -1,0 +1,317 @@
+{
+  "connections": [
+    {
+      "from_node": {
+        "id": 27,
+        "name": "midi-in",
+        "param_name": "out_freq"
+      },
+      "to_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "freq"
+      }
+    },
+    {
+      "from_node": {
+        "id": 22,
+        "name": "moog-filt",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 18,
+        "name": "a-mixer-2",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 22,
+        "name": "moog-filt",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 26,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "detune"
+      }
+    },
+    {
+      "from_node": {
+        "id": 25,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "nharm"
+      }
+    },
+    {
+      "from_node": {
+        "id": 24,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 22,
+        "name": "moog-filt",
+        "param_name": "lpf_res"
+      }
+    },
+    {
+      "from_node": {
+        "id": 23,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 22,
+        "name": "moog-filt",
+        "param_name": "cutoff"
+      }
+    },
+    {
+      "from_node": {
+        "id": 21,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 19,
+        "name": "a-splitter",
+        "param_name": "lev"
+      }
+    },
+    {
+      "from_node": {
+        "id": 20,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 19,
+        "name": "a-splitter",
+        "param_name": "pos"
+      }
+    },
+    {
+      "from_node": {
+        "id": 19,
+        "name": "a-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 19,
+        "name": "a-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 7,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 19,
+        "name": "a-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "out_audio2"
+      },
+      "to_node": {
+        "id": 18,
+        "name": "a-mixer-2",
+        "param_name": "in2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 17,
+        "name": "blip-tone",
+        "param_name": "out_audio1"
+      },
+      "to_node": {
+        "id": 18,
+        "name": "a-mixer-2",
+        "param_name": "in1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 13,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    }
+  ],
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
+  "master_vol": 0.3,
+  "nodes": [
+    {
+      "control": "note",
+      "id": 27,
+      "name": "midi-in",
+      "val": null,
+      "x": 32,
+      "y": 175
+    },
+    {
+      "control": null,
+      "id": 26,
+      "max_val": 1.4000000000000004,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 0.7000000000000002,
+      "x": 194,
+      "y": 386
+    },
+    {
+      "control": null,
+      "id": 25,
+      "max_val": 16.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 8,
+      "x": 195,
+      "y": 275
+    },
+    {
+      "control": null,
+      "id": 24,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 1,
+      "x": 582,
+      "y": 390
+    },
+    {
+      "control": null,
+      "id": 23,
+      "max_val": 3.0e3,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 500.0,
+      "x": 582,
+      "y": 288
+    },
+    {
+      "control": null,
+      "id": 22,
+      "name": "moog-filt",
+      "val": null,
+      "x": 768,
+      "y": 272
+    },
+    {
+      "control": null,
+      "id": 21,
+      "max_val": 2.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 1,
+      "x": 980,
+      "y": 651
+    },
+    {
+      "control": null,
+      "id": 20,
+      "max_val": 127.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 0.0,
+      "x": 969,
+      "y": 549
+    },
+    {
+      "control": null,
+      "id": 19,
+      "name": "a-splitter",
+      "val": null,
+      "x": 1144,
+      "y": 508
+    },
+    {
+      "control": null,
+      "id": 18,
+      "name": "a-mixer-2",
+      "val": null,
+      "x": 605,
+      "y": 153
+    },
+    {
+      "control": null,
+      "id": 17,
+      "name": "blip-tone",
+      "val": null,
+      "x": 376,
+      "y": 214
+    },
+    {
+      "control": null,
+      "id": 7,
+      "name": "audio-out",
+      "val": null,
+      "x": 1230,
+      "y": 242
+    },
+    {
+      "control": null,
+      "id": 12,
+      "name": "amp",
+      "val": null,
+      "x": 951,
+      "y": 336
+    },
+    {
+      "control": "gain",
+      "id": 13,
+      "max_val": 3.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 0.7,
+      "x": 774,
+      "y": 454
+    }
+  ]
+}

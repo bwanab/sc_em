@@ -3,199 +3,167 @@
     {
       "from_node": {
         "id": 2,
-        "name": "flute",
-        "param_name": "out_audio"
+        "param_name": "out"
       },
       "to_node": {
         "id": 1,
-        "name": "bp-filt",
         "param_name": "in"
       }
     },
     {
       "from_node": {
         "id": 11,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 1,
-        "name": "bp-filt",
         "param_name": "freq"
       }
     },
     {
       "from_node": {
         "id": 12,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 1,
-        "name": "bp-filt",
         "param_name": "q"
       }
     },
     {
       "from_node": {
         "id": 1,
-        "name": "bp-filt",
         "param_name": "out_audio"
       },
       "to_node": {
         "id": 4,
-        "name": "freeverb",
         "param_name": "in"
       }
     },
     {
       "from_node": {
         "id": 21,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 4,
-        "name": "freeverb",
         "param_name": "room_size"
       }
     },
     {
       "from_node": {
         "id": 23,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 4,
-        "name": "freeverb",
         "param_name": "dampening"
       }
     },
     {
       "from_node": {
         "id": 25,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 4,
-        "name": "freeverb",
         "param_name": "wet_dry"
       }
     },
     {
       "from_node": {
         "id": 4,
-        "name": "freeverb",
         "param_name": "out_audio"
       },
       "to_node": {
         "id": 5,
-        "name": "amp",
         "param_name": "in"
       }
     },
     {
       "from_node": {
         "id": 5,
-        "name": "amp",
         "param_name": "out_audio"
       },
       "to_node": {
         "id": 8,
-        "name": "a-splitter",
         "param_name": "in"
       }
     },
     {
       "from_node": {
         "id": 6,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 5,
-        "name": "amp",
         "param_name": "gain"
       }
     },
     {
       "from_node": {
         "id": 7,
-        "name": "cc-in",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 10,
-        "name": "note-freq",
         "param_name": "note"
       }
     },
     {
       "from_node": {
         "id": 8,
-        "name": "a-splitter",
         "param_name": "out_1"
       },
       "to_node": {
         "id": 3,
-        "name": "audio-out",
         "param_name": "b1"
       }
     },
     {
       "from_node": {
         "id": 8,
-        "name": "a-splitter",
         "param_name": "out_2"
       },
       "to_node": {
         "id": 3,
-        "name": "audio-out",
         "param_name": "b2"
       }
     },
     {
       "from_node": {
         "id": 9,
-        "name": "const",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 8,
-        "name": "a-splitter",
         "param_name": "lev"
       }
     },
     {
       "from_node": {
         "id": 13,
-        "name": "const",
         "param_name": "out_val"
       },
       "to_node": {
         "id": 8,
-        "name": "a-splitter",
         "param_name": "pos"
       }
     },
     {
       "from_node": {
         "id": 10,
-        "name": "note-freq",
         "param_name": "out_freq"
       },
       "to_node": {
         "id": 2,
-        "name": "flute",
         "param_name": "freq"
       }
     }
   ],
   "frame": {
-    "height": 600.0,
-    "width": 600.0
+    "width": 1200,
+    "height": 800
   },
   "master_vol": 0.3,
   "nodes": [
@@ -203,129 +171,327 @@
       "control": null,
       "id": 1,
       "name": "bp-filt",
+      "parameters": [
+        [
+          "in",
+          55.0
+        ],
+        [
+          "out_audio",
+          65.0
+        ],
+        [
+          "freq",
+          300.0
+        ],
+        [
+          "q",
+          1.0
+        ]
+      ],
       "val": null,
-      "x": 159.0,
-      "y": 117.0
+      "x": 607,
+      "y": 14
     },
     {
       "control": null,
       "id": 2,
       "name": "flute",
+      "parameters": [
+        [
+          "freq",
+          55.0
+        ],
+        [
+          "sig",
+          65.0
+        ]
+      ],
       "val": null,
-      "x": 159.0,
-      "y": 117.0
+      "x": 422,
+      "y": 0
     },
     {
       "control": null,
       "id": 3,
       "name": "audio-out",
+      "parameters": [
+        [
+          "b1",
+          0.0
+        ],
+        [
+          "b2",
+          0.0
+        ]
+      ],
       "val": null,
-      "x": 351.0,
-      "y": 258.0
+      "x": 1031,
+      "y": 203
     },
     {
       "control": null,
       "id": 4,
       "name": "freeverb",
+      "parameters": [
+        [
+          "in",
+          55.0
+        ],
+        [
+          "out_audio",
+          65.0
+        ],
+        [
+          "wet_dry",
+          0.5
+        ],
+        [
+          "room_size",
+          0.30000001192092896
+        ],
+        [
+          "dampening",
+          0.30000001192092896
+        ]
+      ],
       "val": null,
-      "x": 351.0,
-      "y": 258.0
+      "x": 699,
+      "y": 410
     },
     {
       "control": null,
       "id": 5,
       "name": "amp",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_audio",
+          0.0
+        ],
+        [
+          "gain",
+          0.0
+        ]
+      ],
       "val": null,
-      "x": 157.0,
-      "y": 244.0
+      "x": 850,
+      "y": 268
     },
     {
       "control": "gain",
       "id": 6,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 0.2,
-      "x": 41.0,
-      "y": 279.0
+      "x": 880,
+      "y": 431
     },
     {
       "control": "note",
       "id": 7,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": null,
-      "x": 42.0,
-      "y": 36.0
+      "x": 20,
+      "y": 134
     },
     {
       "control": null,
       "id": 8,
       "name": "a-splitter",
+      "parameters": [
+        [
+          "out_1",
+          65.0
+        ],
+        [
+          "out_2",
+          66.0
+        ],
+        [
+          "in",
+          55.0
+        ],
+        [
+          "pos",
+          0.0
+        ],
+        [
+          "lev",
+          1.0
+        ]
+      ],
       "val": null,
-      "x": 41.0,
-      "y": 279.0
+      "x": 858,
+      "y": 99
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 1.0,
-      "x": 41.0,
-      "y": 279.0
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
+      "val": 2.0,
+      "x": 330,
+      "y": 233
     },
     {
       "control": null,
       "id": 10,
       "name": "note-freq",
+      "parameters": [
+        [
+          "note",
+          55.0
+        ],
+        [
+          "out_freq",
+          65.0
+        ]
+      ],
       "val": null,
-      "x": 42.0,
-      "y": 36.0
+      "x": 136,
+      "y": 17
     },
     {
       "control": null,
       "id": 11,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 440,
-      "x": 615.0,
-      "y": 257.0
+      "x": 518,
+      "y": 284
     },
     {
       "control": null,
       "id": 12,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 0.3,
-      "x": 615.0,
-      "y": 257.0
+      "x": 297,
+      "y": 98
     },
     {
       "control": null,
       "id": 13,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 0.0,
-      "x": 615.0,
-      "y": 257.0
+      "x": 460,
+      "y": 146
     },
     {
       "control": null,
       "id": 21,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 0.7,
-      "x": 615.0,
-      "y": 257.0
+      "x": 475,
+      "y": 496
     },
     {
       "control": null,
       "id": 23,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 0.0,
-      "x": 615.0,
-      "y": 257.0
+      "x": 501,
+      "y": 605
     },
     {
       "control": null,
       "id": 25,
       "name": "cc-in",
+      "parameters": [
+        [
+          "in",
+          0.0
+        ],
+        [
+          "out_val",
+          0.0
+        ]
+      ],
       "val": 0.5,
-      "x": 615.0,
-      "y": 257.0
+      "x": 469,
+      "y": 371
     }
   ]
 }

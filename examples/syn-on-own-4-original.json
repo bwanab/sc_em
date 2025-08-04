@@ -254,78 +254,86 @@
     }
   ],
   "frame": {
-    "height": 720.0,
-    "width": 1241.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
       "control": "note",
       "id": 1,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
-      "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "val": 64.0,
+      "x": 0,
+      "y": 0
     },
     {
       "control": null,
       "id": 2,
       "name": "c-splitter",
       "val": null,
-      "x": 66.0,
-      "y": 83.0
+      "x": 66,
+      "y": 149
     },
     {
       "control": null,
       "id": 20,
       "name": "c-splitter",
       "val": null,
-      "x": 66.0,
-      "y": 83.0
+      "x": 432,
+      "y": 263
     },
     {
       "control": null,
       "id": 3,
       "name": "square-osc",
       "val": null,
-      "x": 366.0,
-      "y": 29.0
+      "x": 463,
+      "y": 24
     },
     {
       "control": null,
       "id": 5,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.5,
-      "x": 232.0,
-      "y": 131.0
+      "x": 232,
+      "y": 127
     },
     {
       "control": null,
       "id": 6,
       "name": "square-osc",
       "val": null,
-      "x": 365.0,
-      "y": 215.0
+      "x": 525,
+      "y": 478
     },
     {
       "control": null,
       "id": 7,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.5,
-      "x": 241.0,
-      "y": 417.0
+      "x": 328,
+      "y": 595
     },
     {
       "control": null,
       "id": 8,
       "name": "val-add",
       "val": null,
-      "x": 164.0,
-      "y": 211.0
+      "x": 235,
+      "y": 236
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 0.24,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.12,
       "x": 37.0,
@@ -336,80 +344,86 @@
       "id": 10,
       "name": "audio-out",
       "val": null,
-      "x": 1054.0,
-      "y": 86.0
+      "x": 1279,
+      "y": 99
     },
     {
       "control": null,
       "id": 11,
       "name": "note-freq",
       "val": null,
-      "x": 203.0,
-      "y": 13.0
+      "x": 273,
+      "y": 13
     },
     {
       "control": null,
       "id": 12,
       "name": "note-freq",
       "val": null,
-      "x": 194.0,
-      "y": 321.0
+      "x": 328,
+      "y": 435
     },
     {
       "control": null,
       "id": 13,
       "name": "a-mixer-2",
       "val": null,
-      "x": 613.0,
-      "y": 48.0
+      "x": 857,
+      "y": 42
     },
     {
       "control": null,
       "id": 14,
       "name": "amp",
       "val": null,
-      "x": 568.0,
-      "y": 248.0
+      "x": 718,
+      "y": 358
     },
     {
       "control": null,
       "id": 19,
       "name": "amp",
       "val": null,
-      "x": 568.0,
-      "y": 248.0
+      "x": 640,
+      "y": 53
     },
     {
       "control": "gain",
       "id": 15,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 0.5,
-      "x": 451.0,
-      "y": 374.0
+      "val": 0.25,
+      "x": 27,
+      "y": 549
     },
     {
       "control": null,
       "id": 16,
       "name": "a-splitter",
       "val": null,
-      "x": 887.0,
-      "y": 74.0
+      "x": 1084,
+      "y": 75
     },
     {
       "control": null,
       "id": 17,
+      "max_val": 0.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 0,
-      "x": 720.0,
-      "y": 141.0
+      "x": 912,
+      "y": 154
     },
     {
       "control": null,
       "id": 18,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
       "val": 1,
-      "x": 721.0,
-      "y": 200.0
+      "x": 970,
+      "y": 254
     }
   ]
 }

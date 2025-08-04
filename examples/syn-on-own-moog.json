@@ -2,6 +2,54 @@
   "connections": [
     {
       "from_node": {
+        "id": 27,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 26,
+        "name": "moog-filt",
+        "param_name": "lpf_res"
+      }
+    },
+    {
+      "from_node": {
+        "id": 26,
+        "name": "moog-filt",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 24,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 13,
+        "name": "a-mixer-2",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 26,
+        "name": "moog-filt",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 23,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 26,
+        "name": "moog-filt",
+        "param_name": "cutoff"
+      }
+    },
+    {
+      "from_node": {
         "id": 1,
         "name": "cc-in",
         "param_name": "out_val"
@@ -134,18 +182,6 @@
     },
     {
       "from_node": {
-        "id": 13,
-        "name": "a-mixer-2",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 22,
-        "name": "lp-filt",
-        "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
         "id": 14,
         "name": "amp",
         "param_name": "out_audio"
@@ -161,6 +197,18 @@
         "id": 15,
         "name": "const",
         "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 25,
+        "name": "c-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 25,
+        "name": "c-splitter",
+        "param_name": "out_2"
       },
       "to_node": {
         "id": 14,
@@ -218,66 +266,6 @@
     },
     {
       "from_node": {
-        "id": 19,
-        "name": "perc-env",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 24,
-        "name": "amp",
-        "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
-        "id": 20,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 19,
-        "name": "perc-env",
-        "param_name": "attack"
-      }
-    },
-    {
-      "from_node": {
-        "id": 21,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 19,
-        "name": "perc-env",
-        "param_name": "release"
-      }
-    },
-    {
-      "from_node": {
-        "id": 22,
-        "name": "lp-filt",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 19,
-        "name": "perc-env",
-        "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
-        "id": 23,
-        "name": "const",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 22,
-        "name": "lp-filt",
-        "param_name": "cutoff"
-      }
-    },
-    {
-      "from_node": {
         "id": 24,
         "name": "amp",
         "param_name": "out_audio"
@@ -291,8 +279,8 @@
     {
       "from_node": {
         "id": 25,
-        "name": "const",
-        "param_name": "out_val"
+        "name": "c-splitter",
+        "param_name": "out_1"
       },
       "to_node": {
         "id": 24,
@@ -302,16 +290,36 @@
     }
   ],
   "frame": {
-    "height": 831.0,
-    "width": 1433.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
+      "control": null,
+      "id": 27,
+      "max_val": 4.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 1.0,
+      "x": 741,
+      "y": 224
+    },
+    {
+      "control": null,
+      "id": 26,
+      "name": "moog-filt",
+      "val": null,
+      "x": 826,
+      "y": 74
+    },
+    {
       "control": "note",
       "id": 1,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
-      "val": null,
+      "val": 64.0,
       "x": 0.0,
       "y": 0.0
     },
@@ -320,22 +328,24 @@
       "id": 2,
       "name": "c-splitter",
       "val": null,
-      "x": 66.0,
-      "y": 83.0
+      "x": 24,
+      "y": 230
     },
     {
       "control": null,
       "id": 3,
       "name": "square-osc",
       "val": null,
-      "x": 366.0,
-      "y": 29.0
+      "x": 412,
+      "y": 29
     },
     {
       "control": null,
       "id": 5,
+      "max_val": 0.6,
+      "min_val": 0.0,
       "name": "const",
-      "val": 3,
+      "val": 0.3,
       "x": 232.0,
       "y": 131.0
     },
@@ -344,40 +354,44 @@
       "id": 6,
       "name": "square-osc",
       "val": null,
-      "x": 319.0,
-      "y": 447.0
+      "x": 398,
+      "y": 438
     },
     {
       "control": null,
       "id": 7,
+      "max_val": 0.6,
+      "min_val": 0.0,
       "name": "const",
-      "val": 3,
-      "x": 87.0,
-      "y": 493.0
+      "val": 0.3,
+      "x": 180,
+      "y": 650
     },
     {
       "control": null,
       "id": 8,
       "name": "val-add",
       "val": null,
-      "x": 221.0,
-      "y": 257.0
+      "x": 185,
+      "y": 328
     },
     {
       "control": null,
       "id": 9,
+      "max_val": 2.0,
+      "min_val": -2.0,
       "name": "const",
-      "val": 12,
-      "x": 50.0,
-      "y": 281.0
+      "val": 2.0,
+      "x": 26,
+      "y": 398
     },
     {
       "control": null,
       "id": 10,
       "name": "audio-out",
       "val": null,
-      "x": 1215.0,
-      "y": 470.0
+      "x": 1254,
+      "y": 576
     },
     {
       "control": null,
@@ -392,112 +406,88 @@
       "id": 12,
       "name": "note-freq",
       "val": null,
-      "x": 89.0,
-      "y": 421.0
+      "x": 193,
+      "y": 497
     },
     {
       "control": null,
       "id": 13,
       "name": "a-mixer-2",
       "val": null,
-      "x": 613.0,
-      "y": 48.0
+      "x": 588,
+      "y": 45
     },
     {
       "control": null,
       "id": 14,
       "name": "amp",
       "val": null,
-      "x": 555.0,
-      "y": 476.0
+      "x": 695,
+      "y": 321
     },
     {
-      "control": null,
+      "control": "gain",
       "id": 15,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 3,
-      "x": 500.0,
-      "y": 402.0
+      "val": 0.5,
+      "x": 388,
+      "y": 701
     },
     {
       "control": null,
       "id": 16,
       "name": "a-splitter",
       "val": null,
-      "x": 1016.0,
-      "y": 466.0
+      "x": 1233,
+      "y": 178
     },
     {
       "control": null,
       "id": 17,
+      "max_val": 0.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 50,
-      "x": 837.0,
-      "y": 484.0
+      "val": 0,
+      "x": 1028,
+      "y": 194
     },
     {
       "control": null,
       "id": 18,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 100,
-      "x": 831.0,
-      "y": 582.0
-    },
-    {
-      "control": null,
-      "id": 19,
-      "name": "perc-env",
-      "val": null,
-      "x": 985.0,
-      "y": 211.0
-    },
-    {
-      "control": null,
-      "id": 20,
-      "name": "const",
-      "val": 0,
-      "x": 815.0,
-      "y": 234.0
-    },
-    {
-      "control": null,
-      "id": 21,
-      "name": "const",
-      "val": 300,
-      "x": 816.0,
-      "y": 289.0
-    },
-    {
-      "control": null,
-      "id": 22,
-      "name": "lp-filt",
-      "val": null,
-      "x": 814.0,
-      "y": 80.0
+      "val": 1,
+      "x": 1040,
+      "y": 301
     },
     {
       "control": null,
       "id": 23,
+      "max_val": 3.0e3,
+      "min_val": 0.0,
       "name": "const",
-      "val": 20,
-      "x": 652.0,
-      "y": 156.0
+      "val": 500.0,
+      "x": 636,
+      "y": 140
     },
     {
       "control": null,
       "id": 24,
       "name": "amp",
       "val": null,
-      "x": 1008.0,
-      "y": 363.0
+      "x": 1011,
+      "y": 76
     },
     {
-      "control": "gain",
+      "control": null,
       "id": 25,
-      "name": "const",
-      "val": 80,
-      "x": 825.0,
-      "y": 401.0
+      "name": "c-splitter",
+      "val": 0.5,
+      "x": 571,
+      "y": 559
     }
   ]
 }

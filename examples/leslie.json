@@ -2,14 +2,14 @@
   "connections": [
     {
       "from_node": {
-        "id": 10,
-        "name": "cc-in",
-        "param_name": "out_val"
+        "id": 18,
+        "name": "pct-add",
+        "param_name": "out_control"
       },
       "to_node": {
-        "id": 1,
-        "name": "note-freq",
-        "param_name": "note"
+        "id": 2,
+        "name": "square-osc",
+        "param_name": "freq"
       }
     },
     {
@@ -19,9 +19,117 @@
         "param_name": "out_freq"
       },
       "to_node": {
-        "id": 2,
-        "name": "square-osc",
-        "param_name": "freq"
+        "id": 18,
+        "name": "pct-add",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 14,
+        "name": "c-scale",
+        "param_name": "out_control"
+      },
+      "to_node": {
+        "id": 18,
+        "name": "pct-add",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 17,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 14,
+        "name": "c-scale",
+        "param_name": "hi"
+      }
+    },
+    {
+      "from_node": {
+        "id": 16,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 14,
+        "name": "c-scale",
+        "param_name": "lo"
+      }
+    },
+    {
+      "from_node": {
+        "id": 15,
+        "name": "c-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 14,
+        "name": "c-scale",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 15,
+        "name": "c-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 11,
+        "name": "c-scale",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 4,
+        "name": "sin-vco",
+        "param_name": "out_control"
+      },
+      "to_node": {
+        "id": 15,
+        "name": "c-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 11,
+        "name": "c-scale",
+        "param_name": "lo"
+      }
+    },
+    {
+      "from_node": {
+        "id": 13,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 11,
+        "name": "c-scale",
+        "param_name": "hi"
+      }
+    },
+    {
+      "from_node": {
+        "id": 10,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 1,
+        "name": "note-freq",
+        "param_name": "note"
       }
     },
     {
@@ -46,42 +154,6 @@
         "id": 4,
         "name": "sin-vco",
         "param_name": "freq"
-      }
-    },
-    {
-      "from_node": {
-        "id": 12,
-        "name": "cc-in",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 11,
-        "name": "c-scale",
-        "param_name": "out_lo"
-      }
-    },
-    {
-      "from_node": {
-        "id": 13,
-        "name": "cc-in",
-        "param_name": "out_val"
-      },
-      "to_node": {
-        "id": 11,
-        "name": "c-scale",
-        "param_name": "out_hi"
-      }
-    },
-    {
-      "from_node": {
-        "id": 4,
-        "name": "sin-vco",
-        "param_name": "out_control"
-      },
-      "to_node": {
-        "id": 11,
-        "name": "c-scale",
-        "param_name": "in"
       }
     },
     {
@@ -158,106 +230,160 @@
     }
   ],
   "frame": {
-    "height": 694.0,
-    "width": 797.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
     {
+      "control": null,
+      "id": 18,
+      "name": "pct-add",
+      "val": null,
+      "x": 514,
+      "y": 43
+    },
+    {
+      "control": "",
+      "id": 17,
+      "max_val": 1.05,
+      "min_val": 0.98,
+      "name": "cc-in",
+      "val": 1.02,
+      "x": 124,
+      "y": 213
+    },
+    {
+      "control": "",
+      "id": 16,
+      "max_val": 1.05,
+      "min_val": 0.95,
+      "name": "cc-in",
+      "val": 0.98,
+      "x": 128,
+      "y": 105
+    },
+    {
+      "control": null,
+      "id": 15,
+      "name": "c-splitter",
+      "val": null,
+      "x": 234,
+      "y": 306
+    },
+    {
+      "control": null,
+      "id": 14,
+      "name": "c-scale",
+      "val": null,
+      "x": 333,
+      "y": 145
+    },
+    {
       "control": "note",
       "id": 10,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
-      "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "val": 64.0,
+      "x": 79,
+      "y": 3
     },
     {
       "control": null,
       "id": 11,
       "name": "c-scale",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": 408,
+      "y": 317
     },
     {
       "control": null,
       "id": 12,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": -0.9,
-      "x": 0.0,
-      "y": 0.0
+      "x": 215,
+      "y": 463
     },
     {
       "control": null,
       "id": 13,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.9,
-      "x": 0.0,
-      "y": 0.0
+      "x": 345,
+      "y": 610
     },
     {
       "control": null,
       "id": 1,
       "name": "note-freq",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": 331,
+      "y": 25
     },
     {
       "control": null,
       "id": 2,
       "name": "square-osc",
       "val": null,
-      "x": 196.0,
-      "y": 54.0
+      "x": 692,
+      "y": 56
     },
     {
       "control": null,
       "id": 3,
+      "max_val": 4.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 2,
-      "x": 11.0,
-      "y": 267.0
+      "val": 2.88,
+      "x": 14,
+      "y": 467
     },
     {
       "control": null,
       "id": 4,
       "name": "sin-vco",
       "val": null,
-      "x": 6.0,
-      "y": 199.0
+      "x": 41,
+      "y": 308
     },
     {
       "control": null,
       "id": 5,
       "name": "a-splitter",
       "val": null,
-      "x": 387.0,
-      "y": 224.0
+      "x": 789,
+      "y": 232
     },
     {
       "control": null,
       "id": 6,
       "name": "audio-out",
       "val": null,
-      "x": 571.0,
-      "y": 220.0
+      "x": 974,
+      "y": 229
     },
     {
       "control": "gain",
       "id": 8,
+      "max_val": 1.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 0.5,
-      "x": 195.0,
-      "y": 314.0
+      "val": 0.21,
+      "x": 572,
+      "y": 368
     },
     {
       "control": null,
       "id": 9,
       "name": "c-splitter",
       "val": null,
-      "x": 28.0,
-      "y": 96.0
+      "x": 533,
+      "y": 190
     }
   ]
 }

@@ -2,7 +2,91 @@
   "connections": [
     {
       "from_node": {
-        "id": 1,
+        "id": 14,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "a-splitter",
+        "param_name": "lev"
+      }
+    },
+    {
+      "from_node": {
+        "id": 13,
+        "name": "const",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "a-splitter",
+        "param_name": "pos"
+      }
+    },
+    {
+      "from_node": {
+        "id": 10,
+        "name": "amp",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 12,
+        "name": "a-splitter",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "a-splitter",
+        "param_name": "out_2"
+      },
+      "to_node": {
+        "id": 8,
+        "name": "audio-out",
+        "param_name": "b2"
+      }
+    },
+    {
+      "from_node": {
+        "id": 12,
+        "name": "a-splitter",
+        "param_name": "out_1"
+      },
+      "to_node": {
+        "id": 8,
+        "name": "audio-out",
+        "param_name": "b1"
+      }
+    },
+    {
+      "from_node": {
+        "id": 11,
+        "name": "cc-in",
+        "param_name": "out_val"
+      },
+      "to_node": {
+        "id": 10,
+        "name": "amp",
+        "param_name": "gain"
+      }
+    },
+    {
+      "from_node": {
+        "id": 3,
+        "name": "adsr-env",
+        "param_name": "out_audio"
+      },
+      "to_node": {
+        "id": 10,
+        "name": "amp",
+        "param_name": "in"
+      }
+    },
+    {
+      "from_node": {
+        "id": 9,
         "name": "midi-in",
         "param_name": "out_freq"
       },
@@ -22,18 +106,6 @@
         "id": 3,
         "name": "adsr-env",
         "param_name": "in"
-      }
-    },
-    {
-      "from_node": {
-        "id": 3,
-        "name": "adsr-env",
-        "param_name": "out_audio"
-      },
-      "to_node": {
-        "id": 8,
-        "name": "audio-out",
-        "param_name": "b1"
       }
     },
     {
@@ -85,72 +157,129 @@
       }
     }
   ],
-  "frame": null,
+  "frame": {
+    "width": 2400,
+    "height": 1600
+  },
   "master_vol": 0.3,
   "nodes": [
     {
+      "control": "",
+      "id": 14,
+      "max_val": 2.0,
+      "min_val": 0.0,
+      "name": "const",
+      "val": 1.0,
+      "x": 760,
+      "y": 669
+    },
+    {
+      "control": "",
+      "id": 13,
+      "max_val": 1.0,
+      "min_val": -1.0,
+      "name": "const",
+      "val": 0.0,
+      "x": 761,
+      "y": 547
+    },
+    {
       "control": null,
-      "id": 1,
+      "id": 12,
+      "name": "a-splitter",
+      "val": null,
+      "x": 909,
+      "y": 404
+    },
+    {
+      "control": "gain",
+      "id": 11,
+      "max_val": 3.0,
+      "min_val": 0.0,
+      "name": "cc-in",
+      "val": 0.3,
+      "x": 655,
+      "y": 452
+    },
+    {
+      "control": null,
+      "id": 10,
+      "name": "amp",
+      "val": null,
+      "x": 757,
+      "y": 296
+    },
+    {
+      "control": "note",
+      "id": 9,
       "name": "midi-in",
       "val": null,
-      "x": 0.0,
-      "y": 0.0
+      "x": 120,
+      "y": 176
     },
     {
       "control": null,
       "id": 2,
       "name": "saw-osc",
       "val": null,
-      "x": 85.0,
-      "y": 76.0
+      "x": 338,
+      "y": 124
     },
     {
       "control": null,
       "id": 3,
       "name": "adsr-env",
       "val": null,
-      "x": 187.0,
-      "y": 179.0
+      "x": 573,
+      "y": 275
     },
     {
       "control": null,
       "id": 4,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 1,
-      "x": 6.0,
-      "y": 165.0
+      "val": 0.03000000000000001,
+      "x": 336,
+      "y": 235
     },
     {
       "control": null,
       "id": 5,
+      "max_val": 20.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 10,
-      "x": 13.0,
-      "y": 218.0
+      "val": 0.2,
+      "x": 320,
+      "y": 341
     },
     {
       "control": null,
       "id": 6,
+      "max_val": 2.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 60,
-      "x": 15.0,
-      "y": 278.0
+      "val": 0.2,
+      "x": 303,
+      "y": 456
     },
     {
       "control": null,
       "id": 7,
+      "max_val": 5.0,
+      "min_val": 0.0,
       "name": "const",
-      "val": 30,
-      "x": 21.0,
-      "y": 331.0
+      "val": 0.6,
+      "x": 295,
+      "y": 569
     },
     {
       "control": null,
       "id": 8,
       "name": "audio-out",
       "val": null,
-      "x": 433.0,
-      "y": 266.0
+      "x": 1084,
+      "y": 295
     }
   ]
 }

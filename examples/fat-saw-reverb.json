@@ -254,8 +254,8 @@
     }
   ],
   "frame": {
-    "height": 600.0,
-    "width": 1007.0
+    "width": 2400,
+    "height": 1600
   },
   "master_vol": 0.3,
   "nodes": [
@@ -264,176 +264,188 @@
       "id": 2,
       "name": "c-splitter",
       "val": null,
-      "x": 102.0,
-      "y": 20.0
+      "x": 66,
+      "y": 171
     },
     {
       "control": null,
       "id": 3,
       "name": "saw-osc",
       "val": null,
-      "x": 357.0,
-      "y": 35.0
+      "x": 394,
+      "y": 12
     },
     {
       "control": null,
       "id": 4,
       "name": "saw-osc",
       "val": null,
-      "x": 353.0,
-      "y": 349.0
+      "x": 414,
+      "y": 320
     },
     {
       "control": null,
       "id": 5,
       "name": "pct-add",
       "val": null,
-      "x": 207.0,
-      "y": 127.0
+      "x": 252,
+      "y": 217
     },
     {
       "control": null,
       "id": 6,
+      "max_val": 1.99,
+      "min_val": 0.0,
       "name": "const",
       "val": 0.995,
-      "x": 23.0,
-      "y": 165.0
+      "x": 0,
+      "y": 300
     },
     {
       "control": null,
       "id": 7,
       "name": "audio-out",
       "val": null,
-      "x": 865.0,
-      "y": 278.0
-    },
-    {
-      "control": null,
-      "id": 11,
-      "name": "const",
-      "val": 1,
-      "x": 600.0,
-      "y": 179.0
+      "x": 1084,
+      "y": 152
     },
     {
       "control": null,
       "id": 12,
       "name": "amp",
       "val": null,
-      "x": 795.0,
-      "y": 149.0
+      "x": 934,
+      "y": 57
     },
     {
       "control": "gain",
       "id": 13,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.3,
-      "x": 615.0,
-      "y": 257.0
+      "x": 776,
+      "y": 258
     },
     {
       "control": "note",
       "id": 14,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
-      "val": null,
-      "x": 42.0,
-      "y": 36.0
+      "val": 64.0,
+      "x": 4,
+      "y": 23
     },
     {
       "control": null,
       "id": 15,
       "name": "note-freq",
       "val": null,
-      "x": 42.0,
-      "y": 36.0
+      "x": 239,
+      "y": 391
     },
     {
       "control": null,
       "id": 16,
       "name": "note-freq",
       "val": null,
-      "x": 42.0,
-      "y": 36.0
+      "x": 207,
+      "y": 48
     },
     {
       "control": null,
       "id": 17,
       "name": "amp",
       "val": null,
-      "x": 795.0,
-      "y": 149.0
+      "x": 1032,
+      "y": 369
     },
     {
       "control": "gain",
       "id": 18,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.3,
-      "x": 42.0,
-      "y": 36.0
+      "x": 911,
+      "y": 563
     },
     {
       "control": null,
       "id": 19,
       "name": "freeverb",
       "val": null,
-      "x": 795.0,
-      "y": 149.0
+      "x": 768,
+      "y": 0
     },
     {
       "control": null,
       "id": 20,
       "name": "freeverb",
       "val": null,
-      "x": 795.0,
-      "y": 149.0
+      "x": 865,
+      "y": 416
     },
     {
       "control": null,
       "id": 21,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.7,
-      "x": 615.0,
-      "y": 257.0
+      "x": 588,
+      "y": 171
     },
     {
       "control": null,
       "id": 22,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.7,
-      "x": 615.0,
-      "y": 257.0
+      "x": 591,
+      "y": 521
     },
     {
       "control": null,
       "id": 23,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.0,
-      "x": 615.0,
-      "y": 257.0
+      "x": 583,
+      "y": 263
     },
     {
       "control": null,
       "id": 24,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.0,
-      "x": 615.0,
-      "y": 257.0
+      "x": 601,
+      "y": 628
     },
     {
       "control": null,
       "id": 25,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.9,
-      "x": 615.0,
-      "y": 257.0
+      "x": 576,
+      "y": 74
     },
     {
       "control": null,
       "id": 26,
+      "max_val": 127.0,
+      "min_val": 0.0,
       "name": "cc-in",
       "val": 0.9,
-      "x": 615.0,
-      "y": 257.0
+      "x": 596,
+      "y": 418
     }
   ]
 }
