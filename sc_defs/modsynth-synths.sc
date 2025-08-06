@@ -154,11 +154,11 @@ SynthDef("val-add", {arg in = 55, out_control = 65, val = 0;
 }).writeDefFile(~dir);
 
 SynthDef("adsr-env", {arg in = 55, out_audio = 65, attack = 0.1, decay = 0.2, sustain = 0.1, release = 1, gate = 1;
-	Out.ar(out_audio, In.ar(in) * Env.adsr(In.kr(attack), In.kr(decay), In.kr(sustain), In.kr(release)).kr(2, gate));
+	Out.ar(out_audio, In.ar(in) * Env.adsr(In.kr(attack), In.kr(decay), In.kr(sustain), In.kr(release)).kr(0, gate));
 }).writeDefFile(~dir);
 
 SynthDef("perc-env", {arg in = 55, out_audio = 65, attack = 0.1,  release = 1, gate = 1;
-	Out.ar(out_audio, In.ar(in) * Env.perc(In.kr(attack), In.kr(release)).kr(2, gate));
+	Out.ar(out_audio, In.ar(in) * Env.perc(In.kr(attack), In.kr(release)).kr(0, gate));
 }).writeDefFile(~dir);
 
 SynthDef("freeverb", {arg in = 55, out_audio = 65, wet_dry = 0.5,  room_size = 0.3, dampening = 0.3;
