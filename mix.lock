@@ -6,10 +6,10 @@
   "erlex": {:hex, :erlex, "0.2.6", "c7987d15e899c7a2f34f5420d2a2ea0d659682c06ac607572df55a43753aa12e", [:mix], [], "hexpm", "2ed2e25711feb44d52b17d2780eabf998452f6efda104877a3881c2f8c0c0c75"},
   "jason": {:hex, :jason, "1.4.1", "af1504e35f629ddcdd6addb3513c3853991f694921b1b9368b0bd32beb9f1b63", [:mix], [{:decimal, "~> 1.0 or ~> 2.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm", "fbb01ecdfd565b56261302f7e1fcc27c4fb8f32d56eab74db621fc154604a7a1"},
   "libgraph": {:hex, :libgraph, "0.16.0", "3936f3eca6ef826e08880230f806bfea13193e49bf153f93edcf0239d4fd1d07", [:mix], [], "hexpm", "41ca92240e8a4138c30a7e06466acc709b0cbb795c643e9e17174a178982d6bf"},
-  "midi_in": {:git, "https://github.com/bwanab/midi_in.git", "42f40711c14a67e84f74a7a8537a8e747f01217e", []},
+  "midi_in": {:git, "https://github.com/bwanab/midi_in.git", "e99fd2ba5e3591012252887dead68eed4d0aa082", []},
   "midiex": {:hex, :midiex, "0.6.3", "58b5296010d2bb356884b1f370e24a6556d115b828f7c198e78623611154be25", [:mix], [{:rustler, "~> 0.29.0", [hex: :rustler, repo: "hexpm", optional: true]}, {:rustler_precompiled, "~> 0.6", [hex: :rustler_precompiled, repo: "hexpm", optional: false]}], "hexpm", "76358a920880106fec46d123385193f26d1dd8b2b1379148ced9b48e42c6484d"},
   "midifile": {:git, "https://github.com/bwanab/elixir-midifile.git", "4f8041d38214591d61d56f3088d52be8fce04e99", []},
-  "music_build": {:git, "https://github.com/bwanab/music_build.git", "2312b5ba05efd22323df9ece9d6ce30def7d469e", []},
-  "music_prims": {:git, "https://github.com/bwanab/music_prims.git", "291a17eed8eb4e5c7c46c65f666b3d1d1f033b9f", []},
+  "music_build": {:git, "https://github.com/bwanab/music_build.git", "4a5834d4460f5dda3b766b9cf0d9c37889b44451", []},
+  "music_prims": {:git, "https://github.com/bwanab/music_prims.git", "382f2ac2352796ef43029541ad0b168f8d4beb6e", []},
   "rustler_precompiled": {:hex, :rustler_precompiled, "0.8.2", "5f25cbe220a8fac3e7ad62e6f950fcdca5a5a5f8501835d2823e8c74bf4268d5", [:mix], [{:castore, "~> 0.1 or ~> 1.0", [hex: :castore, repo: "hexpm", optional: false]}, {:rustler, "~> 0.23", [hex: :rustler, repo: "hexpm", optional: true]}], "hexpm", "63d1bd5f8e23096d1ff851839923162096364bac8656a4a3c00d1fff8e83ee0a"},
 }
