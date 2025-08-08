@@ -49,19 +49,15 @@ defmodule Modsynth.Connection do
 end
 
 defmodule Modsynth.InputControl do
-  defstruct connection_name: "",
-            node_id: 0,
+  defstruct node_id: 0,
             sc_id: 0,
             control_name: "",
-            input_name: "",
             midi_control: nil
 
    @type t :: %__MODULE__{
-            connection_name: String.t(),
             sc_id: integer(),
             node_id: integer(),
             control_name: String.t(),
-            input_name: String.t(),
             midi_control: atom() | nil
    }
 end
@@ -72,6 +68,8 @@ defmodule Modsynth do
   alias Modsynth.Node
   alias Modsynth.Node_Param
   alias Modsynth.Connection
+
+  @external_controls [{"gain",  "gain"}, {"midi-in", "note"}, {"midi-in-note", "note"}] |> Enum.into(%{})
 
   @doc """
   play an instrument definition file. There are several in the examples directory.
@@ -93,7 +91,7 @@ defmodule Modsynth do
       |> read_file(fname)
       |> build_modules(gate_register)
 
-    {set_up_controls(node_map, connections, device), node_map, connections}
+    {set_up_controls(node_map, device), node_map, connections}
   end
 
   def play(synth_data, device, gate_register) do
@@ -101,7 +99,7 @@ defmodule Modsynth do
     MidiInClient.stop_midi()
 
     {node_map, connections} = build_modules(synth_data, gate_register)
-    {set_up_controls(node_map, connections, device), node_map, connections}
+    {set_up_controls(node_map, device), node_map, connections}
   end
 
   @spec look(binary()) ::
@@ -163,7 +161,7 @@ defmodule Modsynth do
   end
 
   def specs_to_data(synths, ms) do
-      node_specs =
+      all_node_specs =
         Enum.map(ms["nodes"], fn x ->
               {x["id"],
               Enum.map(x, fn {k, v} ->
@@ -175,6 +173,11 @@ defmodule Modsynth do
         )
         |> Enum.into(%{})
 
+
+      node_specs = Enum.filter(all_node_specs, fn {_id, spec} -> not is_nil(Map.get(synths, spec.name)) end)
+      |> Enum.into(%{})
+      bad_node_specs = Enum.filter(all_node_specs, fn {_id, spec} -> is_nil(Map.get(synths, spec.name)) end)
+      Enum.each(bad_node_specs, fn {_id, spec} -> Logger.debug("No such node: #{spec.name}") end)
 
       nodes =
         Enum.map(
@@ -245,25 +248,22 @@ defmodule Modsynth do
       connections
       |> Enum.map(fn connection -> connect_nodes(node_map, connection) end)
 
+    IO.inspect(node_map)
     {node_map, full_connections}
   end
 
-  @spec set_up_controls(%{required(integer) => Node}, [Connection], String.t()) :: [InputControl]
-  def set_up_controls(node_map, full_connections, device) do
-    full_connections
-    |> Enum.filter(fn connection ->
-      is_external_control(node_map[connection.from_node_param.node_id].name)
+  @spec set_up_controls(%{required(integer) => Node}, String.t()) :: [InputControl]
+  def set_up_controls(node_map, device) do
+    node_map
+    |> Enum.filter(fn {_id, node} ->
+      is_external_control(node.name)
     end)
-    |> Enum.map(fn connection -> handle_midi_connection(node_map, connection, device) end)
-    |> Enum.map(fn connection ->
-      from_node = node_map[connection.from_node_param.node_id]
-
-      %InputControl{connection_name: connection.desc,
-                    node_id: from_node.node_id,
-                    sc_id: from_node.sc_id,
-                    control_name: List.first(List.first(from_node.parameters)),
-                    input_name: connection.to_node_param.param_name,
-                    midi_control: from_node.control}
+    |> Enum.map(fn {_id, node} -> handle_midi_connection(node, device) end)
+    |> Enum.map(fn node ->
+      %InputControl{node_id: node.node_id,
+                    sc_id: node.sc_id,
+                    control_name: Map.get(@external_controls, node.name),
+                    midi_control: node.control}
     end)
   end
 
@@ -276,23 +276,14 @@ defmodule Modsynth do
   #   end
   # end
 
-  @spec handle_midi_connection(%{required(integer) => Node}, %Connection{}, String.t()) :: %Connection{}
-  def handle_midi_connection(nodes, connection, device) do
-    %Connection{
-      from_node_param: %Node_Param{
-        node_id: node_id
-      }
-    } = connection
-
-    node = nodes[node_id]
-    # Logger.info("handle_midi_connection: #{node.name}")
-    cond do
-      node.control == :note ->
+  @spec handle_midi_connection(%Node{}, String.t()) :: %Node{}
+  def handle_midi_connection(node, device) do
+    case Map.get(@external_controls, node.name) do
+      "note" ->
         # Logger.info("handle_midi_connection: #{node.sc_id}")
-        param_name = node.parameters |> List.first() |> List.first()
-        MidiInClient.start_midi(node.sc_id, param_name, &ScClient.set_control/3, device)
+        MidiInClient.start_midi(node.sc_id, "note", &ScClient.set_control/3, device)
 
-      node.control == :gain ->
+      "gain" ->
         MidiInClient.register_cc(2, node.sc_id, "in")
         MidiInClient.register_cc(7, node.sc_id, "in")
 
@@ -306,13 +297,19 @@ defmodule Modsynth do
       ScClient.set_control(node.sc_id, "in", node.val)
     end
 
-    connection
+    node
   end
 
   @spec parse_connections(%{required(integer) => Node}, [Connection]) :: [Connection]
   def parse_connections(nodes, connections) do
-    Enum.map(
-      connections,
+    Enum.filter(connections,
+      fn %{"from_node" => from, "to_node" => to} ->
+        from_id = from["id"]
+        to_id = to["id"]
+        not is_nil(nodes[from_id]) and not is_nil(nodes[to_id])
+      end)
+
+    |> Enum.map(
       fn %{"from_node" => from, "to_node" => to} ->
         from_id = from["id"]
         to_id = to["id"]
@@ -339,13 +336,11 @@ defmodule Modsynth do
     )
   end
 
+
+
   @spec is_external_control(String.t()) :: boolean
   def is_external_control(name) do
-    String.starts_with?(name, "const") ||
-      String.starts_with?(name, "slider") ||
-      String.starts_with?(name, "cc-cont-in") ||
-      String.starts_with?(name, "cc-in") ||
-      String.starts_with?(name, "midi-in")
+    not is_nil(Map.get(@external_controls, name))
   end
 
   @doc """
@@ -358,25 +353,31 @@ defmodule Modsynth do
   def get_synth_vals(dir) do
     File.ls!(dir)
     |> Enum.map(fn fname -> get_one_synth_vals(dir <> "/" <> fname) end)
+    |> Enum.filter(fn s -> not is_nil(s) end)
     |> Enum.into(%{})
   end
 
   @spec get_one_synth_vals(String.t()) :: {String.t(), {[any()], :audio | :control}}
   def get_one_synth_vals(fname) do
+    Logger.debug("get_one_synth_vals: #{fname}")
     synth = ReadSynthDef.read_file(fname) |> Map.get(:synth_defs) |> List.first()
-    synth_name = synth.name
-    synth_vals = synth.parameter_vals
+    if is_nil(synth) do
+      nil
+    else
+      synth_name = synth.name
+      synth_vals = synth.parameter_vals
 
-    synth_parameters =
-      Enum.map(synth.parameter_names, fn {parm, order} -> [parm, Enum.at(synth_vals, order)] end)
+      synth_parameters =
+        Enum.map(synth.parameter_names, fn {parm, order} -> [parm, Enum.at(synth_vals, order)] end)
 
-    synth_out_type =
-      case Enum.find(synth.ugens, fn x -> x.ugen_name == "Out" end).calc_rate do
-        1 -> :control
-        2 -> :audio
-      end
+      synth_out_type =
+        case Enum.find(synth.ugens, fn x -> x.ugen_name == "Out" end).calc_rate do
+          1 -> :control
+          2 -> :audio
+        end
 
-    {synth_name, {synth_parameters, synth_out_type}}
+      {synth_name, {synth_parameters, synth_out_type}}
+    end
   end
 
   @spec get_bus(:audio | :control, String.t()) :: integer
@@ -405,18 +406,8 @@ defmodule Modsynth do
 
   @spec get_module({[[]], Atom}, String.t()) :: %Node{} | 0
   def get_module(synths, name) do
-    synth_name =
-      case name do
-        "cc-cont-in" -> "cc-in"
-        "cc-disc-in" -> "cc-in"
-        "doc-node" -> ""
-        "midi-in2" -> "midi-in"
-        "piano-in" -> "midi-in"
-        "rand-pent" -> ""
-        "slider-ctl" -> "const"
-        _ -> name
-      end
-
+    Logger.debug("get_module: #{name}")
+    synth_name = name
     if synth_name != "" do
       {synth_params, bus_type} = synths[synth_name]
       %Node{name: synth_name, parameters: synth_params, bus_type: bus_type}
@@ -453,8 +444,8 @@ defmodule Modsynth do
   end
 
   def get_all_input_controls(controls) do
-    Enum.map(controls, fn %InputControl{connection_name: name, sc_id: sc_id, control_name: control_name} ->
-      {name, sc_id, control_name, ScClient.get_control_val(sc_id, control_name)}
+    Enum.map(controls, fn %InputControl{sc_id: sc_id, control_name: control_name} ->
+      {sc_id, control_name, ScClient.get_control_val(sc_id, control_name)}
     end)
   end
 
