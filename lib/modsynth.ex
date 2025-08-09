@@ -284,8 +284,8 @@ defmodule Modsynth do
         MidiInClient.start_midi(node.sc_id, "note", &ScClient.set_control/3, device)
 
       "gain" ->
-        MidiInClient.register_cc(2, node.sc_id, "in")
-        MidiInClient.register_cc(7, node.sc_id, "in")
+        MidiInClient.register_cc(2, node.sc_id, "gain")
+        MidiInClient.register_cc(7, node.sc_id, "gain")
 
       # ScClient.set_control(node.sc_id, "in", 0.1) # don't want to start too loud
       true ->
@@ -294,7 +294,7 @@ defmodule Modsynth do
 
     if !is_nil(node.val) do
       # Logger.info("set_control(#{node.sc_id}, in, #{node.val})")
-      ScClient.set_control(node.sc_id, "in", node.val)
+      ScClient.set_control(node.sc_id, "gain", node.val)
     end
 
     node
