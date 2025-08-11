@@ -87,7 +87,7 @@ defmodule OSC do
     length = String.length(s)
 
     if length < 4 do
-      Logger.info("Error: too few bytes for double #{s} #{length}")
+      # Logger.info("Error: too few bytes for double #{s} #{length}")
       {0.0, <<>>}
     else
       # bin = String.slice(s, 0..3)
@@ -175,7 +175,7 @@ defmodule OSC do
 
   @spec encode(any, [any]) :: binary
   def encode(addr, data) do
-    Logger.debug("Encode addr = #{inspect(addr)} data = #{inspect(data)}")
+    # Logger.debug("Encode addr = #{inspect(addr)} data = #{inspect(data)}")
     write_string(addr) <> write_vals(data)
   end
 

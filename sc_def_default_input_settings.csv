@@ -1,5 +1,5 @@
 sc_def_name,control_name,current_val,min_val,max_val
-a-spltter,pos,0,-1,1
+a-splitter,adj_pos,0,-1,1
 a-splitter,lev,1,0,2
 amp,gain,0.5,0,2
 rand-in,lo,0,-1000,1000

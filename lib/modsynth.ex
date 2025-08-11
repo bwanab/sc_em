@@ -272,7 +272,7 @@ defmodule Modsynth do
 
     IO.inspect(node_map)
     IO.inspect(full_connections)
-    set_initial_values(node_map)
+    #set_initial_values(node_map)
     {node_map, full_connections}
   end
 
