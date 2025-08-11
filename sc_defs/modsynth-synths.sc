@@ -19,9 +19,9 @@ SynthDef("c-splitter", {arg out_1 = 65, out_2 = 66, in = 55;
 // 	Out.ar([ob1, ob2], Pan2.ar(In.ar(in), In.kr(pos), In.kr(lev)));
 // }).writeDefFile(~dir)
 
-SynthDef("a-splitter", {arg out_1 = 65, out_2 = 66, in = 55, pos = 0, lev = 1;
+SynthDef("a-splitter", {arg out_1 = 65, out_2 = 66, in = 55, pos = 0, adj_pos = 0, lev = 1;
 	var sig = In.ar(in) * lev;
-	var v1 = (1 - pos) / 2;
+	var v1 = (1 - (In.kr(pos) + adj_pos)) / 2;
 	var v2 = 1 - v1;
 	Out.ar(out_1, sig * v1.sqrt);
 	Out.ar(out_2, sig * v2.sqrt);
