@@ -73,8 +73,8 @@ SynthDef("s_sin-osc", {arg freq = 55, out_audio = 65;
 	Out.ar(out_audio, SinOsc.ar(In.kr(freq)));
 }).writeDefFile(~dir);
 
-SynthDef("sin-vco", {arg freq = 55, out_control = 65;
-	Out.kr(out_control, SinOsc.kr(In.kr(freq)));
+SynthDef("sin-vco", {arg freq = 2, out_control = 65;
+	Out.kr(out_control, SinOsc.ar(freq));
 }).writeDefFile(~dir);
 
 // SynthDef("flute", {arg freq = 55, sig = 65;
