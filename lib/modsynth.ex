@@ -110,10 +110,6 @@ defmodule Modsynth do
 
   @spec init() :: %{required(String.t()) => {[[]], Atom}}
   def init() do
-    if Logger.level() == :debug do
-      stacktrace = Process.info(self(), :current_stacktrace)
-      IO.inspect(stacktrace)
-    end
 
     MidiIn.start(0, 0)
     ScClient.group_free(1)
@@ -175,9 +171,11 @@ defmodule Modsynth do
 
 
       node_specs = Enum.filter(all_node_specs, fn {_id, spec} -> not is_nil(Map.get(synths, spec.name)) end)
-      |> Enum.into(%{})
-      bad_node_specs = Enum.filter(all_node_specs, fn {_id, spec} -> is_nil(Map.get(synths, spec.name)) end)
-      Enum.each(bad_node_specs, fn {_id, spec} -> Logger.debug("No such node: #{spec.name}") end)
+                   |> Enum.into(%{})
+      if Logger.level() == :debug do
+          bad_node_specs = Enum.filter(all_node_specs, fn {_id, spec} -> is_nil(Map.get(synths, spec.name)) end)
+          Enum.each(bad_node_specs, fn {_id, spec} -> Logger.debug("No such node: #{spec.name}") end)
+      end
 
       nodes =
         Enum.map(
@@ -185,12 +183,36 @@ defmodule Modsynth do
           fn k -> {k, get_module(synths, node_specs[k].name), node_specs[k]} end
         )
         |> Enum.map(fn {k, node, specs} ->
-          {k, %{node | node_id: k, val: specs.val, control: specs.control, x: specs.x, y: specs.y}}
+          {k, %{node | node_id: k, val: specs.val, control: specs.control, x: specs.x, y: specs.y, parameters: set_parameters_from_specs(node.parameters, specs)}}
         end)
         |> Enum.into(%{})
 
       connections = parse_connections(nodes, ms["connections"])
       {nodes, connections, {ms["frame"]["width"], ms["frame"]["height"]}}
+  end
+
+  @spec set_parameters_from_specs([], %{}) :: []
+  def set_parameters_from_specs(node_params, specs) do
+    case Map.get(specs, :params) do
+      nil -> node_params
+      specs_map ->
+        Enum.map(node_params, fn [name, val] ->
+          case Map.get(specs_map, name) do
+            nil -> [name, val]
+            s ->
+              IO.inspect("#{specs.name} #{name} #{Map.get(s, "val", "not found")}")
+              [name, Map.get(s, "val", val)]
+          end
+        end)
+    end
+  end
+
+  def set_initial_values(node_map) do
+    Enum.each(node_map, fn {_i, %Node{sc_id: sc_id, parameters: parameters}} ->
+      Enum.each(parameters, fn [name, val] ->
+        ScClient.set_control(sc_id, name, val)
+      end)
+    end)
   end
 
   @spec map_nodes_by_node_id([Node]) :: %{required(integer) => Node}
@@ -249,6 +271,8 @@ defmodule Modsynth do
       |> Enum.map(fn connection -> connect_nodes(node_map, connection) end)
 
     IO.inspect(node_map)
+    IO.inspect(full_connections)
+    set_initial_values(node_map)
     {node_map, full_connections}
   end
 
@@ -400,7 +424,7 @@ defmodule Modsynth do
     ScClient.set_control(to_node.sc_id, to.param_name, bus)
     c = %Connection{connection | bus_id: bus}
 
-    # Logger.info("connect_nodes #{desc}, #{from_node.sc_id}, #{inspect(List.first(from_node.parameters))} #{bus}")
+    Logger.info("connect_nodes #{desc}, #{from_node.sc_id}, #{inspect(List.first(from_node.parameters))} #{bus}")
     c
   end
 
