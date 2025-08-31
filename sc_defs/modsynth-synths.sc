@@ -54,7 +54,7 @@ SynthDef("midi-in-note", {arg note = 69, out_note = 65;
 // }).writeDefFile(~dir);
 
 SynthDef("note-freq", {arg note = 55, out_freq = 65;
-	Out.kr(out_freq, midicps(note));
+	Out.kr(out_freq, midicps(In.kr(note)));
 }).writeDefFile(~dir);
 
 SynthDef("amp", {arg in = 0, out_audio = 0, gain = 0.3;
@@ -105,9 +105,9 @@ SynthDef("rand-in", {arg out_val = 65, lo = 0, hi = 0, trig = 0;
 	Out.ar(out_val, TRand.ar(low, high, trigger));
 }).writeDefFile(~dir);
 
-SynthDef("square-osc", {arg freq = 55, out_audio = 56, width = 0.5;
-	var w = width / 2 + 0.5;
-	Out.ar(out_audio, Pulse.ar(In.kr(freq),  * w));
+SynthDef("square-osc", {arg freq = 55, out_audio = 56, width = 0, adj_width = 0.5;
+	var w = In.kr(width) + adj_width;
+	Out.ar(out_audio, Pulse.ar(In.kr(freq), w));
 }).writeDefFile(~dir);
 
 
@@ -132,12 +132,13 @@ SynthDef("hp-filt", {arg in = 55, out_audio = 65, cutoff = 300;
 	Out.ar(out_audio, HPF.ar(In.ar(in), cutoff * 40));
 }).writeDefFile(~dir);
 
-SynthDef("bp-filt", {arg in = 55, out_audio = 65, freq = 300, q = 1;
-	Out.ar(out_audio, BPF.ar(In.ar(in), freq, q));
+SynthDef("bp-filt", {arg in = 55, out_audio = 65, freq = 300, adj_freq = 0, q = 1;
+	Out.ar(out_audio, BPF.ar(In.ar(in), In.kr(freq) + adj_freq, q));
 }).writeDefFile(~dir);
 
-SynthDef("moog-filt", {arg in = 55, out_audio = 65, cutoff = 300, lpf_res = 1;
-	Out.ar(out_audio, MoogFF.ar(In.ar(in), cutoff, lpf_res, 0, 2));
+SynthDef("moog-filt", {arg in = 55, out_audio = 65, cutoff = 1200, adj_cutoff = 0, lpf_res = 1;
+	var cutoff_freq = In.kr(cutoff) + adj_cutoff;
+ 	Out.ar(out_audio, MoogFF.ar(In.ar(in), cutoff_freq, lpf_res, 0, 2));
 }).writeDefFile(~dir);
 
 SynthDef("c-scale", {arg in = 55, out_control = 65, in_lo = -1, in_hi = 1, lo = 10, hi = 100;
@@ -157,12 +158,12 @@ SynthDef("val-add", {arg in = 55, out_control = 65, val = 0;
 	Out.kr(out_control, In.kr(in) + val);
 }).writeDefFile(~dir);
 
-SynthDef("adsr-env", {arg in = 55, out_audio = 65, attack = 0.01, decay = 0.2, sustain = 0.1, release = 1, gate = 1;
-	Out.ar(out_audio, In.ar(in) * Env.adsr(attack, decay, sustain, release).kr(0, gate));
+SynthDef("adsr-env", {arg in = 55, out_audio = 65, attack = 0.01, decay = 0.2, sustain = 0.1, release = 1, peak_level = 2, gate = 1;
+	Out.ar(out_audio, In.ar(in) * Env.adsr(attack, decay, sustain, release, peak_level).kr(0, gate));
 }).writeDefFile(~dir);
 
-SynthDef("perc-env", {arg in = 55, out_audio = 65, attack = 0.1,  release = 1, gate = 1;
-	Out.ar(out_audio, In.ar(in) * Env.perc(attack, release).kr(0, gate));
+SynthDef("perc-env", {arg in = 55, out_audio = 65, attack = 0.01,  release = 1, peak_level = 2, gate = 1;
+	Out.ar(out_audio, In.ar(in) * Env.perc(attack, release, peak_level).kr(0, gate));
 }).writeDefFile(~dir);
 
 SynthDef("freeverb", {arg in = 55, out_audio = 65, wet_dry = 0.5,  room_size = 0.3, dampening = 0.3;
