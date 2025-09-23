@@ -163,7 +163,7 @@ SynthDef("adsr-env", {arg in = 55, out_audio = 65, attack = 0.01, decay = 0.2, s
 }).writeDefFile(~dir);
 
 SynthDef("perc-env", {arg in = 55, out_audio = 65, attack = 0.01,  release = 1, peak_level = 2, gate = 1;
-	Out.ar(out_audio, In.ar(in) * Env.perc(attack, release, peak_level).kr(0, gate));
+	Out.ar(out_audio, In.ar(in) * EnvGen.kr(Env.perc(attack, release, peak_level), gate, doneAction: 0));
 }).writeDefFile(~dir);
 
 SynthDef("freeverb", {arg in = 55, out_audio = 65, wet_dry = 0.5,  room_size = 0.3, dampening = 0.3;
