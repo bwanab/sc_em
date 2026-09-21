@@ -21,7 +21,8 @@ Logger.configure(level: :info)
 args = ArgsConfig.from_args(System.argv())
 synthfile = args.synthfile
 
-note = Note.new(:C, octave: 3, duration: 100)
+#################################
+note = Note.new(:C, octave: 3, duration: 500)
 stm = %{0 => STrack.new([note], name: "long_note", tpqn: 960, type: :instrument, program_number: 73, bpm: 100)}
 
 port_name = "modsynth"

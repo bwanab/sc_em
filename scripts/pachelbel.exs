@@ -4,7 +4,7 @@ Mix.install([
 Mix.Task.run("loadconfig")
 
 defmodule ArgsConfig do
-  defstruct synthfile: "examples/fat-saw3.json", repeats: 3
+  defstruct synthfile: "examples/fat-saw-4.json", repeats: 3
 
   def from_args(args) do
     {opts, _args, _invalid} = OptionParser.parse(args,
@@ -22,7 +22,7 @@ args = ArgsConfig.from_args(System.argv())
 repeats = args.repeats
 synthfile = args.synthfile
 
-
+#################################
 chords = MusicBuild.Examples.ArpeggioProgressions.build_chords([:I, :V, :vi, :iii, :IV, :I, :IV, :V], :C, 3, 1, 0)
 patterns = [
   [4,1,2,3],
@@ -38,6 +38,8 @@ arpeggios = (Enum.map(Enum.zip(chords, patterns), fn {c, p} -> Arpeggio.new(c, p
             |> List.duplicate(repeats)
             |> List.flatten)
 stm = %{0 => STrack.new(arpeggios, name: "arpeggios", tpqn: 960, type: :instrument, program_number: 73, bpm: 100)}
+#################################
+
 
 port_name = "modsynth"
 port = Midiex.create_virtual_output(port_name)
